@@ -1,0 +1,223 @@
+/* ------------------------------
+   Fonts & Imports (MUST be first)
+---------------------------------*/
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap");
+
+/* ------------------------------
+   Tailwind (after imports)
+---------------------------------*/
+@import "tailwindcss";
+
+/* --------------------------------
+   Base layer: design tokens & resets
+-----------------------------------*/
+@layer base {
+    :root {
+        /* Light Mode - Refined Purple/Violet Theme */
+        --color-background: #fafafa;
+        --color-surface: #ffffff;
+        --color-surface-elevated: #ffffff;
+        --color-border: #e5e7eb;
+        --color-border-strong: #d1d5db;
+
+        --color-text-primary: #111827;
+        --color-text-secondary: #6b7280;
+        --color-text-tertiary: #9ca3af;
+
+        --color-brand-50: #faf5ff;
+        --color-brand-100: #f3e8ff;
+        --color-brand-200: #e9d5ff;
+        --color-brand-300: #d8b4fe;
+        --color-brand-400: #c084fc;
+        --color-brand-500: #a855f7;
+        --color-brand-600: #9333ea;
+        --color-brand-700: #7e22ce;
+        --color-brand-800: #6b21a8;
+        --color-brand-900: #581c87;
+
+        --color-accent-50: #fdf4ff;
+        --color-accent-500: #d946ef;
+        --color-accent-600: #c026d3;
+
+        --color-success: #10b981;
+        --color-error: #ef4444;
+        --color-warning: #f59e0b;
+
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, .04);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, .08), 0 2px 4px -2px rgba(0, 0, 0, .04);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, .1), 0 4px 6px -4px rgba(0, 0, 0, .05);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, .12), 0 8px 10px -6px rgba(0, 0, 0, .06);
+        --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, .25);
+
+        --glass-bg: rgba(255, 255, 255, .8);
+        --glass-border: rgba(255, 255, 255, .2);
+    }
+
+    .dark {
+        /* Dark Mode - Deep Purple/Slate Theme */
+        --color-background: #030712;
+        --color-surface: #111827;
+        --color-surface-elevated: #1f2937;
+        --color-border: #1f2937;
+        --color-border-strong: #374151;
+
+        --color-text-primary: #f9fafb;
+        --color-text-secondary: #d1d5db;
+        --color-text-tertiary: #6b7280;
+
+        --color-brand-50: #1e1b4b;
+        --color-brand-100: #312e81;
+        --color-brand-200: #4c1d95;
+        --color-brand-300: #6b21a8;
+        --color-brand-400: #7e22ce;
+        --color-brand-500: #9333ea;
+        --color-brand-600: #a855f7;
+        --color-brand-700: #c084fc;
+        --color-brand-800: #d8b4fe;
+        --color-brand-900: #e9d5ff;
+
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, .5);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, .6), 0 2px 4px -2px rgba(0, 0, 0, .5);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, .7), 0 4px 6px -4px rgba(0, 0, 0, .6);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, .8), 0 8px 10px -6px rgba(0, 0, 0, .7);
+        --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, .9);
+
+        --glass-bg: rgba(17, 24, 39, .8);
+        --glass-border: rgba(255, 255, 255, .1);
+    }
+
+    /* Layout base */
+    html, body, #root { height: 100%; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+        scroll-behavior: smooth;
+
+        /* 👇 Prevent page width from changing when the vertical scrollbar appears */
+        scrollbar-gutter: stable both-edges;
+    }
+
+    /* Fallback for older browsers without scrollbar-gutter */
+    @supports not (scrollbar-gutter: stable) {
+        html { overflow-y: scroll; }
+    }
+
+    body {
+        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        @apply bg-[var(--color-background)] text-[var(--color-text-primary)] antialiased;
+        transition: background-color .3s ease, color .3s ease;
+        font-size: 16px;
+        line-height: 1.6;
+
+        /* Better text rendering */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+    }
+
+    ::selection {
+        background: var(--color-brand-200);
+        color: var(--color-text-primary);
+    }
+    .dark ::selection {
+        background: var(--color-brand-800);
+        color: var(--color-text-primary);
+    }
+
+    /* Basic element tweaks */
+    button { cursor: pointer; font-family: inherit; }
+    button:disabled { cursor: not-allowed; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; height: auto; display: block; }
+}
+
+/* --------------------------------
+   Components layer
+-----------------------------------*/
+@layer components {
+    .container-responsive { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+
+    .card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 1rem;
+        box-shadow: var(--shadow-md);
+        transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card:hover {
+        box-shadow: var(--shadow-lg);
+        border-color: var(--color-border-strong);
+        transform: translateY(-2px);
+    }
+
+    .glass-effect {
+        background: var(--glass-bg);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid var(--glass-border);
+    }
+
+    .hover-lift { transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .hover-lift:hover { transform: translateY(-4px); }
+
+    .btn { position: relative; overflow: hidden; isolation: isolate; }
+    .btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg,
+        rgba(255,255,255,0.2) 0%,
+        rgba(255,255,255,0) 50%,
+        rgba(0,0,0,0.1) 100%);
+        opacity: 0;
+        transition: opacity .3s;
+    }
+    .btn:hover::before { opacity: 1; }
+}
+
+/* --------------------------------
+   Utilities layer
+-----------------------------------*/
+@layer utilities {
+    .animate-fade-in { animation: fadeIn .6s ease-out; }
+    .animate-slide-up { animation: slideUp .6s ease-out; }
+    .animate-scale-in { animation: scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+    /* Skeleton Loading */
+    .skeleton {
+        background: linear-gradient(90deg,
+        var(--color-surface-elevated) 25%,
+        var(--color-border) 50%,
+        var(--color-surface-elevated) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Focus Styles */
+    .focus-ring { @apply focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:ring-offset-2; }
+    .dark .focus-ring { @apply focus:ring-offset-[var(--color-background)]; }
+}
+
+/* --------------------------------
+   Custom scrollbar (WebKit/Blink)
+-----------------------------------*/
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--color-background); }
+::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: 6px;
+    border: 3px solid var(--color-background);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-500); }
