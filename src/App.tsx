@@ -24,9 +24,10 @@ import EditProfile from "./pages/Profile/EditProfile";
 import ChangeEmail from "./pages/Profile/ChangeEmail";
 import ConfirmEmailChange from "./pages/Profile/ConfirmEmailChange";
 
-// Writer (NEW)
+// Writer
 import CreatePost from "./pages/Writer/CreatePost";
 import MyPosts from "./pages/Writer/MyPosts";
+import EditPost from "./pages/Writer/EditPost";
 import { RoleGate } from "./components/RoleGate";
 
 function Protected({ children }: { children: React.ReactNode }) {
@@ -103,6 +104,14 @@ export default function App() {
                     element={
                         <RoleGate writerOnly>
                             <MyPosts />
+                        </RoleGate>
+                    }
+                />
+                <Route
+                    path="/writer/edit/:slug"
+                    element={
+                        <RoleGate writerOnly>
+                            <EditPost />
                         </RoleGate>
                     }
                 />

@@ -16,7 +16,7 @@
         /* Light Mode - Refined Purple/Violet Theme */
         --color-background: #fafafa;
         --color-surface: #ffffff;
-        --color-surface-elevated: #ffffff;
+        --color-surface-elevated: #f9fafb;
         --color-border: #e5e7eb;
         --color-border-strong: #d1d5db;
 
@@ -55,15 +55,15 @@
 
     .dark {
         /* Dark Mode - Deep Purple/Slate Theme */
-        --color-background: #030712;
-        --color-surface: #111827;
-        --color-surface-elevated: #1f2937;
-        --color-border: #1f2937;
-        --color-border-strong: #374151;
+        --color-background: #0f172a;
+        --color-surface: #1e293b;
+        --color-surface-elevated: #334155;
+        --color-border: #334155;
+        --color-border-strong: #475569;
 
-        --color-text-primary: #f9fafb;
-        --color-text-secondary: #d1d5db;
-        --color-text-tertiary: #6b7280;
+        --color-text-primary: #f1f5f9;
+        --color-text-secondary: #cbd5e1;
+        --color-text-tertiary: #64748b;
 
         --color-brand-50: #1e1b4b;
         --color-brand-100: #312e81;
@@ -93,12 +93,9 @@
 
     html {
         scroll-behavior: smooth;
-
-        /* 👇 Prevent page width from changing when the vertical scrollbar appears */
         scrollbar-gutter: stable both-edges;
     }
 
-    /* Fallback for older browsers without scrollbar-gutter */
     @supports not (scrollbar-gutter: stable) {
         html { overflow-y: scroll; }
     }
@@ -109,8 +106,6 @@
         transition: background-color .3s ease, color .3s ease;
         font-size: 16px;
         line-height: 1.6;
-
-        /* Better text rendering */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
@@ -131,7 +126,6 @@
         color: var(--color-text-primary);
     }
 
-    /* Basic element tweaks */
     button { cursor: pointer; font-family: inherit; }
     button:disabled { cursor: not-allowed; }
     a { color: inherit; text-decoration: none; }
@@ -154,7 +148,6 @@
     .card:hover {
         box-shadow: var(--shadow-lg);
         border-color: var(--color-border-strong);
-        transform: translateY(-2px);
     }
 
     .glass-effect {
@@ -194,7 +187,6 @@
     @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-    /* Skeleton Loading */
     .skeleton {
         background: linear-gradient(90deg,
         var(--color-surface-elevated) 25%,
@@ -205,7 +197,6 @@
     }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    /* Focus Styles */
     .focus-ring { @apply focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:ring-offset-2; }
     .dark .focus-ring { @apply focus:ring-offset-[var(--color-background)]; }
 }
@@ -221,3 +212,129 @@
     border: 3px solid var(--color-background);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-brand-500); }
+
+/* ================================
+   BlockNote Editor Custom Styling
+=================================*/
+
+/* Editor Wrapper Styling */
+.editor-wrapper {
+    width: 100%;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--color-background);
+    border: 2px solid var(--color-border);
+    transition: all 0.3s ease;
+}
+
+.editor-wrapper:focus-within {
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1);
+}
+
+/* BlockNote Container */
+.blocknote-editor-container {
+    width: 100%;
+    min-height: 400px;
+}
+
+/* Main BlockNote Editor Styles */
+.bn-container {
+    background: var(--color-background) !important;
+    color: var(--color-text-primary) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+/* Editor Content Area */
+.bn-editor {
+    padding: 1.5rem !important;
+    background: var(--color-background) !important;
+    min-height: 400px !important;
+}
+
+/* Block Styling */
+.bn-block-outer {
+    margin-bottom: 0.5rem !important;
+}
+
+.bn-block-content {
+    background: transparent !important;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.bn-block-content:hover {
+    background: var(--color-surface) !important;
+}
+
+/* Text Blocks */
+.bn-inline-content {
+    color: var(--color-text-primary) !important;
+    line-height: 1.7 !important;
+    font-size: 1rem !important;
+}
+
+/* Headings */
+[data-content-type="heading"] h1,
+[data-content-type="heading"] h2,
+[data-content-type="heading"] h3 {
+    color: var(--color-text-primary) !important;
+    font-weight: 700 !important;
+    margin: 1rem 0 0.5rem 0 !important;
+}
+
+[data-content-type="heading"] h1 { font-size: 2rem !important; }
+[data-content-type="heading"] h2 { font-size: 1.5rem !important; }
+[data-content-type="heading"] h3 { font-size: 1.25rem !important; }
+
+/* Links */
+.bn-inline-content a {
+    color: var(--color-brand-600) !important;
+    text-decoration: underline;
+    text-decoration-color: var(--color-brand-300);
+    transition: all 0.2s ease;
+}
+
+.bn-inline-content a:hover {
+    color: var(--color-brand-700) !important;
+    text-decoration-color: var(--color-brand-600);
+}
+
+.dark .bn-inline-content a {
+    color: var(--color-brand-400) !important;
+    text-decoration-color: var(--color-brand-600);
+}
+
+.dark .bn-inline-content a:hover {
+    color: var(--color-brand-300) !important;
+}
+
+/* Code Block */
+.bn-code-block {
+    background: var(--color-surface-elevated) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: 0.75rem !important;
+    padding: 1rem !important;
+    margin: 1rem 0 !important;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+    font-size: 0.875rem !important;
+    line-height: 1.6 !important;
+    color: var(--color-text-primary) !important;
+    overflow-x: auto;
+}
+
+/* Inline Code */
+code {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-brand-600) !important;
+    padding: 0.125rem 0.375rem !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.875em !important;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+}
+
+.dark code {
+    background: var(--color-surface) !important;
+    color: var(--color-brand-400) !important;
+}
+
