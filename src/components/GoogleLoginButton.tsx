@@ -1,76 +1,45 @@
 // src/components/GoogleLoginButton.tsx
+import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { googleLogin } from "../services/auth";
-import { useState, useEffect } from "react";
-
-declare global {
-    interface Window {
-        google: any;
-    }
-}
+import { useState } from "react";
+import api from "../api/api";
 
 export default function GoogleLoginButton({ onError }: { onError?: (s: string) => void }) {
     const { setTokens } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [googleLoaded, setGoogleLoaded] = useState(false);
 
-    useEffect(() => {
-        // Wait for Google Identity Services to load
-        const checkGoogle = setInterval(() => {
-            if (window.google?.accounts?.id) {
-                setGoogleLoaded(true);
-                clearInterval(checkGoogle);
-            }
-        }, 100);
+    const login = useGoogleLogin({
+        onSuccess: async (codeResponse) => {
+            setLoading(true);
+            try {
+                // Send the authorization code to your backend
+                // Your backend will exchange it for tokens and return your app tokens
+                const response = await api.post("/accounts/auth/google-login/", {
+                    code: codeResponse.code
+                });
 
-        return () => clearInterval(checkGoogle);
-    }, []);
-
-    const handleGoogleLogin = () => {
-        if (!googleLoaded) {
-            onError?.("Google Sign-In is still loading. Please wait...");
-            return;
-        }
-
-        setLoading(true);
-
-        // Initialize Google Identity Services
-        window.google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-            callback: async (response: any) => {
-                if (!response.credential) {
-                    setLoading(false);
-                    onError?.("No credential received from Google");
-                    return;
-                }
-
-                try {
-                    const data = await googleLogin(response.credential);
-                    setTokens(data.access, data.refresh);
-                    navigate("/");
-                } catch (err: any) {
-                    const errorMsg = err?.response?.data?.detail || "Google login failed. Please try again.";
-                    onError?.(errorMsg);
-                    setLoading(false);
-                }
-            },
-            auto_select: false,
-        });
-
-        // Trigger the OAuth flow with a popup
-        window.google.accounts.id.prompt((notification: any) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                setTokens(response.data.access, response.data.refresh);
+                navigate("/");
+            } catch (err: any) {
+                console.error('Google login error:', err);
+                const errorMsg = err?.response?.data?.detail || "Google login failed. Please try again.";
+                onError?.(errorMsg);
+            } finally {
                 setLoading(false);
             }
-        });
-    };
+        },
+        onError: () => {
+            onError?.("Google login failed. Please try again.");
+        },
+        flow: 'auth-code',
+    });
 
     return (
         <button
-            onClick={handleGoogleLogin}
-            disabled={loading || !googleLoaded}
+            onClick={() => login()}
+            disabled={loading}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow group"
             type="button"
         >
