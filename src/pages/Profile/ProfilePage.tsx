@@ -13,41 +13,50 @@ export default function ProfilePage() {
 
     if (isLoading) {
         return (
-            <div className="max-w-4xl mx-auto space-y-6">
-                <Card className="p-8 animate-pulse">
-                    <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                        <div className="w-24 h-24 rounded-full skeleton" />
-                        <div className="flex-1 space-y-4 w-full">
-                            <div className="h-8 w-48 skeleton mx-auto md:mx-0" />
-                            <div className="h-4 w-64 skeleton mx-auto md:mx-0" />
-                            <div className="flex gap-3 justify-center md:justify-start">
-                                <div className="h-10 w-32 skeleton" />
-                                <div className="h-10 w-32 skeleton" />
+            <div className="min-h-screen bg-[var(--color-background)]">
+                <div className="max-w-6xl mx-auto px-8 py-20">
+                    <div className="space-y-12 animate-pulse">
+                        <div className="h-7 w-32 skeleton rounded" />
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                            <div className="lg:col-span-4">
+                                <div className="w-full aspect-square skeleton rounded-2xl" />
+                            </div>
+                            <div className="lg:col-span-8 space-y-8">
+                                <div className="h-8 w-3/4 skeleton rounded" />
+                                <div className="h-5 w-1/2 skeleton rounded" />
+                                <div className="space-y-6 pt-8">
+                                    <div className="h-24 skeleton rounded" />
+                                    <div className="h-24 skeleton rounded" />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </Card>
+                </div>
             </div>
         );
     }
 
     if (isError || !data) {
         return (
-            <div className="max-w-4xl mx-auto">
-                <Card className="p-12 text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 mb-4">
-                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center px-8">
+                <div className="max-w-md w-full text-center space-y-8">
+                    <div className="w-20 h-20 mx-auto rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+                        <svg className="w-9 h-9 text-red-600 dark:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
-                        Failed to load profile
-                    </h3>
-                    <p className="text-[var(--color-text-secondary)] mb-6">
-                        We couldn't fetch your profile data. Please try again.
-                    </p>
-                    <Button onClick={() => window.location.reload()}>Retry</Button>
-                </Card>
+                    <div className="space-y-3">
+                        <h3 className="text-2xl font-light text-[var(--color-text-primary)] tracking-tight">
+                            Unable to Load Profile
+                        </h3>
+                        <p className="text-base text-[var(--color-text-secondary)] leading-relaxed max-w-sm mx-auto">
+                            We encountered an issue retrieving your profile information. Please try again.
+                        </p>
+                    </div>
+                    <Button onClick={() => window.location.reload()} className="mx-auto">
+                        Retry
+                    </Button>
+                </div>
             </div>
         );
     }
@@ -57,179 +66,209 @@ export default function ProfilePage() {
     const initials = (u.first_name?.[0] || "") + (u.last_name?.[0] || "");
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
-            {/* Profile Header Card */}
-            <Card className="overflow-hidden">
-                {/* Cover Background */}
-                <div className="h-32 bg-gradient-to-br from-[var(--color-brand-500)] via-[var(--color-brand-600)] to-[var(--color-brand-700)] relative">
-                    <div className="absolute inset-0 opacity-20">
-                        <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl" />
-                        <div className="absolute bottom-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl" />
-                    </div>
+        <div className="min-h-screen bg-[var(--color-background)]">
+            <div className="max-w-6xl mx-auto px-8 py-20">
+                {/* Page Header */}
+                <div className="mb-16">
+                    <h1 className="text-[2.75rem] font-extralight text-[var(--color-text-primary)] tracking-tight leading-none">
+                        Profile
+                    </h1>
                 </div>
 
-                <div className="px-8 pb-8">
-                    <div className="flex flex-col md:flex-row items-center md:items-end gap-6 -mt-16">
-                        {/* Avatar */}
-                        <div className="relative">
-                            <Avatar src={u.profile_photo} initials={initials} size="xl" />
-                            <div className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-green-500 border-4 border-[var(--color-surface)]" />
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 text-center md:text-left space-y-2 mt-4">
-                            <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
-                                {fullName}
-                            </h1>
-                            <p className="text-[var(--color-text-secondary)] flex items-center gap-2 justify-center md:justify-start">
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                                </svg>
-                                {u.email}
-                            </p>
-
-                            {/* Quick Stats */}
-                            <div className="flex items-center gap-6 pt-2 justify-center md:justify-start">
-                                <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${u.status === "Authorized" ? "bg-green-500" : "bg-red-500"}`} />
-                                    <span className="text-sm text-[var(--color-text-tertiary)]">{u.status}</span>
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                    {/* Left Column - Avatar & Quick Info */}
+                    <div className="lg:col-span-4">
+                        <div className="sticky top-8 space-y-10">
+                            {/* Avatar Section */}
+                            <div className="relative">
+                                <div className="aspect-square w-full">
+                                    <Avatar
+                                        src={data.profile_photo}
+                                        initials={initials}
+                                        size="lg"
+                                        className="w-full h-full rounded-2xl shadow-sm"
+                                    />
+                                    {u.status === "Authorized" && (
+                                        <div className="absolute bottom-5 right-5 w-6 h-6 rounded-full bg-emerald-500 border-[3px] border-[var(--color-background)] shadow-sm" />
+                                    )}
                                 </div>
+                            </div>
+
+                            {/* Status Indicators */}
+                            <div className="space-y-2.5">
+                                <StatusBadge
+                                    label={u.status}
+                                    variant={u.status === "Authorized" ? "success" : "default"}
+                                />
                                 {u.mfa_enabled && (
-                                    <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                        </svg>
-                                        <span className="text-sm text-[var(--color-text-tertiary)]">2FA Enabled</span>
-                                    </div>
+                                    <StatusBadge
+                                        label="Two-Factor Authentication"
+                                        variant="default"
+                                        icon={
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            </svg>
+                                        }
+                                    />
                                 )}
+                                <StatusBadge
+                                    label={u.role}
+                                    variant="brand"
+                                />
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="space-y-3 pt-6">
+                                <Link to="/profile/edit" className="block">
+                                    <Button variant="outline" size="sm" className="w-full justify-center">
+                                        Edit Profile
+                                    </Button>
+                                </Link>
+                                <Link to="/profile/change-email" className="block">
+                                    <Button variant="secondary" size="sm" className="w-full justify-center">
+                                        Change Email
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                            <Link to="/profile/edit" className="w-full sm:w-auto">
-                                <Button variant="outline" className="w-full">
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                    Edit Profile
-                                </Button>
-                            </Link>
-                            <Link to="/profile/change-email" className="w-full sm:w-auto">
-                                <Button variant="secondary" className="w-full">
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
-                                    Change Email
-                                </Button>
-                            </Link>
-                        </div>
+                    {/* Right Column - Details */}
+                    <div className="lg:col-span-8 space-y-16">
+                        {/* Identity Section */}
+                        <section className="space-y-8">
+                            <SectionHeader title="Identity" />
+                            <div className="space-y-2">
+                                <h2 className="text-[2rem] font-light text-[var(--color-text-primary)] tracking-tight leading-tight">
+                                    {fullName}
+                                </h2>
+                                <p className="text-lg text-[var(--color-text-secondary)]">
+                                    {u.email}
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-8 pt-6">
+                                <DetailItem
+                                    label="Phone Number"
+                                    value={data.phone_number || "—"}
+                                />
+                                <DetailItem
+                                    label="Date of Birth"
+                                    value={data.birth_date ? new Date(data.birth_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"}
+                                />
+                            </div>
+                        </section>
+
+                        {/* Account Activity Section */}
+                        <section className="space-y-8">
+                            <SectionHeader title="Account Activity" />
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-8">
+                                <DetailItem
+                                    label="Member Since"
+                                    value={new Date(u.date_joined).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                                />
+                                <DetailItem
+                                    label="Last Login"
+                                    value={u.last_login ? new Date(u.last_login).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"}
+                                />
+                            </div>
+                        </section>
+
+                        {/* Security Section */}
+                        <section className="space-y-8">
+                            <SectionHeader title="Security" />
+
+                            <div className="space-y-px bg-[var(--color-border)]/30 rounded-lg overflow-hidden">
+                                <SecurityItem
+                                    title="Two-Factor Authentication"
+                                    status={u.mfa_enabled ? "Enabled" : "Disabled"}
+                                    isEnabled={u.mfa_enabled}
+                                />
+                                <SecurityItem
+                                    title="Account Status"
+                                    status={u.status}
+                                    isEnabled={u.status === "Authorized"}
+                                />
+                            </div>
+                        </section>
                     </div>
                 </div>
-            </Card>
-
-            {/* Profile Details */}
-            <div className="grid md:grid-cols-2 gap-6">
-                {/* Personal Information */}
-                <Card className="p-6 space-y-6">
-                    <div className="flex items-center gap-3 pb-4 border-b border-[var(--color-border)]">
-                        <div className="p-2 rounded-lg bg-[var(--color-brand-100)] dark:bg-[var(--color-brand-900)]">
-                            <svg className="w-6 h-6 text-[var(--color-brand-500)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
-                            Personal Information
-                        </h3>
-                    </div>
-
-                    <div className="space-y-4">
-                        <InfoRow
-                            label="Full Name"
-                            value={fullName}
-                            icon={
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                            }
-                        />
-                        <InfoRow
-                            label="Phone Number"
-                            value={data.phone_number || "Not provided"}
-                            icon={
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                </svg>
-                            }
-                        />
-                        <InfoRow
-                            label="Birth Date"
-                            value={data.birth_date ? new Date(data.birth_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "Not provided"}
-                            icon={
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            }
-                        />
-                    </div>
-                </Card>
-
-                {/* Account Settings */}
-                <Card className="p-6 space-y-6">
-                    <div className="flex items-center gap-3 pb-4 border-b border-[var(--color-border)]">
-                        <div className="p-2 rounded-lg bg-[var(--color-brand-100)] dark:bg-[var(--color-brand-900)]">
-                            <svg className="w-6 h-6 text-[var(--color-brand-500)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
-                            Account Settings
-                        </h3>
-                    </div>
-
-                    <div className="space-y-4">
-                        <InfoRow
-                            label="Role"
-                            value={u.role}
-                            icon={
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                                </svg>
-                            }
-                        />
-                        <InfoRow
-                            label="Member Since"
-                            value={new Date(u.date_joined).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-                            icon={
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            }
-                        />
-                        <InfoRow
-                            label="Last Login"
-                            value={u.last_login ? new Date(u.last_login).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "Never"}
-                            icon={
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                                </svg>
-                            }
-                        />
-                    </div>
-                </Card>
             </div>
         </div>
     );
 }
 
-function InfoRow({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
+function SectionHeader({ title }: { title: string }) {
     return (
-        <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-[var(--color-surface-elevated)] transition-colors">
-            <div className="text-[var(--color-text-tertiary)]">{icon}</div>
-            <div className="flex-1 min-w-0">
-                <p className="text-xs text-[var(--color-text-tertiary)] font-medium uppercase tracking-wider">{label}</p>
-                <p className="text-sm text-[var(--color-text-primary)] font-medium truncate">{value}</p>
+        <div className="pb-4 border-b border-[var(--color-border)]/50">
+            <h3 className="text-[0.6875rem] font-semibold text-[var(--color-text-tertiary)] uppercase tracking-[0.1em] letter-spacing-wider">
+                {title}
+            </h3>
+        </div>
+    );
+}
+
+function DetailItem({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="space-y-2.5">
+            <p className="text-[0.6875rem] font-semibold text-[var(--color-text-tertiary)] uppercase tracking-[0.1em]">
+                {label}
+            </p>
+            <p className="text-[1.0625rem] text-[var(--color-text-primary)] leading-relaxed">
+                {value}
+            </p>
+        </div>
+    );
+}
+
+function StatusBadge({
+                         label,
+                         variant = "default",
+                         icon
+                     }: {
+    label: string;
+    variant?: "default" | "success" | "brand";
+    icon?: React.ReactNode;
+}) {
+    const variantStyles = {
+        default: "bg-[var(--color-surface)] border-[var(--color-border)]/60",
+        success: "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/50 dark:border-emerald-900/30",
+        brand: "bg-[var(--color-brand-50)]/50 dark:bg-[var(--color-brand-900)]/10 border-[var(--color-brand-200)]/50 dark:border-[var(--color-brand-800)]/30"
+    };
+
+    return (
+        <div className={`flex items-center gap-2.5 px-4 py-3 rounded-lg border ${variantStyles[variant]} transition-colors`}>
+            {icon}
+            <span className="text-[0.9375rem] text-[var(--color-text-primary)] font-normal">
+                {label}
+            </span>
+        </div>
+    );
+}
+
+function SecurityItem({
+                          title,
+                          status,
+                          isEnabled
+                      }: {
+    title: string;
+    status: string;
+    isEnabled: boolean;
+}) {
+    return (
+        <div className="flex items-center justify-between px-6 py-5 bg-[var(--color-background)] hover:bg-[var(--color-surface)]/40 transition-colors">
+            <div>
+                <p className="text-[var(--color-text-primary)] font-normal text-[0.9375rem]">
+                    {title}
+                </p>
+            </div>
+            <div className="flex items-center gap-3">
+                <div className={`w-2 h-2 rounded-full ${isEnabled ? "bg-emerald-500" : "bg-slate-400 dark:bg-slate-600"} shadow-sm`} />
+                <span className="text-[0.875rem] text-[var(--color-text-secondary)] font-normal min-w-[80px] text-right">
+                    {status}
+                </span>
             </div>
         </div>
     );

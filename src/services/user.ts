@@ -11,21 +11,18 @@ export async function updateProfile(body: ProfileWrite, asMultipart = false) {
         const fd = new FormData();
         Object.entries(body).forEach(([key, val]) => {
             if (val !== undefined && val !== null) {
-                if (key.startsWith("user.")) {
-                    // flatten user fields: user.first_name -> first_name for serializer source mapping
-                    fd.append(key.split(".")[1], String(val));
-                } else {
-                    fd.append(key, val as any);
-                }
+                fd.append(key, val as any);
             }
         });
         const { data } = await api.patch("accounts/user/update-profile/", fd, {
             headers: { "Content-Type": "multipart/form-data" },
         });
-        return data as ProfileRead;
+        return data;
     }
+
+    // JSON version
     const { data } = await api.patch("accounts/user/update-profile/", body);
-    return data as ProfileRead;
+    return data;
 }
 
 export async function requestEmailChange(new_email: string, user_id?: string) {

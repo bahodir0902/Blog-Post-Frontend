@@ -12,11 +12,9 @@ import Read from "./pages/Read";
 import Login from "./pages/Login";
 import Register from "./pages/Register/Register";
 import VerifyRegistration from "./pages/Register/VerifyRegistration";
-import CompleteGoogleProfile from "./pages/Register/CompleteGoogleProfile";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import VerifyResetCode from "./pages/Auth/VerifyResetCode";
 import ResetPassword from "./pages/Auth/ResetPassword";
-import GoogleCallback from "./pages/Oauth/GoogleCallback";
 
 // Profile
 import ProfilePage from "./pages/Profile/ProfilePage";
@@ -50,8 +48,6 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/register/verify" element={<VerifyRegistration />} />
-                <Route path="/register/complete-profile" element={<CompleteGoogleProfile />} />
-                <Route path="/oauth/google/callback" element={<GoogleCallback />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/forgot-password/verify" element={<VerifyResetCode />} />
                 <Route path="/reset-password" element={<ResetPassword />} />

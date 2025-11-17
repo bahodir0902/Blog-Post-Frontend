@@ -40,7 +40,7 @@ export async function resetPassword(payload: { uid: string; token: string; new_p
     return data as { message: string };
 }
 
-export function googleLoginUrl() {
-    // backend will redirect to Google itself
-    return `${api.defaults.baseURL}accounts/login/google/`;
-}
+export const googleLogin = async (credential: string) => {
+    const response = await api.post("/accounts/auth/google-login/", { credential });
+    return response.data;
+};

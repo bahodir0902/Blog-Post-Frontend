@@ -36,22 +36,22 @@ export default function Dropdown({
     return (
         <div ref={ref} className={`relative ${className}`}>
             {label && (
-                <div className="mb-2 text-sm font-medium text-[var(--color-text-secondary)]">
+                <label className="block mb-2 text-sm font-medium text-[var(--color-text-secondary)]">
                     {label}
-                </div>
+                </label>
             )}
 
             <button
                 type="button"
                 onClick={() => setOpen((s) => !s)}
                 className="
-                    w-full px-4 py-2.5 rounded-xl
+                    w-full px-4 py-2.5 rounded-lg
                     bg-[var(--color-surface)] border border-[var(--color-border)]
                     hover:border-[var(--color-border-strong)]
                     text-left text-[var(--color-text-primary)]
                     flex items-center justify-between gap-2
                     transition-all duration-200
-                    focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:ring-offset-1
+                    focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:ring-offset-1 focus:ring-offset-[var(--color-background)]
                 "
             >
                 <span className="truncate text-sm">
@@ -60,7 +60,7 @@ export default function Dropdown({
                     )}
                 </span>
                 <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-200 flex-shrink-0 ${
+                    className={`w-4 h-4 transition-transform duration-200 flex-shrink-0 text-[var(--color-text-tertiary)] ${
                         open ? "rotate-180" : ""
                     }`}
                 />
@@ -69,9 +69,9 @@ export default function Dropdown({
             {open && (
                 <div
                     className="
-                        absolute z-50 mt-1 w-full rounded-xl overflow-hidden
+                        absolute z-50 mt-2 w-full rounded-lg overflow-hidden
                         bg-[var(--color-surface)] border border-[var(--color-border)]
-                        shadow-xl animate-scale-in
+                        shadow-lg animate-scale-in
                     "
                 >
                     <ul className="py-1 max-h-64 overflow-y-auto">
@@ -84,9 +84,10 @@ export default function Dropdown({
                                         className={`
                                             w-full text-left px-4 py-2.5 text-sm
                                             transition-all duration-150
-                                            ${active
-                                            ? "bg-[var(--color-brand-500)] text-white font-medium"
-                                            : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)]"
+                                            ${
+                                            active
+                                                ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)] font-medium dark:bg-[var(--color-brand-900)] dark:text-[var(--color-brand-300)]"
+                                                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)]"
                                         }
                                         `}
                                         onClick={() => {

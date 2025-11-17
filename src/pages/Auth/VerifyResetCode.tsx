@@ -1,192 +1,118 @@
+// src/pages/Auth/VerifyResetCode.tsx
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Card from "../../components/ui/Card";
 import Label from "../../components/ui/Label";
-import Input from "../../components/ui/Input";
+import OtpInput from "../../components/ui/OtpInput";
 import Button from "../../components/ui/Button";
-import { resetPassword } from "../../services/auth";
+import { verifyReset } from "../../services/auth";
 
-export default function ResetPassword() {
-    const { state } = useLocation() as { state?: { uid: string; token: string } };
-    const [p1, setP1] = useState("");
-    const [p2, setP2] = useState("");
+export default function VerifyResetCode() {
+    const { state } = useLocation() as { state?: { email?: string; otp_token?: string } };
+    const otp_token = state?.otp_token;
+    const email = state?.email;
+    const [code, setCode] = useState("");
     const [err, setErr] = useState<string | null>(null);
-    const [ok, setOk] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!otp_token) {
+            navigate("/forgot-password", { replace: true });
+        }
+    }, [otp_token, navigate]);
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErr(null);
-        setOk(null);
-
-        if (p1 !== p2) {
-            setErr("Passwords do not match");
-            return;
-        }
-
-        if (p1.length < 8) {
-            setErr("Password must be at least 8 characters long");
-            return;
-        }
-
         setLoading(true);
         try {
-            const r = await resetPassword({
-                uid: state?.uid!,
-                token: state?.token!,
-                new_password: p1,
-                re_new_password: p2,
-            });
-            setOk(r.message);
-            setTimeout(() => navigate("/login"), 2000);
+            const resp = await verifyReset({ otp_token: otp_token!, code });
+            navigate("/reset-password", { state: { uid: resp.uid, token: resp.token } });
         } catch (e: any) {
             setErr(
                 e?.response?.data?.detail ||
                 Object.values(e?.response?.data || {})[0] as string ||
-                "Password reset failed. Please try again."
+                "Verification failed. Please check the code and try again."
             );
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12">
-            <div className="w-full max-w-md animate-scale-in">
-                <Card>
-                    <div className="p-8 space-y-6">
-                        {/* Header */}
-                        <div className="text-center space-y-4">
-                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] mb-2">
-                                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 className="text-3xl font-bold text-[var(--color-text-primary)]">
-                                    Set New Password
-                                </h2>
-                                <p className="mt-2 text-[var(--color-text-secondary)]">
-                                    Choose a strong password for your account
-                                </p>
-                            </div>
-                        </div>
+    if (!otp_token) return null;
 
-                        {/* Success Message */}
-                        {ok && (
-                            <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 animate-fade-in">
-                                <div className="flex items-center gap-3">
-                                    <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    return (
+        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-8 sm:py-12">
+            <div className="w-full max-w-md">
+                <div className="animate-slide-up">
+                    <Card className="backdrop-blur-xl">
+                        <div className="p-6 sm:p-8 space-y-6">
+                            {/* Header */}
+                            <div className="text-center space-y-4">
+                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] shadow-lg">
+                                    <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-semibold text-green-600 dark:text-green-400">{ok}</p>
-                                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">Redirecting to login...</p>
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)] mb-2">
+                                        Enter Verification Code
+                                    </h2>
+                                    <p className="text-sm text-[var(--color-text-secondary)]">
+                                        We sent a code to
+                                    </p>
+                                    <p className="text-sm font-semibold text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] mt-1">
+                                        {email ?? "your email"}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Error Message */}
+                            {err && (
+                                <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 animate-fade-in">
+                                    <div className="flex gap-3">
+                                        <svg className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p className="text-sm text-red-600 dark:text-red-400 leading-relaxed">{err}</p>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* Error Message */}
-                        {err && (
-                            <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 animate-fade-in">
-                                <div className="flex items-center gap-3">
-                                    <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            {/* Form */}
+                            <form onSubmit={onSubmit} className="space-y-6">
+                                <div className="space-y-3">
+                                    <Label className="text-center block text-sm font-medium">
+                                        Enter 6-digit code
+                                    </Label>
+                                    <OtpInput value={code} onChange={setCode} length={6} autoFocus />
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    isLoading={loading}
+                                    disabled={code.length < 6}
+                                >
+                                    Verify Code
+                                </Button>
+                            </form>
+
+                            {/* Help Text */}
+                            <div className="pt-6 border-t border-[var(--color-border)]">
+                                <div className="flex gap-3 p-4 rounded-lg bg-[var(--color-brand-50)] dark:bg-[var(--color-brand-900)]/20 border border-[var(--color-brand-200)] dark:border-[var(--color-brand-800)]/30">
+                                    <svg className="w-5 h-5 text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <p className="text-sm text-red-600 dark:text-red-400">{err}</p>
+                                    <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                                        Check your spam folder if you don't see the email. The code expires in 10 minutes.
+                                    </p>
                                 </div>
                             </div>
-                        )}
-
-                        {/* Form */}
-                        <form onSubmit={onSubmit} className="space-y-5">
-                            <div className="space-y-2">
-                                <Label htmlFor="password" required>
-                                    New Password
-                                </Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    value={p1}
-                                    onChange={(e) => setP1(e.target.value)}
-                                    placeholder="••••••••"
-                                    required
-                                    icon={
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                        </svg>
-                                    }
-                                />
-                                <p className="text-xs text-[var(--color-text-tertiary)]">
-                                    Must be at least 8 characters
-                                </p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="confirmPassword" required>
-                                    Confirm New Password
-                                </Label>
-                                <Input
-                                    id="confirmPassword"
-                                    type="password"
-                                    value={p2}
-                                    onChange={(e) => setP2(e.target.value)}
-                                    placeholder="••••••••"
-                                    required
-                                    icon={
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    }
-                                />
-                            </div>
-
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                isLoading={loading}
-                                disabled={!!ok}
-                            >
-                                {loading ? "Resetting password..." : "Reset Password"}
-                            </Button>
-                        </form>
-
-                        {/* Password Requirements */}
-                        <div className="pt-6 border-t border-[var(--color-border)]">
-                            <h4 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3">
-                                Password Requirements
-                            </h4>
-                            <ul className="space-y-2 text-sm text-[var(--color-text-secondary)]">
-                                <li className="flex items-center gap-2">
-                                    <svg className={`w-4 h-4 ${p1.length >= 8 ? "text-green-500" : "text-[var(--color-text-tertiary)]"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    At least 8 characters
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <svg className={`w-4 h-4 ${/[A-Z]/.test(p1) ? "text-green-500" : "text-[var(--color-text-tertiary)]"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    One uppercase letter
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <svg className={`w-4 h-4 ${/[0-9]/.test(p1) ? "text-green-500" : "text-[var(--color-text-tertiary)]"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    One number
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <svg className={`w-4 h-4 ${p1 && p2 && p1 === p2 ? "text-green-500" : "text-[var(--color-text-tertiary)]"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    Passwords match
-                                </li>
-                            </ul>
                         </div>
-                    </div>
-                </Card>
+                    </Card>
+                </div>
             </div>
         </div>
     );

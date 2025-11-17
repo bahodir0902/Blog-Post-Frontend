@@ -1,4 +1,3 @@
-// src/auth/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import api from "../api/api";
 
@@ -10,7 +9,7 @@ interface AuthContextType {
         otpRequired?: boolean;
         otpToken?: string;
     }>;
-    setTokens: (access: string, refresh: string) => void; // <— added
+    setTokens: (access: string, refresh: string) => void;
     logout: () => Promise<void>;
 }
 
@@ -34,7 +33,7 @@ const REFRESH_INTERVAL_MS =
 const REFRESH_SKEW_MS =
     Number.isFinite(ENV_SKEW_MS) && ENV_SKEW_MS >= 0 ? ENV_SKEW_MS : DEFAULT_SKEW_MS;
 
-// ---- JWT utils ----
+// JWT utils
 function parseJwt(token: string): JwtPayload | null {
     try {
         const base64Url = token.split(".")[1];
@@ -51,6 +50,7 @@ function parseJwt(token: string): JwtPayload | null {
         return null;
     }
 }
+
 function msUntilAccessExpiry(access: string | null): number | null {
     if (!access) return null;
     const payload = parseJwt(access);
@@ -64,6 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem("access"));
     const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem("refresh"));
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isRefreshingRef = useRef(false);
 
     const saveTokens = (access: string, refresh: string) => {
         localStorage.setItem("access", access);
@@ -72,7 +73,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRefreshToken(refresh);
     };
 
-    // <— PUBLIC setter for SSO / Google callback / register flow
     const setTokens = (access: string, refresh: string) => {
         saveTokens(access, refresh);
     };
@@ -100,59 +100,100 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = async () => {
-        try {
-            if (accessToken && refreshToken) {
+        const currentAccessToken = localStorage.getItem("access");
+        const currentRefreshToken = localStorage.getItem("refresh");
+
+        // Clear tokens immediately
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        setAccessToken(null);
+        setRefreshToken(null);
+
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+
+        // Try to logout on server (but don't wait for it)
+        if (currentAccessToken && currentRefreshToken) {
+            try {
                 await api.delete("accounts/auth/logout/", {
-                    headers: { Authorization: `Bearer ${accessToken}` },
-                    data: { refresh_token: refreshToken },
+                    headers: { Authorization: `Bearer ${currentAccessToken}` },
+                    data: { refresh_token: currentRefreshToken },
                     withCredentials: true,
                 });
+            } catch (err) {
+                // Silent fail - tokens are already cleared
+                console.warn("Server logout failed (tokens already cleared):", err);
             }
-        } catch (err) {
-            console.warn("Server logout failed:", err);
-        } finally {
-            localStorage.removeItem("access");
-            localStorage.removeItem("refresh");
-            setAccessToken(null);
-            setRefreshToken(null);
+        }
+
+        // Redirect to login
+        window.location.href = "/login";
+    };
+
+    // Auto-refresh loop - only runs when we have a refresh token
+    useEffect(() => {
+        // Don't run if no refresh token
+        if (!refreshToken) {
             if (timerRef.current) {
                 clearTimeout(timerRef.current);
                 timerRef.current = null;
             }
-            window.location.href = "/login";
+            return;
         }
-    };
-
-    // Auto-refresh loop
-    useEffect(() => {
-        if (!refreshToken) return;
 
         let mounted = true;
+
         const scheduleNext = (suggestedMs?: number) => {
-            if (!mounted) return;
+            if (!mounted || !refreshToken) return;
             if (timerRef.current) clearTimeout(timerRef.current);
+
             const msLeft = msUntilAccessExpiry(localStorage.getItem("access"));
             const delay =
-                msLeft !== null ? Math.max(MIN_DELAY_MS, msLeft - REFRESH_SKEW_MS) : (suggestedMs || REFRESH_INTERVAL_MS);
+                msLeft !== null
+                    ? Math.max(MIN_DELAY_MS, msLeft - REFRESH_SKEW_MS)
+                    : (suggestedMs || REFRESH_INTERVAL_MS);
+
             timerRef.current = setTimeout(refreshOnce, delay);
         };
 
         const refreshOnce = async () => {
+            // Prevent concurrent refreshes
+            if (isRefreshingRef.current) {
+                scheduleNext(REFRESH_INTERVAL_MS);
+                return;
+            }
+
+            isRefreshingRef.current = true;
+
             try {
-                const res = await api.post("accounts/login/refresh/", { refresh: refreshToken });
+                const currentRefresh = localStorage.getItem("refresh");
+                if (!currentRefresh) {
+                    throw new Error("No refresh token available");
+                }
+
+                const res = await api.post("accounts/login/refresh/", { refresh: currentRefresh });
                 const newAccess = res.data.access as string;
+
                 localStorage.setItem("access", newAccess);
                 setAccessToken(newAccess);
+
                 if (res.data.refresh) {
                     const newRefresh = res.data.refresh as string;
                     saveTokens(newAccess, newRefresh);
                 }
+
+                scheduleNext(REFRESH_INTERVAL_MS);
             } catch (err) {
                 console.error("Token refresh failed:", err);
-                await logout();
-                return;
+                // Only logout if we're still mounted and have a refresh token
+                if (mounted && localStorage.getItem("refresh")) {
+                    await logout();
+                }
+            } finally {
+                isRefreshingRef.current = false;
             }
-            scheduleNext(REFRESH_INTERVAL_MS);
         };
 
         scheduleNext(REFRESH_INTERVAL_MS);

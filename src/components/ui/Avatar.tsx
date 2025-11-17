@@ -1,46 +1,40 @@
-interface AvatarProps {
+type AvatarProps = {
     src?: string | null;
-    alt?: string;
     initials?: string;
+    alt?: string;
     size?: "sm" | "md" | "lg" | "xl";
-}
+    className?: string;
+};
 
-export default function Avatar({ src, alt = "User", initials = "U", size = "md" }: AvatarProps) {
-    const sizes = {
-        sm: "h-8 w-8 text-xs",
-        md: "h-10 w-10 text-sm",
-        lg: "h-14 w-14 text-lg",
-        xl: "h-20 w-20 text-2xl",
-    };
+const sizeClasses = {
+    sm: "w-8 h-8 text-xs",
+    md: "w-10 h-10 text-sm",
+    lg: "w-12 h-12 text-base",
+    xl: "w-16 h-16 text-lg",
+};
 
+export default function Avatar({
+                                   src,
+                                   initials = "U",
+                                   alt = "User avatar",
+                                   size = "md",
+                                   className = "",
+                               }: AvatarProps) {
     if (src) {
         return (
-            <div className={`${sizes[size]} rounded-full overflow-hidden border-2 border-[var(--color-border)] shadow-md hover:shadow-lg transition-all duration-300`}>
-                <img
-                    src={src}
-                    alt={alt}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                    }}
-                />
-            </div>
+            <img
+                src={src}
+                alt={alt}
+                className={`${sizeClasses[size]} rounded-full object-cover border-2 border-[var(--color-border)] ${className}`}
+            />
         );
     }
 
     return (
         <div
-            className={`
-        ${sizes[size]} rounded-full 
-        bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)]
-        flex items-center justify-center 
-        font-bold text-white
-        shadow-md hover:shadow-lg
-        transition-all duration-300
-        hover:scale-105
-      `}
+            className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-semibold border-2 border-[var(--color-border)] ${className}`}
         >
-            {initials.toUpperCase()}
+            {initials.slice(0, 2).toUpperCase()}
         </div>
     );
 }

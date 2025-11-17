@@ -1,16 +1,14 @@
-// src/components/Navbar.tsx
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../auth/AuthContext";
-import Avatar from "./ui/Avatar";
 import { useTheme } from "./ThemeProvider";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { Menu, X, Sun, Moon, PenTool, User, Edit, LogOut, FileText } from "lucide-react";
+import { Menu, X, Sun, Moon, PenTool, User, LogOut, FileText } from "lucide-react";
 
 export default function Navbar() {
     const { accessToken, logout } = useAuth();
     const { actualTheme, setTheme } = useTheme();
-    const { canWrite, isLoading: meLoading } = useCurrentUser();
+    const { user, canWrite, isLoading: meLoading } = useCurrentUser();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -29,14 +27,12 @@ export default function Navbar() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // close menus on route change
     useEffect(() => {
         setMobileMenuOpen(false);
         setDropdownOpen(false);
     }, [location]);
 
     const toggleTheme = () => {
-        // Respect ThemeProvider (light/dark)
         setTheme(actualTheme === "dark" ? "light" : "dark");
     };
 
@@ -48,37 +44,45 @@ export default function Navbar() {
         { path: "/about", label: "About" },
     ];
 
+    // Get user initials for avatar
+    const getUserInitials = () => {
+        if (!user?.first_name) return "U";
+        const firstInitial = user.first_name[0]?.toUpperCase() || "U";
+        const lastInitial = user.last_name?.[0]?.toUpperCase() || "";
+        return firstInitial + lastInitial;
+    };
+
     return (
-        <header className="sticky top-0 z-50 glass-effect border-b border-[var(--color-border)] shadow-md">
-            <nav className="container-responsive py-4">
-                <div className="flex items-center justify-between gap-6">
+        <header className="sticky top-0 z-50 glass-effect border-b border-[var(--color-border)] shadow-sm">
+            <nav className="container-responsive py-3 md:py-4">
+                <div className="flex items-center justify-between gap-4 md:gap-6">
                     {/* Logo */}
                     <Link
                         to="/"
-                        className="flex items-center gap-3 group transition-transform duration-300 hover:scale-105"
+                        className="flex items-center gap-2 md:gap-3 group transition-transform duration-300 hover:scale-105"
                     >
-                        <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 shadow-lg flex items-center justify-center overflow-hidden">
-                            <span className="text-white font-bold text-xl relative z-10">M</span>
+                        <div className="relative w-9 h-9 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-[var(--color-brand-600)] to-[var(--color-brand-700)] shadow-md flex items-center justify-center overflow-hidden">
+                            <span className="text-white font-bold text-lg md:text-xl relative z-10">M</span>
                             <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
-              ModernBlog
-            </span>
+                        <span className="text-lg md:text-xl font-bold tracking-tight bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-500)] bg-clip-text text-transparent">
+                            ModernBlog
+                        </span>
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center gap-2">
+                    <div className="hidden md:flex items-center gap-1">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.path}
                                 to={link.path}
                                 className={`
-                  px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                  ${isActive(link.path)
-                                    ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                                    px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                                    ${isActive(link.path)
+                                    ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)] dark:bg-[var(--color-brand-900)] dark:text-[var(--color-brand-300)]"
                                     : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)]"
                                 }
-                `}
+                                `}
                             >
                                 {link.label}
                             </Link>
@@ -86,62 +90,63 @@ export default function Navbar() {
                     </div>
 
                     {/* Right Section */}
-                    <div className="flex items-center gap-3">
-                        {/* Writer actions (desktop) */}
+                    <div className="flex items-center gap-2 md:gap-3">
+                        {/* Writer actions (desktop) - Only show if authorized AND can write */}
                         {accessToken && !meLoading && canWrite && (
-                            <>
-                                <Link
-                                    to="/writer/new"
-                                    className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
-                                >
-                                    <PenTool className="w-4 h-4" />
-                                    <span>Create post</span>
-                                </Link>
+                            <div className="hidden lg:flex items-center gap-2">
                                 <Link
                                     to="/writer/my-posts"
-                                    className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--color-surface-elevated)] hover:bg-[var(--color-border)] transition-all"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] border border-[var(--color-border)] transition-all duration-200"
                                 >
                                     <FileText className="w-4 h-4" />
-                                    <span>My posts</span>
+                                    <span>My Posts</span>
                                 </Link>
-                            </>
-                        )}
-
-                        {/* Become Author Button - Desktop (when logged out) */}
-                        {!accessToken && (
-                            <Link
-                                to="/register"
-                                className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
-                            >
-                                <PenTool className="w-4 h-4" />
-                                <span>Write</span>
-                            </Link>
+                                <Link
+                                    to="/writer/new"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-[var(--color-brand-600)] text-white shadow-sm hover:shadow-md hover:bg-[var(--color-brand-700)] transition-all duration-200"
+                                >
+                                    <PenTool className="w-4 h-4" />
+                                    <span>Write</span>
+                                </Link>
+                            </div>
                         )}
 
                         {/* Theme Toggle */}
                         <button
                             onClick={toggleTheme}
-                            className="p-2.5 rounded-lg bg-[var(--color-surface-elevated)] hover:bg-[var(--color-border)] transition-all duration-200 hover:scale-110"
+                            className="p-2 md:p-2.5 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-elevated)] border border-[var(--color-border)] transition-all duration-200"
                             aria-label="Toggle theme"
                         >
                             {actualTheme === "dark" ? (
-                                <Sun className="w-5 h-5 text-yellow-400" />
+                                <Sun className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />
                             ) : (
-                                <Moon className="w-5 h-5 text-[var(--color-text-secondary)]" />
+                                <Moon className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-text-secondary)]" />
                             )}
                         </button>
 
                         {/* Auth menu */}
                         {accessToken ? (
-                            <div className="relative" ref={dropdownRef}>
+                            <div className="relative hidden md:block" ref={dropdownRef}>
                                 <button
                                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                                    className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-[var(--color-surface-elevated)] transition-all duration-300"
+                                    className="flex items-center gap-2 p-1 rounded-lg hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                     aria-label="User menu"
                                 >
-                                    <Avatar initials="U" />
+                                    {/* Avatar */}
+                                    {user?.profile_photo ? (
+                                        <img
+                                            src={user.profile_photo}
+                                            alt={user.first_name || "User"}
+                                            className="w-8 h-8 rounded-full object-cover border-2 border-[var(--color-border)]"
+                                        />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-semibold text-sm border-2 border-[var(--color-border)]">
+                                            {getUserInitials()}
+                                        </div>
+                                    )}
                                     <svg
-                                        className={`w-4 h-4 text-[var(--color-text-secondary)] transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""
+                                        className={`w-4 h-4 text-[var(--color-text-secondary)] transition-transform duration-200 ${
+                                            dropdownOpen ? "rotate-180" : ""
                                         }`}
                                         fill="none"
                                         viewBox="0 0 24 24"
@@ -151,44 +156,20 @@ export default function Navbar() {
                                     </svg>
                                 </button>
 
-                                {/* Dropdown Menu */}
+                                {/* Dropdown Menu - Simplified */}
                                 {dropdownOpen && (
                                     <div className="absolute right-0 mt-2 w-56 animate-scale-in origin-top-right">
                                         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xl overflow-hidden">
-                                            <div className="p-4 bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 border-b border-[var(--color-border)]">
-                                                <p className="text-sm font-semibold text-[var(--color-text-primary)]">Account</p>
-                                                <p className="text-xs text-[var(--color-text-tertiary)] mt-1">Manage your profile</p>
+                                            <div className="p-4 bg-[var(--color-surface-elevated)] border-b border-[var(--color-border)]">
+                                                <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+                                                    {user?.first_name || "User"}
+                                                </p>
+                                                <p className="text-xs text-[var(--color-text-tertiary)] mt-1 truncate">
+                                                    {user?.email || ""}
+                                                </p>
                                             </div>
 
                                             <div className="py-2">
-                                                {/* Writer quick links inside dropdown (optional) */}
-                                                {canWrite && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => {
-                                                                navigate("/writer/new");
-                                                                setDropdownOpen(false);
-                                                            }}
-                                                            className="w-full px-4 py-3 text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors flex items-center gap-3"
-                                                        >
-                                                            <PenTool className="w-5 h-5" />
-                                                            Create post
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                navigate("/writer/my-posts");
-                                                                setDropdownOpen(false);
-                                                            }}
-                                                            className="w-full px-4 py-3 text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors flex items-center gap-3"
-                                                        >
-                                                            <FileText className="w-5 h-5" />
-                                                            My posts
-                                                        </button>
-
-                                                        <div className="my-2 border-t border-[var(--color-border)]" />
-                                                    </>
-                                                )}
-
                                                 <button
                                                     onClick={() => {
                                                         navigate("/profile");
@@ -200,18 +181,7 @@ export default function Navbar() {
                                                     View Profile
                                                 </button>
 
-                                                <button
-                                                    onClick={() => {
-                                                        navigate("/profile/edit");
-                                                        setDropdownOpen(false);
-                                                    }}
-                                                    className="w-full px-4 py-3 text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors flex items-center gap-3"
-                                                >
-                                                    <Edit className="w-5 h-5" />
-                                                    Edit Profile
-                                                </button>
-
-                                                <div className="my-2 border-t border-[var(--color-border)]" />
+                                                <div className="my-1 border-t border-[var(--color-border)]" />
 
                                                 <button
                                                     onClick={() => {
@@ -229,16 +199,16 @@ export default function Navbar() {
                                 )}
                             </div>
                         ) : (
-                            <div className="hidden md:flex items-center gap-3">
+                            <div className="hidden md:flex items-center gap-2 md:gap-3">
                                 <Link
                                     to="/login"
-                                    className="px-4 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
+                                    className="px-3 lg:px-4 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                 >
                                     Sign In
                                 </Link>
                                 <Link
                                     to="/register"
-                                    className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-[var(--color-text-primary)] text-white hover:opacity-90 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+                                    className="px-4 lg:px-5 py-2 lg:py-2.5 rounded-lg text-sm font-semibold bg-[var(--color-brand-600)] text-white hover:bg-[var(--color-brand-700)] shadow-sm hover:shadow-md transition-all duration-200"
                                 >
                                     Sign Up
                                 </Link>
@@ -248,71 +218,108 @@ export default function Navbar() {
                         {/* Mobile Menu Button */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden p-2.5 rounded-lg hover:bg-[var(--color-surface-elevated)] transition-colors"
+                            className="md:hidden p-2 rounded-lg hover:bg-[var(--color-surface-elevated)] transition-colors"
                             aria-label="Toggle menu"
                         >
-                            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                         </button>
                     </div>
                 </div>
 
                 {/* Mobile Menu */}
                 {mobileMenuOpen && (
-                    <div className="md:hidden mt-4 pb-4 space-y-2 animate-fade-in">
+                    <div className="md:hidden mt-4 pb-4 space-y-2 animate-fade-in border-t border-[var(--color-border)] pt-4">
+                        {/* User info (mobile) */}
+                        {accessToken && user && (
+                            <div className="px-4 py-3 mb-2 bg-[var(--color-surface-elevated)] rounded-lg flex items-center gap-3">
+                                {user.profile_photo ? (
+                                    <img
+                                        src={user.profile_photo}
+                                        alt={user.first_name || "User"}
+                                        className="w-10 h-10 rounded-full object-cover border-2 border-[var(--color-border)]"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-semibold border-2 border-[var(--color-border)]">
+                                        {getUserInitials()}
+                                    </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+                                        {user.first_name || "User"}
+                                    </p>
+                                    <p className="text-xs text-[var(--color-text-tertiary)] truncate">
+                                        {user.email}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Nav links */}
                         {navLinks.map((link) => (
                             <Link
                                 key={link.path}
                                 to={link.path}
                                 className={`
-                  block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
-                  ${isActive(link.path)
-                                    ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                                    block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                                    ${isActive(link.path)
+                                    ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)] dark:bg-[var(--color-brand-900)] dark:text-[var(--color-brand-300)]"
                                     : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)]"
                                 }
-                `}
+                                `}
                             >
                                 {link.label}
                             </Link>
                         ))}
 
-                        {/* Writer actions (mobile) */}
+                        {/* Writer actions (mobile) - Only if authorized AND can write */}
                         {accessToken && !meLoading && canWrite && (
                             <>
                                 <Link
-                                    to="/writer/new"
-                                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white"
+                                    to="/writer/my-posts"
+                                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] border border-[var(--color-border)] transition-all duration-200"
                                 >
-                                    <PenTool className="w-4 h-4" />
-                                    <span>Create post</span>
+                                    <FileText className="w-4 h-4" />
+                                    <span>My Posts</span>
                                 </Link>
                                 <Link
-                                    to="/writer/my-posts"
-                                    className="block px-4 py-3 rounded-lg text-sm font-medium bg-[var(--color-surface-elevated)] text-[var(--color-text-primary)] text-center"
+                                    to="/writer/new"
+                                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm bg-[var(--color-brand-600)] text-white"
                                 >
-                                    My posts
+                                    <PenTool className="w-4 h-4" />
+                                    <span>Write Post</span>
                                 </Link>
                             </>
                         )}
 
-                        {/* Logged out CTAs (mobile) */}
-                        {!accessToken && (
+                        {/* Mobile auth actions */}
+                        {accessToken ? (
                             <>
                                 <Link
-                                    to="/register"
-                                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white"
+                                    to="/profile"
+                                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                 >
-                                    <PenTool className="w-4 h-4" />
-                                    <span>Become an Author</span>
+                                    <User className="w-5 h-5" />
+                                    View Profile
                                 </Link>
+                                <button
+                                    onClick={logout}
+                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all duration-200"
+                                >
+                                    <LogOut className="w-5 h-5" />
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <>
                                 <Link
                                     to="/login"
-                                    className="block px-4 py-3 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200 text-center"
+                                    className="block px-4 py-3 rounded-lg text-sm font-medium text-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                 >
                                     Sign In
                                 </Link>
                                 <Link
                                     to="/register"
-                                    className="block px-4 py-3 rounded-lg text-sm font-semibold bg-[var(--color-text-primary)] text-white text-center"
+                                    className="block px-4 py-3 rounded-lg text-sm font-semibold text-center bg-[var(--color-brand-600)] text-white"
                                 >
                                     Sign Up
                                 </Link>
