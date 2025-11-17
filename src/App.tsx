@@ -28,6 +28,7 @@ import MyPosts from "./pages/Writer/MyPosts";
 import EditPost from "./pages/Writer/EditPost";
 import { RoleGate } from "./components/RoleGate";
 
+
 function Protected({ children }: { children: React.ReactNode }) {
     const { accessToken } = useAuth();
     if (!accessToken) return <Navigate to="/login" replace />;
