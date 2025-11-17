@@ -32,8 +32,8 @@ export default function ResetPassword() {
             return;
         }
 
-        if (p1.length < 8) {
-            setErr("Password must be at least 8 characters long");
+        if (p1.length < 2) {
+            setErr("Password must be at least 2 characters long");
             return;
         }
 
@@ -131,7 +131,7 @@ export default function ResetPassword() {
                                         }
                                     />
                                     <p className="text-xs text-[var(--color-text-tertiary)]">
-                                        Must be at least 8 characters
+                                        Must be at least 2 characters
                                     </p>
                                 </div>
 

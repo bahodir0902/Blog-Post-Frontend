@@ -44,3 +44,19 @@ export const googleLogin = async (credential: string) => {
     const response = await api.post("/accounts/auth/google-login/", { credential });
     return response.data;
 };
+
+export async function validateInvite(uid: string, token: string) {
+    const response = await api.post("accounts/auth/validate-invitation/", { uid, token });
+    return response.data;
+}
+
+// Set initial password
+export async function setInitialPassword(data: {
+    uid: string;
+    token: string;
+    new_password: string;
+    re_password: string;
+}) {
+    const response = await api.post("accounts/auth/set-initial-password/", data);
+    return response.data;
+}

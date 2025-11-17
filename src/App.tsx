@@ -15,6 +15,7 @@ import VerifyRegistration from "./pages/Register/VerifyRegistration";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import VerifyResetCode from "./pages/Auth/VerifyResetCode";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import SetInitialPassword from "./pages/Auth/SetInitialPassword";
 
 // Profile
 import ProfilePage from "./pages/Profile/ProfilePage";
@@ -52,6 +53,7 @@ export default function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/forgot-password/verify" element={<VerifyResetCode />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/activate" element={<SetInitialPassword />} />
 
                 {/* Profile (protected) */}
                 <Route
