@@ -9,6 +9,7 @@ export type AuthorPostListItem = {
     cover_image: string | null;
     created_at: string;
     updated_at: string;
+    published_at?: string | null;
     status?: "draft" | "published" | "scheduled" | "archived";
 };
 
@@ -22,6 +23,7 @@ export type AuthorPostDetail = {
     cover_image: string | null;
     author: number;
     status: "draft" | "published" | "scheduled" | "archived";
+    published_at?: string | null;
     created_at: string;
     updated_at: string;
 };
@@ -39,6 +41,7 @@ export async function createAuthorPost(payload: {
     short_description: string;
     content: any;
     status: "draft" | "published" | "scheduled" | "archived";
+    published_at?: string;
     cover_image?: File | null;
 }) {
     const fd = new FormData();
@@ -47,6 +50,7 @@ export async function createAuthorPost(payload: {
     fd.append("short_description", payload.short_description);
     fd.append("content", JSON.stringify(payload.content ?? {}));
     fd.append("status", payload.status);
+    if (payload.published_at) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
 
     const { data } = await api.post("posts/author/", fd, {
@@ -63,6 +67,7 @@ export async function updateAuthorPost(
         short_description: string;
         content: any;
         status: "draft" | "published" | "scheduled" | "archived";
+        published_at: string;
         cover_image: File | null; // send only when changed
     }>
 ) {
@@ -76,6 +81,7 @@ export async function updateAuthorPost(
     if (payload.content !== undefined)
         fd.append("content", JSON.stringify(payload.content ?? {}));
     if (payload.status !== undefined) fd.append("status", payload.status);
+    if (payload.published_at !== undefined) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
 
     const { data } = await api.patch(`posts/author/${slug}/`, fd, {
@@ -105,7 +111,6 @@ export async function getAuthorPost(slug: string) {
     const { data } = await api.get(`posts/author/${slug}/`);
     return data as AuthorPostDetail;
 }
-
 
 export async function uploadTempPostImage(file: File) {
     const fd = new FormData();

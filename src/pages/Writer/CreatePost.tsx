@@ -6,6 +6,7 @@ import { listCategories } from "../../services/categories";
 import { createAuthorPost } from "../../services/authorPosts";
 import { adoptImages } from "../../services/authorPosts";
 import Dropdown from "../../components/ui/Dropdown";
+import DateTimePicker from "../../components/ui/DateTimePicker";
 import clsx from "clsx";
 
 type Status = "draft" | "published" | "scheduled" | "archived";
@@ -20,7 +21,7 @@ const STATUS_OPTIONS = [
 const STATUS_HINT: Record<Status, string> = {
     draft: "Keep it private. You can come back and publish later.",
     published: "Visible to everyone immediately after saving.",
-    scheduled: "Will go live at the scheduled time later (we can add a datetime field).",
+    scheduled: "Will go live at the scheduled time below.",
     archived: "Hidden from public lists without deleting the content.",
 };
 
@@ -34,6 +35,9 @@ export default function CreatePost() {
     const [category, setCategory] = useState<number | "">("");
     const [shortDescription, setShortDescription] = useState("");
     const [status, setStatus] = useState<Status>("draft");
+    const [scheduledTime, setScheduledTime] = useState<string>(
+        new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // Default to tomorrow
+    );
     const [content, setContent] = useState<any>({});
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -61,6 +65,7 @@ export default function CreatePost() {
                 short_description: shortDescription,
                 content,
                 status,
+                published_at: status === "scheduled" ? scheduledTime : undefined,
                 cover_image: coverFile ?? undefined,
             }),
         onSuccess: async (post) => {
@@ -155,7 +160,7 @@ export default function CreatePost() {
                             </label>
                             <div className="editor-wrapper">
                                 <WriterEditor
-                                    initialData={{ blocks: [{ type: "paragraph", content: "" }] }} // already BlockNote shape
+                                    initialData={{ blocks: [{ type: "paragraph", content: "" }] }}
                                     onChange={setContent}
                                     onTempImage={onTempImage}
                                 />
@@ -240,6 +245,18 @@ export default function CreatePost() {
                                 {STATUS_HINT[status]}
                             </p>
                         </div>
+
+                        {/* DateTime Picker - shown only when status is scheduled */}
+                        {status === "scheduled" && (
+                            <div className="animate-slide-up">
+                                <DateTimePicker
+                                    label="Publish at"
+                                    value={scheduledTime}
+                                    onChange={setScheduledTime}
+                                    minDate={new Date()}
+                                />
+                            </div>
+                        )}
 
                         {/* Action Buttons */}
                         <div className="flex flex-col gap-3 pt-4">

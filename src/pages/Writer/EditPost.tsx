@@ -6,6 +6,7 @@ import WriterEditor from "../../components/Editor/WriterEditor";
 import { listCategories } from "../../services/categories";
 import { getAuthorPost, updateAuthorPost } from "../../services/authorPosts";
 import Dropdown from "../../components/ui/Dropdown";
+import DateTimePicker from "../../components/ui/DateTimePicker";
 import clsx from "clsx";
 
 type Status = "draft" | "published" | "scheduled" | "archived";
@@ -20,8 +21,7 @@ const STATUS_OPTIONS = [
 const STATUS_HINT: Record<Status, string> = {
     draft: "Keep it private. You can come back and publish later.",
     published: "Visible to everyone immediately after saving.",
-    scheduled:
-        "Will go live at the scheduled time (date/time input can be added later to set published_at).",
+    scheduled: "Will go live at the scheduled time below.",
     archived: "Hidden from public lists without deleting the content.",
 };
 
@@ -58,6 +58,9 @@ export default function EditPost() {
     const [category, setCategory] = useState<number | "">("");
     const [shortDescription, setShortDescription] = useState("");
     const [status, setStatus] = useState<Status>("draft");
+    const [scheduledTime, setScheduledTime] = useState<string>(
+        new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    );
 
     // Content states
     const [content, setContent] = useState<any>({});
@@ -78,8 +81,12 @@ export default function EditPost() {
         setShortDescription(p.short_description);
         setStatus(p.status);
 
+        // Set scheduled time from the post if available, otherwise default to tomorrow
+        if (p.published_at) {
+            setScheduledTime(p.published_at);
+        }
+
         // Initialize content both for the editor (initialContent) and the form's save payload (content)
-        // IMPORTANT: initialContent stays fixed for mounting the editor; content will be updated on editor changes
         setInitialContent(p.content ?? { blocks: [{ type: "paragraph", content: "" }] });
         setContent(p.content ?? { blocks: [{ type: "paragraph", content: "" }] });
 
@@ -109,6 +116,7 @@ export default function EditPost() {
                 short_description: shortDescription,
                 content,
                 status,
+                published_at: status === "scheduled" ? scheduledTime : undefined,
                 cover_image: coverFile ?? undefined,
             }),
         onSuccess: () => {
@@ -226,8 +234,6 @@ export default function EditPost() {
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-[var(--color-text-primary)]">Content</label>
                             <div className="editor-wrapper">
-                                {/* Mount the editor ONLY when we have initialContent.
-                   Also add a key based on slug + updated_at so the editor remounts when the server content changes. */}
                                 {initialContent === null ? (
                                     <div className="h-40 rounded-lg border-2 border-[var(--color-border)] bg-[var(--color-surface)] animate-pulse" />
                                 ) : (
@@ -324,6 +330,18 @@ export default function EditPost() {
                                 {STATUS_HINT[status]}
                             </p>
                         </div>
+
+                        {/* DateTime Picker - shown only when status is scheduled */}
+                        {status === "scheduled" && (
+                            <div className="animate-slide-up">
+                                <DateTimePicker
+                                    label="Publish at"
+                                    value={scheduledTime}
+                                    onChange={setScheduledTime}
+                                    minDate={new Date()}
+                                />
+                            </div>
+                        )}
 
                         <div className="flex flex-col gap-3 pt-4">
                             <button
