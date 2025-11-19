@@ -1,8 +1,7 @@
-// src/pages/PostDetail.tsx
 import React, { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getPost } from "../services/posts";
+import { getPost, getRelatedPosts } from "../services/posts";
 import Card from "../components/ui/Card";
 
 /* ======================= utils: shape + conversion ======================= */
@@ -241,7 +240,6 @@ function Rich({ blocks }: RichProps) {
                     className="inline-block w-full sm:w-auto rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-md)]"
                     style={styleWidth}
                 >
-                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
                     <img
                         src={url}
                         alt={caption || "image"}
@@ -381,13 +379,28 @@ function Rich({ blocks }: RichProps) {
 
 export default function PostDetail() {
     const { slug } = useParams<{ slug: string }>();
+
     const { data: post, isLoading, isError } = useQuery({
         queryKey: ["post", slug],
         queryFn: () => getPost(slug!),
         enabled: !!slug,
     });
 
+    const { data: relatedPosts } = useQuery({
+        queryKey: ["relatedPosts", slug],
+        queryFn: () => getRelatedPosts(slug!),
+        enabled: !!slug,
+    });
+
     const blocks = useMemo(() => toBlocks(post?.content), [post?.content]);
+
+    // Get author initials for avatar
+    const getAuthorInitials = (author: any) => {
+        if (!author) return "A";
+        const first = author.first_name?.[0] || "";
+        const last = author.last_name?.[0] || "";
+        return (first + last).toUpperCase() || author.email?.[0]?.toUpperCase() || "A";
+    };
 
     if (isLoading) {
         return (
@@ -489,15 +502,17 @@ export default function PostDetail() {
                 </Card>
             </section>
 
-            {/* author + share (kept same structure) */}
+            {/* author + share */}
             <div className="grid md:grid-cols-2 gap-6 mb-12">
                 <Card className="p-6">
                     <div className="flex items-center gap-4">
                         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                            A
+                            {getAuthorInitials(post.author)}
                         </div>
                         <div className="flex-1">
-                            <h3 className="font-semibold text-[var(--color-text-primary)]">Author Name</h3>
+                            <h3 className="font-semibold text-[var(--color-text-primary)]">
+                                {post.author?.full_name || post.author?.email || "Unknown Author"}
+                            </h3>
                             <p className="text-sm text-[var(--color-text-tertiary)]">Content Creator</p>
                         </div>
                         <button className="px-4 py-2 rounded-lg text-sm font-medium bg-[var(--color-brand-500)] text-white hover:bg-[var(--color-brand-600)] transition-colors">
@@ -530,23 +545,50 @@ export default function PostDetail() {
                 </Card>
             </div>
 
-            {/* related */}
-            <section className="space-y-6">
-                <h2 className="text-2xl font-bold text-[var(--color-text-primary)]">Related Articles</h2>
-                <div className="grid md:grid-cols-3 gap-6">
-                    {[1, 2, 3].map((i) => (
-                        <Card key={i} hover className="overflow-hidden group">
-                            <div className="aspect-[16/9] bg-gradient-to-br from-[var(--color-brand-100)] to-[var(--color-brand-200)] dark:from-[var(--color-brand-900)] dark:to-[var(--color-brand-800)]" />
-                            <div className="p-4 space-y-2">
-                                <h3 className="font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-500)] transition-colors line-clamp-2">
-                                    Related Post Title {i}
-                                </h3>
-                                <p className="text-sm text-[var(--color-text-tertiary)]">5 min read</p>
-                            </div>
-                        </Card>
-                    ))}
-                </div>
-            </section>
+            {/* related posts */}
+            {relatedPosts && relatedPosts.length > 0 && (
+                <section className="space-y-6">
+                    <h2 className="text-2xl font-bold text-[var(--color-text-primary)]">Related Articles</h2>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {relatedPosts.slice(0, 3).map((relatedPost) => (
+                            <Link key={relatedPost.id} to={`/post/${relatedPost.slug}`}>
+                                <Card hover className="overflow-hidden group h-full">
+                                    <div className="aspect-[16/9] relative overflow-hidden">
+                                        {relatedPost.cover_image ? (
+                                            <img
+                                                src={relatedPost.cover_image}
+                                                alt={relatedPost.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-[var(--color-brand-100)] to-[var(--color-brand-200)] dark:from-[var(--color-brand-900)] dark:to-[var(--color-brand-800)]" />
+                                        )}
+                                    </div>
+                                    <div className="p-4 space-y-2">
+                                        <h3 className="font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-500)] transition-colors line-clamp-2">
+                                            {relatedPost.title}
+                                        </h3>
+                                        <p className="text-sm text-[var(--color-text-secondary)] line-clamp-2">
+                                            {relatedPost.short_description}
+                                        </p>
+                                        <div className="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)] pt-2">
+                                            <time dateTime={relatedPost.created_at}>
+                                                {new Date(relatedPost.created_at).toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    year: "numeric"
+                                                })}
+                                            </time>
+                                            <span>•</span>
+                                            <span>5 min read</span>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
         </article>
     );
 }

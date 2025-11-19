@@ -37,6 +37,17 @@ export type PostListItem = {
     cover_image: string | null;
     created_at: string;
     updated_at: string;
+    published_at?: string | null;
+    status?: "draft" | "published" | "scheduled" | "archived";
+};
+
+
+export type Author = {
+    id: number;
+    first_name: string;
+    last_name: string;
+    full_name: string;
+    email: string;
 };
 
 export type PostDetail = {
@@ -47,8 +58,8 @@ export type PostDetail = {
     short_description: string;
     content: any;
     cover_image: string | null;
-    author: number;
-    status: string;
+    author: Author;
+    status: "draft" | "published" | "scheduled" | "archived";
     created_at: string;
     updated_at: string;
 };

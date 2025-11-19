@@ -64,9 +64,9 @@ export default function Footer() {
         <footer className="mt-20 border-t border-[var(--color-border)] bg-[var(--color-surface)]">
             {/* Main Footer Content */}
             <div className="container-responsive py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                     {/* Brand Section */}
-                    <div className="lg:col-span-2 space-y-4">
+                    <div className="col-span-2 md:col-span-2 lg:col-span-2 space-y-4">
                         <Link to="/" className="inline-flex items-center gap-3 group">
                             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-700)] flex items-center justify-center shadow-lg">
                                 <span className="text-white font-bold text-xl">B</span>

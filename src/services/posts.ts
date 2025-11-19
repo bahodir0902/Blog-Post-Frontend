@@ -58,3 +58,9 @@ export async function getPost(slug: string) {
     const { data } = await api.get(`posts/client/${slug}/`);
     return data as PostDetail;
 }
+
+/** Related posts for a specific post */
+export async function getRelatedPosts(slug: string) {
+    const { data } = await api.get(`posts/client/${slug}/related-posts/`);
+    return data as PostListItem[];
+}
