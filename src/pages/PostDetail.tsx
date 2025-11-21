@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getPost, getRelatedPosts } from "../services/posts";
 import Card from "../components/ui/Card";
+import CommentsSection from "../components/CommentsSection";
 
 /* ======================= utils: shape + conversion ======================= */
 
@@ -547,7 +548,7 @@ export default function PostDetail() {
 
             {/* related posts */}
             {relatedPosts && relatedPosts.length > 0 && (
-                <section className="space-y-6">
+                <section className="space-y-6 mb-12">
                     <h2 className="text-2xl font-bold text-[var(--color-text-primary)]">Related Articles</h2>
                     <div className="grid md:grid-cols-3 gap-6">
                         {relatedPosts.slice(0, 3).map((relatedPost) => (
@@ -589,6 +590,9 @@ export default function PostDetail() {
                     </div>
                 </section>
             )}
+
+            {/* COMMENTS SECTION - New Addition */}
+            {slug && <CommentsSection postSlug={slug} />}
         </article>
     );
 }
