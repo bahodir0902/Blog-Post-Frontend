@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import PostDetail from "./pages/PostDetail";
 import Explore from "./pages/Explore";
 import Read from "./pages/Read";
+import Favourites from "./pages/Favourites";
+import Bookmarks from "./pages/Bookmarks";
 
 // Auth
 import Login from "./pages/Login";
@@ -85,6 +87,24 @@ export default function App() {
                     element={
                         <Protected>
                             <ConfirmEmailChange />
+                        </Protected>
+                    }
+                />
+
+                {/* Favourites & Bookmarks (protected) */}
+                <Route
+                    path="/favourites"
+                    element={
+                        <Protected>
+                            <Favourites />
+                        </Protected>
+                    }
+                />
+                <Route
+                    path="/bookmarks"
+                    element={
+                        <Protected>
+                            <Bookmarks />
                         </Protected>
                     }
                 />

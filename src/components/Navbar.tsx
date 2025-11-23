@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useTheme } from "./ThemeProvider";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { Menu, X, Sun, Moon, PenTool, User, LogOut, FileText } from "lucide-react";
+import { Menu, X, Sun, Moon, PenTool, User, LogOut, FileText, Heart, Bookmark } from "lucide-react";
 
 export default function Navbar() {
     const { accessToken, logout } = useAuth();
@@ -132,15 +132,15 @@ export default function Navbar() {
                                     className="flex items-center gap-2 p-1 rounded-lg hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                     aria-label="User menu"
                                 >
-                                    {/* Avatar */}
+                                    {/* Avatar with profile photo support */}
                                     {user?.profile_photo ? (
                                         <img
                                             src={user.profile_photo}
                                             alt={user.first_name || "User"}
-                                            className="w-8 h-8 rounded-full object-cover border-2 border-[var(--color-border)]"
+                                            className="w-9 h-9 rounded-full object-cover border-2 border-[var(--color-border)] ring-2 ring-transparent hover:ring-[var(--color-brand-500)] transition-all"
                                         />
                                     ) : (
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-semibold text-sm border-2 border-[var(--color-border)]">
+                                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-semibold text-sm border-2 border-[var(--color-border)] ring-2 ring-transparent hover:ring-[var(--color-brand-500)] transition-all">
                                             {getUserInitials()}
                                         </div>
                                     )}
@@ -156,41 +156,80 @@ export default function Navbar() {
                                     </svg>
                                 </button>
 
-                                {/* Dropdown Menu - Simplified */}
+                                {/* Dropdown Menu - Enhanced with Favourites & Bookmarks */}
                                 {dropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-56 animate-scale-in origin-top-right">
+                                    <div className="absolute right-0 mt-2 w-60 animate-scale-in origin-top-right">
                                         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xl overflow-hidden">
+                                            {/* User Info Header */}
                                             <div className="p-4 bg-[var(--color-surface-elevated)] border-b border-[var(--color-border)]">
-                                                <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
-                                                    {user?.first_name || "User"}
-                                                </p>
-                                                <p className="text-xs text-[var(--color-text-tertiary)] mt-1 truncate">
-                                                    {user?.email || ""}
-                                                </p>
+                                                <div className="flex items-center gap-3">
+                                                    {user?.profile_photo ? (
+                                                        <img
+                                                            src={user.profile_photo}
+                                                            alt={user.first_name || "User"}
+                                                            className="w-12 h-12 rounded-full object-cover border-2 border-[var(--color-border)]"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-bold text-lg border-2 border-[var(--color-border)]">
+                                                            {getUserInitials()}
+                                                        </div>
+                                                    )}
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+                                                            {user?.first_name || "User"}
+                                                        </p>
+                                                        <p className="text-xs text-[var(--color-text-tertiary)] mt-0.5 truncate">
+                                                            {user?.email || ""}
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
 
+                                            {/* Menu Items */}
                                             <div className="py-2">
                                                 <button
                                                     onClick={() => {
                                                         navigate("/profile");
                                                         setDropdownOpen(false);
                                                     }}
-                                                    className="w-full px-4 py-3 text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors flex items-center gap-3"
+                                                    className="w-full px-4 py-2.5 text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors flex items-center gap-3"
                                                 >
-                                                    <User className="w-5 h-5" />
-                                                    View Profile
+                                                    <User className="w-4 h-4" />
+                                                    <span className="font-medium">Profile</span>
                                                 </button>
 
-                                                <div className="my-1 border-t border-[var(--color-border)]" />
+                                                <button
+                                                    onClick={() => {
+                                                        navigate("/favourites");
+                                                        setDropdownOpen(false);
+                                                    }}
+                                                    className="w-full px-4 py-2.5 text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-900)] transition-colors flex items-center gap-3 group"
+                                                >
+                                                    <Heart className="w-4 h-4 group-hover:fill-current" />
+                                                    <span className="font-medium">Favourites</span>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        navigate("/bookmarks");
+                                                        setDropdownOpen(false);
+                                                    }}
+                                                    className="w-full px-4 py-2.5 text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-900)] transition-colors flex items-center gap-3 group"
+                                                >
+                                                    <Bookmark className="w-4 h-4 group-hover:fill-current" />
+                                                    <span className="font-medium">Read Later</span>
+                                                </button>
+
+                                                <div className="my-2 border-t border-[var(--color-border)]" />
 
                                                 <button
                                                     onClick={() => {
                                                         logout();
                                                         setDropdownOpen(false);
                                                     }}
-                                                    className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center gap-3 font-medium"
+                                                    className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center gap-3 font-medium"
                                                 >
-                                                    <LogOut className="w-5 h-5" />
+                                                    <LogOut className="w-4 h-4" />
                                                     Logout
                                                 </button>
                                             </div>
@@ -229,17 +268,17 @@ export default function Navbar() {
                 {/* Mobile Menu */}
                 {mobileMenuOpen && (
                     <div className="md:hidden mt-4 pb-4 space-y-2 animate-fade-in border-t border-[var(--color-border)] pt-4">
-                        {/* User info (mobile) */}
+                        {/* User info (mobile) with profile photo */}
                         {accessToken && user && (
                             <div className="px-4 py-3 mb-2 bg-[var(--color-surface-elevated)] rounded-lg flex items-center gap-3">
                                 {user.profile_photo ? (
                                     <img
                                         src={user.profile_photo}
                                         alt={user.first_name || "User"}
-                                        className="w-10 h-10 rounded-full object-cover border-2 border-[var(--color-border)]"
+                                        className="w-12 h-12 rounded-full object-cover border-2 border-[var(--color-border)]"
                                     />
                                 ) : (
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-semibold border-2 border-[var(--color-border)]">
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-bold text-base border-2 border-[var(--color-border)]">
                                         {getUserInitials()}
                                     </div>
                                 )}
@@ -299,7 +338,21 @@ export default function Navbar() {
                                     className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                 >
                                     <User className="w-5 h-5" />
-                                    View Profile
+                                    Profile
+                                </Link>
+                                <Link
+                                    to="/favourites"
+                                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-900)] transition-all duration-200"
+                                >
+                                    <Heart className="w-5 h-5" />
+                                    Favourites
+                                </Link>
+                                <Link
+                                    to="/bookmarks"
+                                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-900)] transition-all duration-200"
+                                >
+                                    <Bookmark className="w-5 h-5" />
+                                    Read Later
                                 </Link>
                                 <button
                                     onClick={logout}

@@ -7,6 +7,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { listComments, createComment, deleteComment, updateComment, fetchReplies, likeComment, dislikeComment } from "../services/comments";
 import type { Comment } from "../types/comment";
 import ConfirmDialog from "./ConfirmDialog";
+import Dropdown from "./ui/Dropdown";
 
 type CommentsSectionProps = {
     postSlug: string;
@@ -14,14 +15,19 @@ type CommentsSectionProps = {
 
 type SortOption = "newest" | "oldest" | "most_liked";
 
+const PAGE_SIZE_OPTIONS = [
+    { label: "10 per page", value: "10" },
+    { label: "20 per page", value: "20" },
+    { label: "50 per page", value: "50" },
+];
+
 export default function CommentsSection({ postSlug }: CommentsSectionProps) {
     const [page, setPage] = useState(1);
-    const [pageSize] = useState(20);
+    const [pageSize, setPageSize] = useState(20);
     const [sortBy, setSortBy] = useState<SortOption>("newest");
     const [showSortMenu, setShowSortMenu] = useState(false);
     const { user } = useCurrentUser();
 
-    // Map frontend sort to backend ordering
     const getOrdering = () => {
         switch (sortBy) {
             case "newest": return "-created_at";
@@ -40,6 +46,36 @@ export default function CommentsSection({ postSlug }: CommentsSectionProps) {
     const totalComments = commentsData?.total_comments || 0;
     const comments = commentsData?.results || [];
     const totalPages = commentsData ? Math.ceil(commentsData.count / pageSize) : 1;
+
+    const handlePageSizeChange = (value: string) => {
+        setPageSize(parseInt(value, 10));
+        setPage(1);
+    };
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= totalPages) setPage(newPage);
+    };
+
+    const getPageNumbers = () => {
+        const pages: (number | "ellipsis")[] = [];
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            pages.push(1);
+            if (page > 3) pages.push("ellipsis");
+            const start = Math.max(2, page - 1);
+            const end = Math.min(totalPages - 1, page + 1);
+            for (let i = start; i <= end; i++) pages.push(i);
+            if (page < totalPages - 2) pages.push("ellipsis");
+            if (totalPages > 1) pages.push(totalPages);
+        }
+        return pages;
+    };
+
+    const pageOptions = Array.from({ length: totalPages }, (_, i) => ({
+        label: `Page ${i + 1}`,
+        value: String(i + 1),
+    }));
 
     return (
         <section className="space-y-6">
@@ -66,24 +102,9 @@ export default function CommentsSection({ postSlug }: CommentsSectionProps) {
                         <>
                             <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
                             <div className="absolute top-full left-0 mt-2 py-1 w-40 rounded-lg bg-[var(--color-surface-elevated)] border border-[var(--color-border)] shadow-lg z-20">
-                                <button
-                                    onClick={() => { setSortBy("newest"); setShowSortMenu(false); }}
-                                    className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "newest" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}
-                                >
-                                    Most recent
-                                </button>
-                                <button
-                                    onClick={() => { setSortBy("oldest"); setShowSortMenu(false); }}
-                                    className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "oldest" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}
-                                >
-                                    Oldest first
-                                </button>
-                                <button
-                                    onClick={() => { setSortBy("most_liked"); setShowSortMenu(false); }}
-                                    className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "most_liked" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}
-                                >
-                                    Top
-                                </button>
+                                <button onClick={() => { setSortBy("newest"); setShowSortMenu(false); setPage(1); }} className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "newest" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}>Most recent</button>
+                                <button onClick={() => { setSortBy("oldest"); setShowSortMenu(false); setPage(1); }} className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "oldest" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}>Oldest first</button>
+                                <button onClick={() => { setSortBy("most_liked"); setShowSortMenu(false); setPage(1); }} className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "most_liked" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}>Top</button>
                             </div>
                         </>
                     )}
@@ -123,23 +144,53 @@ export default function CommentsSection({ postSlug }: CommentsSectionProps) {
                 </div>
             )}
 
-            {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-4 border-t border-[var(--color-border)]">
-                    <button
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                        className="px-4 py-2 rounded-full text-sm font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        Previous
-                    </button>
-                    <span className="px-3 py-2 text-sm text-[var(--color-text-secondary)]">{page} / {totalPages}</span>
-                    <button
-                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                        disabled={page === totalPages}
-                        className="px-4 py-2 rounded-full text-sm font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        Next
-                    </button>
+            {/* Enhanced Pagination */}
+            {totalPages >= 1 && !isLoading && !isError && comments.length > 0 && (
+                <div className="pt-6 border-t border-[var(--color-border)]">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="text-sm text-[var(--color-text-tertiary)]">
+                            Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, commentsData?.count || 0)} of {commentsData?.count || 0} comments
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => handlePageChange(page - 1)} disabled={page === 1} className="p-2 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" aria-label="Previous page">
+                                <ChevronLeftIcon className="w-5 h-5" />
+                            </button>
+
+                            <div className="hidden sm:flex items-center gap-1">
+                                {getPageNumbers().map((p, idx) =>
+                                    p === "ellipsis" ? (
+                                        <span key={`ellipsis-${idx}`} className="px-2 text-[var(--color-text-tertiary)]">…</span>
+                                    ) : (
+                                        <button key={p} onClick={() => handlePageChange(p)} className={`min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors ${page === p ? "bg-[var(--color-brand-500)] text-white" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"}`}>
+                                            {p}
+                                        </button>
+                                    )
+                                )}
+                            </div>
+
+                            <div className="sm:hidden w-32">
+                                <Dropdown options={pageOptions} value={String(page)} onChange={(val) => handlePageChange(parseInt(val, 10))} placeholder="Page" />
+                            </div>
+
+                            <button onClick={() => handlePageChange(page + 1)} disabled={page === totalPages} className="p-2 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors" aria-label="Next page">
+                                <ChevronRightIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="w-36">
+                            <Dropdown options={PAGE_SIZE_OPTIONS} value={String(pageSize)} onChange={handlePageSizeChange} />
+                        </div>
+                    </div>
+
+                    {totalPages > 10 && (
+                        <div className="mt-4 flex items-center justify-center gap-2">
+                            <span className="text-sm text-[var(--color-text-tertiary)]">Jump to:</span>
+                            <div className="w-28">
+                                <Dropdown options={pageOptions} value={String(page)} onChange={(val) => handlePageChange(parseInt(val, 10))} />
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </section>
@@ -164,9 +215,7 @@ function CommentThread({ comment, postSlug }: CommentThreadProps) {
     const hasReplies = replyCount > 0 || (replies && replies.length > 0);
     const displayCount = (replies && replies.length > 0) ? replies.length : replyCount;
 
-    const handleToggleReplies = () => {
-        setShowReplies(!showReplies);
-    };
+    const handleToggleReplies = () => setShowReplies(!showReplies);
 
     const handleReplyAdded = () => {
         setShowReplies(true);
@@ -180,28 +229,14 @@ function CommentThread({ comment, postSlug }: CommentThreadProps) {
 
             {(hasReplies || displayCount > 0) && (
                 <div className="ml-12 md:ml-14 mt-2">
-                    <button
-                        onClick={handleToggleReplies}
-                        disabled={isLoadingReplies}
-                        className="flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-full text-sm font-semibold text-[var(--color-brand-500)] hover:bg-[var(--color-brand-500)]/10 transition-colors disabled:opacity-70"
-                    >
+                    <button onClick={handleToggleReplies} disabled={isLoadingReplies} className="flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-full text-sm font-semibold text-[var(--color-brand-500)] hover:bg-[var(--color-brand-500)]/10 transition-colors disabled:opacity-70">
                         {isLoadingReplies ? (
-                            <>
-                                <LoadingSpinner />
-                                Loading...
-                            </>
+                            <><LoadingSpinner />Loading...</>
                         ) : (
-                            <>
-                                <ChevronIcon className={`w-4 h-4 transition-transform duration-200 ${showReplies ? "rotate-180" : ""}`} />
-                                {showReplies ? "Hide" : "View"} {displayCount} {displayCount === 1 ? "reply" : "replies"}
-                            </>
+                            <><ChevronIcon className={`w-4 h-4 transition-transform duration-200 ${showReplies ? "rotate-180" : ""}`} />{showReplies ? "Hide" : "View"} {displayCount} {displayCount === 1 ? "reply" : "replies"}</>
                         )}
                     </button>
-                    {repliesError && (
-                        <button onClick={() => refetch()} className="mt-1 ml-1 text-xs text-red-500 hover:underline">
-                            Failed to load replies. Click to retry.
-                        </button>
-                    )}
+                    {repliesError && <button onClick={() => refetch()} className="mt-1 ml-1 text-xs text-red-500 hover:underline">Failed to load replies. Click to retry.</button>}
                 </div>
             )}
 
@@ -234,9 +269,7 @@ function ReplyThread({ reply, postSlug }: ReplyThreadProps) {
     const hasNested = nestedCount > 0 || (nestedReplies && nestedReplies.length > 0);
     const displayCount = (nestedReplies && nestedReplies.length > 0) ? nestedReplies.length : nestedCount;
 
-    const handleToggle = () => {
-        setShowNested(!showNested);
-    };
+    const handleToggle = () => setShowNested(!showNested);
 
     const handleReplyAdded = () => {
         setShowNested(true);
@@ -250,28 +283,14 @@ function ReplyThread({ reply, postSlug }: ReplyThreadProps) {
 
             {(hasNested || displayCount > 0) && (
                 <div className="mt-2 ml-11">
-                    <button
-                        onClick={handleToggle}
-                        disabled={isLoading}
-                        className="flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-full text-xs font-semibold text-[var(--color-brand-500)] hover:bg-[var(--color-brand-500)]/10 transition-colors disabled:opacity-70"
-                    >
+                    <button onClick={handleToggle} disabled={isLoading} className="flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-full text-xs font-semibold text-[var(--color-brand-500)] hover:bg-[var(--color-brand-500)]/10 transition-colors disabled:opacity-70">
                         {isLoading ? (
-                            <>
-                                <LoadingSpinner />
-                                Loading...
-                            </>
+                            <><LoadingSpinner />Loading...</>
                         ) : (
-                            <>
-                                <ChevronIcon className={`w-3.5 h-3.5 transition-transform duration-200 ${showNested ? "rotate-180" : ""}`} />
-                                {showNested ? "Hide" : "View"} {displayCount} {displayCount === 1 ? "reply" : "replies"}
-                            </>
+                            <><ChevronIcon className={`w-3.5 h-3.5 transition-transform duration-200 ${showNested ? "rotate-180" : ""}`} />{showNested ? "Hide" : "View"} {displayCount} {displayCount === 1 ? "reply" : "replies"}</>
                         )}
                     </button>
-                    {isError && (
-                        <button onClick={() => refetch()} className="mt-1 ml-1 text-xs text-red-500 hover:underline">
-                            Failed to load. Click to retry.
-                        </button>
-                    )}
+                    {isError && <button onClick={() => refetch()} className="mt-1 ml-1 text-xs text-red-500 hover:underline">Failed to load. Click to retry.</button>}
                 </div>
             )}
 
@@ -300,27 +319,18 @@ function CommentItem({ comment, postSlug, isReply, onReplyAdded }: CommentItemPr
 
     const invalidateAllComments = () => {
         queryClient.invalidateQueries({ queryKey: ["comments", postSlug] });
-        queryClient.invalidateQueries({
-            predicate: (query) =>
-                query.queryKey[0] === "replies" && query.queryKey[1] === postSlug
-        });
+        queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "replies" && query.queryKey[1] === postSlug });
     };
 
     const deleteMutation = useMutation({
         mutationFn: () => deleteComment(postSlug, comment.id),
-        onSuccess: () => {
-            invalidateAllComments();
-            setShowDeleteConfirm(false);
-        },
+        onSuccess: () => { invalidateAllComments(); setShowDeleteConfirm(false); },
     });
 
     const editMutation = useMutation({
         mutationFn: (content: string) => updateComment(postSlug, comment.id, { content }),
         onSuccess: (updatedComment) => {
-            queryClient.setQueryData<Comment[]>(
-                ["replies", postSlug, comment.parent],
-                (old) => old?.map(c => c.id === comment.id ? { ...c, ...updatedComment } : c)
-            );
+            queryClient.setQueryData<Comment[]>(["replies", postSlug, comment.parent], (old) => old?.map(c => c.id === comment.id ? { ...c, ...updatedComment } : c));
             invalidateAllComments();
             setIsEditing(false);
         },
@@ -355,12 +365,12 @@ function CommentItem({ comment, postSlug, isReply, onReplyAdded }: CommentItemPr
         const diffYears = Math.floor(diffDays / 365);
 
         if (diffMins < 1) return "Just now";
-        if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
-        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-        if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-        if (diffWeeks < 4) return `${diffWeeks} week${diffWeeks > 1 ? "s" : ""} ago`;
-        if (diffMonths < 12) return `${diffMonths} month${diffMonths > 1 ? "s" : ""} ago`;
-        return `${diffYears} year${diffYears > 1 ? "s" : ""} ago`;
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+        if (diffWeeks < 4) return `${diffWeeks}w ago`;
+        if (diffMonths < 12) return `${diffMonths}mo ago`;
+        return `${diffYears}y ago`;
     };
 
     const handleDelete = () => { setShowMenu(false); setShowDeleteConfirm(true); };
@@ -390,15 +400,7 @@ function CommentItem({ comment, postSlug, isReply, onReplyAdded }: CommentItemPr
 
                 {isEditing ? (
                     <div className="mt-2">
-                        <textarea
-                            value={editContent}
-                            onChange={(e) => setEditContent(e.target.value)}
-                            className="w-full px-3 py-2 bg-transparent border-2 border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] text-sm leading-relaxed focus:outline-none focus:border-[var(--color-brand-500)] transition-colors resize-none"
-                            rows={3}
-                            autoFocus
-                            disabled={editMutation.isPending}
-                            onKeyDown={(e) => { if (e.key === "Escape") handleEditCancel(); }}
-                        />
+                        <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} className="w-full px-3 py-2 bg-transparent border-2 border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] text-sm leading-relaxed focus:outline-none focus:border-[var(--color-brand-500)] transition-colors resize-none" rows={3} autoFocus disabled={editMutation.isPending} onKeyDown={(e) => { if (e.key === "Escape") handleEditCancel(); }} />
                         {editMutation.isError && <p className="mt-1 text-xs text-red-500">Failed to update. Please try again.</p>}
                         <div className="mt-2 flex items-center justify-end gap-2">
                             <button onClick={handleEditCancel} disabled={editMutation.isPending} className="px-3 py-1.5 rounded-full text-xs font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors">Cancel</button>
@@ -411,33 +413,11 @@ function CommentItem({ comment, postSlug, isReply, onReplyAdded }: CommentItemPr
 
                 {!isEditing && (
                     <div className="mt-2 flex items-center gap-1 -ml-2">
-                        <button
-                            onClick={() => user && likeMutation.mutate()}
-                            disabled={!user || likeMutation.isPending}
-                            className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-colors ${
-                                !user
-                                    ? "text-[var(--color-text-tertiary)] cursor-not-allowed opacity-50"
-                                    : comment.user_reaction === "LIKE"
-                                        ? "text-[var(--color-brand-500)] bg-[var(--color-brand-500)]/10 hover:bg-[var(--color-brand-500)]/20"
-                                        : "text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
-                            } ${likeMutation.isPending ? "opacity-50" : ""}`}
-                            title={!user ? "Sign in to like" : "Like"}
-                        >
+                        <button onClick={() => user && likeMutation.mutate()} disabled={!user || likeMutation.isPending} className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-colors ${!user ? "text-[var(--color-text-tertiary)] cursor-not-allowed opacity-50" : comment.user_reaction === "LIKE" ? "text-[var(--color-brand-500)] bg-[var(--color-brand-500)]/10 hover:bg-[var(--color-brand-500)]/20" : "text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"} ${likeMutation.isPending ? "opacity-50" : ""}`} title={!user ? "Sign in to like" : "Like"}>
                             <ThumbUpIcon className="w-4 h-4" filled={comment.user_reaction === "LIKE"} />
                             <span className="text-xs font-medium">{comment.likes || 0}</span>
                         </button>
-                        <button
-                            onClick={() => user && dislikeMutation.mutate()}
-                            disabled={!user || dislikeMutation.isPending}
-                            className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-colors ${
-                                !user
-                                    ? "text-[var(--color-text-tertiary)] cursor-not-allowed opacity-50"
-                                    : comment.user_reaction === "DISLIKE"
-                                        ? "text-red-500 bg-red-500/10 hover:bg-red-500/20"
-                                        : "text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
-                            } ${dislikeMutation.isPending ? "opacity-50" : ""}`}
-                            title={!user ? "Sign in to dislike" : "Dislike"}
-                        >
+                        <button onClick={() => user && dislikeMutation.mutate()} disabled={!user || dislikeMutation.isPending} className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-colors ${!user ? "text-[var(--color-text-tertiary)] cursor-not-allowed opacity-50" : comment.user_reaction === "DISLIKE" ? "text-red-500 bg-red-500/10 hover:bg-red-500/20" : "text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"} ${dislikeMutation.isPending ? "opacity-50" : ""}`} title={!user ? "Sign in to dislike" : "Dislike"}>
                             <ThumbDownIcon className="w-4 h-4" filled={comment.user_reaction === "DISLIKE"} />
                             <span className="text-xs font-medium">{comment.dislikes || 0}</span>
                         </button>
@@ -494,12 +474,8 @@ function CommentForm({ postSlug, parentId, onSuccess, onCancel, compact, autoFoc
         onSuccess: () => {
             setContent("");
             setIsFocused(false);
-            // Invalidate top-level comments
             queryClient.invalidateQueries({ queryKey: ["comments", postSlug] });
-            // Invalidate parent's replies if this is a reply
-            if (parentId) {
-                queryClient.invalidateQueries({ queryKey: ["replies", postSlug, parentId] });
-            }
+            if (parentId) queryClient.invalidateQueries({ queryKey: ["replies", postSlug, parentId] });
             onSuccess?.();
         },
     });
@@ -558,11 +534,11 @@ function LoadingSkeleton() {
         <div className="space-y-6">
             {[1, 2, 3].map((i) => (
                 <div key={i} className="flex gap-3 animate-pulse">
-                    <div className="w-10 h-10 rounded-full skeleton" />
+                    <div className="w-10 h-10 rounded-full bg-[var(--color-surface-elevated)]" />
                     <div className="flex-1 space-y-2">
-                        <div className="h-4 w-32 skeleton rounded" />
-                        <div className="h-4 w-full skeleton rounded" />
-                        <div className="h-4 w-2/3 skeleton rounded" />
+                        <div className="h-4 w-32 bg-[var(--color-surface-elevated)] rounded" />
+                        <div className="h-4 w-full bg-[var(--color-surface-elevated)] rounded" />
+                        <div className="h-4 w-2/3 bg-[var(--color-surface-elevated)] rounded" />
                     </div>
                 </div>
             ))}
@@ -580,16 +556,18 @@ function ChevronDownIcon() {
 function ChevronIcon({ className }: { className?: string }) {
     return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
 }
+function ChevronLeftIcon({ className }: { className?: string }) {
+    return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>;
+}
+function ChevronRightIcon({ className }: { className?: string }) {
+    return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>;
+}
 function ThumbUpIcon({ className, filled }: { className?: string; filled?: boolean }) {
-    if (filled) {
-        return <svg className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.65c.05-.22.02-.46-.08-.66-.23-.45-.52-.86-.88-1.22L14 2 7.59 8.41C7.21 8.79 7 9.3 7 9.83v7.84C7 18.95 8.05 20 9.34 20h8.11c.7 0 1.36-.37 1.72-.97l2.66-6.15z"/></svg>;
-    }
+    if (filled) return <svg className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.65c.05-.22.02-.46-.08-.66-.23-.45-.52-.86-.88-1.22L14 2 7.59 8.41C7.21 8.79 7 9.3 7 9.83v7.84C7 18.95 8.05 20 9.34 20h8.11c.7 0 1.36-.37 1.72-.97l2.66-6.15z"/></svg>;
     return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" /></svg>;
 }
 function ThumbDownIcon({ className, filled }: { className?: string; filled?: boolean }) {
-    if (filled) {
-        return <svg className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M22 4h-2c-.55 0-1 .45-1 1v9c0 .55.45 1 1 1h2V4zM2.17 11.12c-.11.25-.17.52-.17.8V13c0 1.1.9 2 2 2h5.5l-.92 4.65c-.05.22-.02.46.08.66.23.45.52.86.88 1.22L10 22l6.41-6.41c.38-.38.59-.89.59-1.42V6.34C17 5.05 15.95 4 14.66 4h-8.1c-.71 0-1.36.37-1.72.97l-2.67 6.15z"/></svg>;
-    }
+    if (filled) return <svg className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M22 4h-2c-.55 0-1 .45-1 1v9c0 .55.45 1 1 1h2V4zM2.17 11.12c-.11.25-.17.52-.17.8V13c0 1.1.9 2 2 2h5.5l-.92 4.65c-.05.22-.02.46.08.66.23.45.52.86.88 1.22L10 22l6.41-6.41c.38-.38.59-.89.59-1.42V6.34C17 5.05 15.95 4 14.66 4h-8.1c-.71 0-1.36.37-1.72.97l-2.67 6.15z"/></svg>;
     return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.737 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" /></svg>;
 }
 function ReplyIcon({ className }: { className?: string }) {

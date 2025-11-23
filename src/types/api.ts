@@ -1,4 +1,5 @@
 export type Paginated<T> = {
+    total_comments: number | null;
     count: number;
     next: string | null;
     previous: string | null;
