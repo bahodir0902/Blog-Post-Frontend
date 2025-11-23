@@ -7,6 +7,7 @@ import { listCategories } from "../../services/categories";
 import { getAuthorPost, updateAuthorPost } from "../../services/authorPosts";
 import Dropdown from "../../components/ui/Dropdown";
 import DateTimePicker from "../../components/ui/DateTimePicker";
+import { ReactionTypePicker } from "../../components/posts/ReactionTypePicker";
 import clsx from "clsx";
 
 type Status = "draft" | "published" | "scheduled" | "archived";
@@ -61,6 +62,7 @@ export default function EditPost() {
     const [scheduledTime, setScheduledTime] = useState<string>(
         new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     );
+    const [allowedReactions, setAllowedReactions] = useState<number[]>([]);
 
     // Content states
     const [content, setContent] = useState<any>({});
@@ -84,6 +86,11 @@ export default function EditPost() {
         // Set scheduled time from the post if available, otherwise default to tomorrow
         if (p.published_at) {
             setScheduledTime(p.published_at);
+        }
+
+        // Set allowed reactions if they exist
+        if (p.allowed_reactions) {
+            setAllowedReactions(p.allowed_reactions);
         }
 
         // Initialize content both for the editor (initialContent) and the form's save payload (content)
@@ -118,6 +125,7 @@ export default function EditPost() {
                 status,
                 published_at: status === "scheduled" ? scheduledTime : undefined,
                 cover_image: coverFile ?? undefined,
+                allowed_reactions: allowedReactions.length > 0 ? allowedReactions : undefined,
             }),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["author", "my-posts"] });
@@ -308,6 +316,14 @@ export default function EditPost() {
                                 </div>
                             )}
                         </div>
+
+                        <div className="border-t border-[var(--color-border)] my-6"></div>
+
+                        {/* REACTION TYPE PICKER - NEW! */}
+                        <ReactionTypePicker
+                            selectedReactionIds={allowedReactions}
+                            onChange={setAllowedReactions}
+                        />
 
                         <div className="border-t border-[var(--color-border)] my-6"></div>
 

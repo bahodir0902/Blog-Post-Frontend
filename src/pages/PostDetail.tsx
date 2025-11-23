@@ -1,3 +1,4 @@
+// src/pages/PostDetail.tsx - Updated with Reactions
 import React, { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import { PostAuthorCard } from "../components/posts/PostAuthorCard";
 import { PostShareCard } from "../components/posts/PostShareCard";
 import { RelatedPosts } from "../components/posts/RelatedPosts";
 import { PostActionButtons } from "../components/posts/PostActionButtons";
+import { PostReactions } from "../components/posts/PostReactions";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 
 export default function PostDetail() {
@@ -111,8 +113,11 @@ export default function PostDetail() {
             {/* content */}
             <PostContent blocks={blocks} />
 
+            {/* REACTIONS SECTION - NEW! */}
+            {slug && <PostReactions slug={slug} />}
+
             {/* author + share */}
-            <div className="grid md:grid-cols-2 gap-6 mb-12">
+            <div className="grid md:grid-cols-2 gap-6 mb-12 mt-12">
                 <PostAuthorCard author={post.author} />
                 <PostShareCard />
             </div>

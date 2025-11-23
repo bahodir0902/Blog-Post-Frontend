@@ -7,6 +7,7 @@ import { createAuthorPost } from "../../services/authorPosts";
 import { adoptImages } from "../../services/authorPosts";
 import Dropdown from "../../components/ui/Dropdown";
 import DateTimePicker from "../../components/ui/DateTimePicker";
+import { ReactionTypePicker } from "../../components/posts/ReactionTypePicker";
 import clsx from "clsx";
 
 type Status = "draft" | "published" | "scheduled" | "archived";
@@ -41,6 +42,7 @@ export default function CreatePost() {
     const [content, setContent] = useState<any>({});
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
+    const [allowedReactions, setAllowedReactions] = useState<number[]>([]);
 
     const catQ = useQuery({
         queryKey: ["categories"],
@@ -67,6 +69,7 @@ export default function CreatePost() {
                 status,
                 published_at: status === "scheduled" ? scheduledTime : undefined,
                 cover_image: coverFile ?? undefined,
+                allowed_reactions: allowedReactions.length > 0 ? allowedReactions : undefined,
             }),
         onSuccess: async (post) => {
             const ids = tempImageIds.current;
@@ -225,6 +228,15 @@ export default function CreatePost() {
                                 </div>
                             )}
                         </div>
+
+                        {/* Divider */}
+                        <div className="border-t border-[var(--color-border)] my-6"></div>
+
+                        {/* REACTION TYPE PICKER - NEW! */}
+                        <ReactionTypePicker
+                            selectedReactionIds={allowedReactions}
+                            onChange={setAllowedReactions}
+                        />
 
                         {/* Divider */}
                         <div className="border-t border-[var(--color-border)] my-6"></div>

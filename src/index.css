@@ -628,3 +628,48 @@ label {
 .animate-slideDown {
     animation: slideDown 0.2s ease-out;
 }
+
+/* Add this to your existing index.css file, after the existing scrollbar styles */
+
+/* ================================
+   Custom Scrollbar for Dropdowns
+=================================*/
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-brand-400) var(--color-surface);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--color-surface);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-brand-400);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-brand-500);
+}
+
+/* ================================
+   Animation for dropdown
+=================================*/
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slideDown {
+    animation: slideDown 0.2s ease-out;
+}

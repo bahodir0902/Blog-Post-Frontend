@@ -1,4 +1,4 @@
-// src/services/authorPosts.ts
+// src/services/authorPosts.ts - Updated with reactions support
 import api from "../api/api";
 
 export type AuthorPostListItem = {
@@ -26,6 +26,7 @@ export type AuthorPostDetail = {
     published_at?: string | null;
     created_at: string;
     updated_at: string;
+    allowed_reactions?: number[]; // NEW: Array of ReactionType IDs
 };
 
 export type Paginated<T> = {
@@ -43,6 +44,7 @@ export async function createAuthorPost(payload: {
     status: "draft" | "published" | "scheduled" | "archived";
     published_at?: string;
     cover_image?: File | null;
+    allowed_reactions?: number[]; // NEW
 }) {
     const fd = new FormData();
     fd.append("title", payload.title);
@@ -52,6 +54,11 @@ export async function createAuthorPost(payload: {
     fd.append("status", payload.status);
     if (payload.published_at) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
+
+    // NEW: Add allowed_reactions as JSON array
+    if (payload.allowed_reactions && payload.allowed_reactions.length > 0) {
+        fd.append("allowed_reactions", JSON.stringify(payload.allowed_reactions));
+    }
 
     const { data } = await api.post("posts/author/", fd, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -68,7 +75,8 @@ export async function updateAuthorPost(
         content: any;
         status: "draft" | "published" | "scheduled" | "archived";
         published_at: string;
-        cover_image: File | null; // send only when changed
+        cover_image: File | null;
+        allowed_reactions: number[]; // NEW
     }>
 ) {
     const fd = new FormData();
@@ -83,6 +91,14 @@ export async function updateAuthorPost(
     if (payload.status !== undefined) fd.append("status", payload.status);
     if (payload.published_at !== undefined) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
+
+    // NEW: Add allowed_reactions
+    if (payload.allowed_reactions && payload.allowed_reactions.length > 0) {
+        for (const id of payload.allowed_reactions) {
+            fd.append("allowed_reactions", String(id));
+        }
+    }
+
 
     const { data } = await api.patch(`posts/author/${slug}/`, fd, {
         headers: { "Content-Type": "multipart/form-data" },

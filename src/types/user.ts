@@ -1,3 +1,5 @@
+// src/types/user.ts
+
 export type ProfileRead = {
     user: {
         id: number;
@@ -23,7 +25,7 @@ export type ProfileWrite = Partial<{
     "user.first_name": string;
     "user.last_name": string;
     "user.mfa_enabled": boolean;
-    birth_date: string;            // YYYY-MM-DD
+    birth_date: string;
     phone_number: string;
     middle_name: string;
     profile_photo: File | null;
@@ -40,7 +42,6 @@ export type PostListItem = {
     published_at?: string | null;
     status?: "draft" | "published" | "scheduled" | "archived";
 };
-
 
 export type Author = {
     id: number;
@@ -62,4 +63,5 @@ export type PostDetail = {
     status: "draft" | "published" | "scheduled" | "archived";
     created_at: string;
     updated_at: string;
+    allowed_reactions?: number[]; // NEW: Array of ReactionType IDs
 };
