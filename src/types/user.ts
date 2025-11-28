@@ -1,4 +1,4 @@
-// src/types/user.ts
+// src/types/user.ts - UPDATED with tags support
 
 export type ProfileRead = {
     user: {
@@ -63,5 +63,6 @@ export type PostDetail = {
     status: "draft" | "published" | "scheduled" | "archived";
     created_at: string;
     updated_at: string;
-    allowed_reactions?: number[]; // NEW: Array of ReactionType IDs
+    allowed_reactions?: number[];
+    tags?: number[]; // NEW: Array of tag IDs
 };

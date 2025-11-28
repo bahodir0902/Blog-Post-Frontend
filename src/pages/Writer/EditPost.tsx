@@ -1,4 +1,4 @@
-// src/pages/Writer/EditPost.tsx
+// src/pages/Writer/EditPost.tsx - COMPLETE VERSION
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,24 +8,21 @@ import { getAuthorPost, updateAuthorPost } from "../../services/authorPosts";
 import Dropdown from "../../components/ui/Dropdown";
 import DateTimePicker from "../../components/ui/DateTimePicker";
 import { ReactionTypePicker } from "../../components/posts/ReactionTypePicker";
+import { TagManager } from "../../components/posts/TagManager";
 import clsx from "clsx";
-
 type Status = "draft" | "published" | "scheduled" | "archived";
-
 const STATUS_OPTIONS = [
     { label: "Draft", value: "draft" },
     { label: "Publish now", value: "published" },
     { label: "Schedule", value: "scheduled" },
     { label: "Archive", value: "archived" },
 ];
-
 const STATUS_HINT: Record<Status, string> = {
     draft: "Keep it private. You can come back and publish later.",
     published: "Visible to everyone immediately after saving.",
     scheduled: "Will go live at the scheduled time below.",
     archived: "Hidden from public lists without deleting the content.",
 };
-
 function saveButtonLabel(status: Status) {
     switch (status) {
         case "draft":
@@ -38,23 +35,19 @@ function saveButtonLabel(status: Status) {
             return "Save as archived";
     }
 }
-
 export default function EditPost() {
     const { slug = "" } = useParams();
     const navigate = useNavigate();
     const qc = useQueryClient();
-
     const postQ = useQuery({
         queryKey: ["author", "post", slug],
         queryFn: () => getAuthorPost(slug),
     });
-
     const catQ = useQuery({
         queryKey: ["categories"],
         queryFn: listCategories,
         staleTime: 10 * 60_000,
     });
-
     const [title, setTitle] = useState("");
     const [category, setCategory] = useState<number | "">("");
     const [shortDescription, setShortDescription] = useState("");
@@ -63,44 +56,32 @@ export default function EditPost() {
         new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     );
     const [allowedReactions, setAllowedReactions] = useState<number[]>([]);
-
-    // Content states
+    const [selectedTags, setSelectedTags] = useState<number[]>([]);
     const [content, setContent] = useState<any>({});
     const [initialContent, setInitialContent] = useState<any>(null);
-
-    // Cover image states
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
     const [originalCoverUrl, setOriginalCoverUrl] = useState<string | null>(null);
-
-    // Hydrate form when the post loads
     useEffect(() => {
         const p = postQ.data;
         if (!p) return;
-
         setTitle(p.title);
         setCategory(p.category ?? "");
         setShortDescription(p.short_description);
         setStatus(p.status);
-
-        // Set scheduled time from the post if available, otherwise default to tomorrow
         if (p.published_at) {
             setScheduledTime(p.published_at);
         }
-
-        // Set allowed reactions if they exist
         if (p.allowed_reactions) {
             setAllowedReactions(p.allowed_reactions);
         }
-
-        // Initialize content both for the editor (initialContent) and the form's save payload (content)
+        // FIXED: Map tags to IDs only
+        setSelectedTags(p.tags?.map((tag) => tag.id) || []);
         setInitialContent(p.content ?? { blocks: [{ type: "paragraph", content: "" }] });
         setContent(p.content ?? { blocks: [{ type: "paragraph", content: "" }] });
-
         setCoverPreview(p.cover_image ?? null);
         setOriginalCoverUrl(p.cover_image ?? null);
     }, [postQ.data]);
-
     function onCoverChange(file?: File) {
         if (!file) {
             setCoverFile(null);
@@ -110,11 +91,9 @@ export default function EditPost() {
         setCoverFile(file);
         setCoverPreview(URL.createObjectURL(file));
     }
-
     const canSubmit = useMemo(() => {
         return title.trim().length > 3 && shortDescription.trim().length > 10;
     }, [title, shortDescription]);
-
     const m = useMutation({
         mutationFn: () =>
             updateAuthorPost(slug, {
@@ -126,6 +105,7 @@ export default function EditPost() {
                 published_at: status === "scheduled" ? scheduledTime : undefined,
                 cover_image: coverFile ?? undefined,
                 allowed_reactions: allowedReactions.length > 0 ? allowedReactions : undefined,
+                tags: selectedTags.length > 0 ? selectedTags : undefined,
             }),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["author", "my-posts"] });
@@ -133,12 +113,10 @@ export default function EditPost() {
             navigate("/writer/my-posts");
         },
     });
-
     const catOptions = (catQ.data || []).map((c) => ({
         label: c.name,
         value: String(c.id),
     }));
-
     if (postQ.isLoading) {
         return (
             <div className="container-responsive max-w-7xl py-6">
@@ -154,7 +132,6 @@ export default function EditPost() {
             </div>
         );
     }
-
     if (postQ.isError || !postQ.data) {
         return (
             <div className="container-responsive max-w-7xl py-6">
@@ -180,7 +157,6 @@ export default function EditPost() {
             </div>
         );
     }
-
     return (
         <div className="container-responsive max-w-7xl py-6">
             <div className="mb-8 space-y-2 animate-fade-in">
@@ -189,12 +165,9 @@ export default function EditPost() {
                     Update your content, change visibility, or schedule publishing.
                 </p>
             </div>
-
             <div className="card p-4 md:p-8 animate-slide-up">
                 <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
-                    {/* Main */}
                     <div className="lg:col-span-2 space-y-6">
-                        {/* Title */}
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-[var(--color-text-primary)]">
                                 Title <span className="text-[var(--color-error)]">*</span>
@@ -208,21 +181,19 @@ export default function EditPost() {
                                 placeholder="Give it a clear, compelling title"
                             />
                             <div className="flex justify-between items-center text-xs">
-                <span className="text-[var(--color-text-tertiary)]">
-                  {title.length < 4 && title.length > 0 && "Title must be at least 4 characters"}
-                </span>
+                                <span className="text-[var(--color-text-tertiary)]">
+                                    {title.length < 4 && title.length > 0 && "Title must be at least 4 characters"}
+                                </span>
                                 <span
                                     className={clsx(
                                         "font-medium",
                                         title.length > 140 ? "text-[var(--color-warning)]" : "text-[var(--color-text-tertiary)]"
                                     )}
                                 >
-                  {title.length}/150
-                </span>
+                                    {title.length}/150
+                                </span>
                             </div>
                         </div>
-
-                        {/* Short Description */}
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-[var(--color-text-primary)]">
                                 Short description <span className="text-[var(--color-error)]">*</span>
@@ -237,8 +208,6 @@ export default function EditPost() {
                                 {shortDescription.length < 11 && shortDescription.length > 0 && "Description must be at least 11 characters"}
                             </div>
                         </div>
-
-                        {/* Content Editor */}
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-[var(--color-text-primary)]">Content</label>
                             <div className="editor-wrapper">
@@ -265,8 +234,6 @@ export default function EditPost() {
                             </p>
                         </div>
                     </div>
-
-                    {/* Sidebar */}
                     <div className="space-y-6">
                         <div className="space-y-2">
                             <Dropdown
@@ -277,7 +244,6 @@ export default function EditPost() {
                                 placeholder="Choose category"
                             />
                         </div>
-
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-[var(--color-text-primary)]">Cover image</label>
                             <div className="flex items-center gap-3 flex-wrap">
@@ -316,17 +282,17 @@ export default function EditPost() {
                                 </div>
                             )}
                         </div>
-
                         <div className="border-t border-[var(--color-border)] my-6"></div>
-
-                        {/* REACTION TYPE PICKER - NEW! */}
+                        <TagManager
+                            selectedTagIds={selectedTags}
+                            onChange={setSelectedTags}
+                        />
+                        <div className="border-t border-[var(--color-border)] my-6"></div>
                         <ReactionTypePicker
                             selectedReactionIds={allowedReactions}
                             onChange={setAllowedReactions}
                         />
-
                         <div className="border-t border-[var(--color-border)] my-6"></div>
-
                         <div className="space-y-2">
                             <Dropdown
                                 label="Post visibility"
@@ -346,8 +312,6 @@ export default function EditPost() {
                                 {STATUS_HINT[status]}
                             </p>
                         </div>
-
-                        {/* DateTime Picker - shown only when status is scheduled */}
                         {status === "scheduled" && (
                             <div className="animate-slide-up">
                                 <DateTimePicker
@@ -358,7 +322,6 @@ export default function EditPost() {
                                 />
                             </div>
                         )}
-
                         <div className="flex flex-col gap-3 pt-4">
                             <button
                                 type="button"
@@ -373,17 +336,16 @@ export default function EditPost() {
                             >
                                 {m.isPending ? (
                                     <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Saving...
-                  </span>
+                                        <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Saving...
+                                    </span>
                                 ) : (
                                     saveButtonLabel(status)
                                 )}
                             </button>
-
                             <button
                                 type="button"
                                 onClick={() => navigate(-1)}
@@ -392,7 +354,6 @@ export default function EditPost() {
                                 Cancel
                             </button>
                         </div>
-
                         {m.isError && (
                             <div className="text-sm text-[var(--color-error)] bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border-2 border-red-200 dark:border-red-800 flex items-start gap-3 animate-scale-in">
                                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">

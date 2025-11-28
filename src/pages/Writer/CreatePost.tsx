@@ -1,13 +1,14 @@
+// src/pages/Writer/CreatePost.tsx
 import React, { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import WriterEditor from "../../components/Editor/WriterEditor";
 import { listCategories } from "../../services/categories";
-import { createAuthorPost } from "../../services/authorPosts";
-import { adoptImages } from "../../services/authorPosts";
+import { createAuthorPost, adoptImages } from "../../services/authorPosts";
 import Dropdown from "../../components/ui/Dropdown";
 import DateTimePicker from "../../components/ui/DateTimePicker";
 import { ReactionTypePicker } from "../../components/posts/ReactionTypePicker";
+import { TagManager } from "../../components/posts/TagManager";
 import clsx from "clsx";
 
 type Status = "draft" | "published" | "scheduled" | "archived";
@@ -37,12 +38,13 @@ export default function CreatePost() {
     const [shortDescription, setShortDescription] = useState("");
     const [status, setStatus] = useState<Status>("draft");
     const [scheduledTime, setScheduledTime] = useState<string>(
-        new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // Default to tomorrow
+        new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     );
     const [content, setContent] = useState<any>({});
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
     const [allowedReactions, setAllowedReactions] = useState<number[]>([]);
+    const [selectedTags, setSelectedTags] = useState<number[]>([]);
 
     const catQ = useQuery({
         queryKey: ["categories"],
@@ -50,7 +52,6 @@ export default function CreatePost() {
         staleTime: 10 * 60_000
     });
 
-    // collect temp image ids to adopt after the post is created
     const tempImageIds = useRef<number[]>([]);
     const onTempImage = (id: number) => tempImageIds.current.push(id);
 
@@ -70,6 +71,7 @@ export default function CreatePost() {
                 published_at: status === "scheduled" ? scheduledTime : undefined,
                 cover_image: coverFile ?? undefined,
                 allowed_reactions: allowedReactions.length > 0 ? allowedReactions : undefined,
+                tags: selectedTags.length > 0 ? selectedTags : undefined,
             }),
         onSuccess: async (post) => {
             const ids = tempImageIds.current;
@@ -229,16 +231,22 @@ export default function CreatePost() {
                             )}
                         </div>
 
-                        {/* Divider */}
                         <div className="border-t border-[var(--color-border)] my-6"></div>
 
-                        {/* REACTION TYPE PICKER - NEW! */}
+                        {/* TAG MANAGER - NEW! */}
+                        <TagManager
+                            selectedTagIds={selectedTags}
+                            onChange={setSelectedTags}
+                        />
+
+                        <div className="border-t border-[var(--color-border)] my-6"></div>
+
+                        {/* REACTION TYPE PICKER */}
                         <ReactionTypePicker
                             selectedReactionIds={allowedReactions}
                             onChange={setAllowedReactions}
                         />
 
-                        {/* Divider */}
                         <div className="border-t border-[var(--color-border)] my-6"></div>
 
                         {/* Status Dropdown */}
@@ -258,7 +266,6 @@ export default function CreatePost() {
                             </p>
                         </div>
 
-                        {/* DateTime Picker - shown only when status is scheduled */}
                         {status === "scheduled" && (
                             <div className="animate-slide-up">
                                 <DateTimePicker
@@ -302,7 +309,6 @@ export default function CreatePost() {
                             </button>
                         </div>
 
-                        {/* Error Message */}
                         {m.isError && (
                             <div className="text-sm text-[var(--color-error)] bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border-2 border-red-200 dark:border-red-800 flex items-start gap-3 animate-scale-in">
                                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">

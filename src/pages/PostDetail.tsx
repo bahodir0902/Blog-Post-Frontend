@@ -1,4 +1,4 @@
-// src/pages/PostDetail.tsx - Updated with Reactions
+// src/pages/PostDetail.tsx - UPDATED
 import React, { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ import { PostShareCard } from "../components/posts/PostShareCard";
 import { RelatedPosts } from "../components/posts/RelatedPosts";
 import { PostActionButtons } from "../components/posts/PostActionButtons";
 import { PostReactions } from "../components/posts/PostReactions";
+import { PostTags } from "../components/posts/PostTags"; // NEW
 import { useCurrentUser } from "../hooks/useCurrentUser";
 
 export default function PostDetail() {
@@ -113,7 +114,10 @@ export default function PostDetail() {
             {/* content */}
             <PostContent blocks={blocks} />
 
-            {/* REACTIONS SECTION - NEW! */}
+            {/* TAGS SECTION - NEW! Display after content, before reactions */}
+            {slug && <PostTags slug={slug} />}
+
+            {/* REACTIONS SECTION */}
             {slug && <PostReactions slug={slug} />}
 
             {/* author + share */}

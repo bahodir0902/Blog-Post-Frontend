@@ -1,5 +1,6 @@
-// src/services/authorPosts.ts - Updated with reactions support
+// src/services/authorPosts.ts - UPDATED with tags support
 import api from "../api/api";
+import { Tag } from "../types/tag"; // Assuming this import exists based on tags.ts
 
 export type AuthorPostListItem = {
     id: number;
@@ -12,30 +13,28 @@ export type AuthorPostListItem = {
     published_at?: string | null;
     status?: "draft" | "published" | "scheduled" | "archived";
 };
-
 export type AuthorPostDetail = {
     id: number;
     title: string;
     slug: string;
     category: number | null;
     short_description: string;
-    content: any; // Editor.js JSON
+    content: any;
     cover_image: string | null;
     author: number;
     status: "draft" | "published" | "scheduled" | "archived";
     published_at?: string | null;
     created_at: string;
     updated_at: string;
-    allowed_reactions?: number[]; // NEW: Array of ReactionType IDs
+    allowed_reactions?: number[];
+    tags?: Tag[]; // FIXED: Array of full Tag objects instead of number[]
 };
-
 export type Paginated<T> = {
     count: number;
     next: string | null;
     previous: string | null;
     results: T[];
 };
-
 export async function createAuthorPost(payload: {
     title: string;
     category?: number | null;
@@ -44,7 +43,8 @@ export async function createAuthorPost(payload: {
     status: "draft" | "published" | "scheduled" | "archived";
     published_at?: string;
     cover_image?: File | null;
-    allowed_reactions?: number[]; // NEW
+    allowed_reactions?: number[];
+    tags?: number[]; // NEW
 }) {
     const fd = new FormData();
     fd.append("title", payload.title);
@@ -54,18 +54,23 @@ export async function createAuthorPost(payload: {
     fd.append("status", payload.status);
     if (payload.published_at) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
-
-    // NEW: Add allowed_reactions as JSON array
+    // Add allowed_reactions
     if (payload.allowed_reactions && payload.allowed_reactions.length > 0) {
-        fd.append("allowed_reactions", JSON.stringify(payload.allowed_reactions));
+        for (const id of payload.allowed_reactions) {
+            fd.append("allowed_reactions", String(id));
+        }
     }
-
+    // NEW: Add tags
+    if (payload.tags && payload.tags.length > 0) {
+        for (const id of payload.tags) {
+            fd.append("tags", String(id));
+        }
+    }
     const { data } = await api.post("posts/author/", fd, {
         headers: { "Content-Type": "multipart/form-data" },
     });
     return data as AuthorPostDetail;
 }
-
 export async function updateAuthorPost(
     slug: string,
     payload: Partial<{
@@ -76,7 +81,8 @@ export async function updateAuthorPost(
         status: "draft" | "published" | "scheduled" | "archived";
         published_at: string;
         cover_image: File | null;
-        allowed_reactions: number[]; // NEW
+        allowed_reactions: number[];
+        tags: number[]; // NEW
     }>
 ) {
     const fd = new FormData();
@@ -91,25 +97,31 @@ export async function updateAuthorPost(
     if (payload.status !== undefined) fd.append("status", payload.status);
     if (payload.published_at !== undefined) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
-
-    // NEW: Add allowed_reactions
+    // Add allowed_reactions
     if (payload.allowed_reactions && payload.allowed_reactions.length > 0) {
         for (const id of payload.allowed_reactions) {
             fd.append("allowed_reactions", String(id));
         }
     }
-
-
+    // NEW: Add tags
+    if (payload.tags !== undefined) {
+        if (payload.tags.length > 0) {
+            for (const id of payload.tags) {
+                fd.append("tags", String(id));
+            }
+        } else {
+            // Send empty array to clear tags
+            fd.append("tags", "");
+        }
+    }
     const { data } = await api.patch(`posts/author/${slug}/`, fd, {
         headers: { "Content-Type": "multipart/form-data" },
     });
     return data as AuthorPostDetail;
 }
-
 export async function deleteAuthorPost(slug: string) {
     await api.delete(`posts/author/${slug}/`);
 }
-
 export async function getMyPosts(page = 1) {
     const { data } = await api.get("posts/author/my-posts", { params: { page } });
     if (Array.isArray(data)) {
@@ -122,12 +134,10 @@ export async function getMyPosts(page = 1) {
     }
     return data as Paginated<AuthorPostListItem>;
 }
-
 export async function getAuthorPost(slug: string) {
     const { data } = await api.get(`posts/author/${slug}/`);
     return data as AuthorPostDetail;
 }
-
 export async function uploadTempPostImage(file: File) {
     const fd = new FormData();
     fd.append("image", file);
@@ -136,7 +146,6 @@ export async function uploadTempPostImage(file: File) {
     });
     return data as { id: number; url: string };
 }
-
 export async function uploadPostImage(slug: string, file: File) {
     const fd = new FormData();
     fd.append("image", file);
@@ -145,7 +154,6 @@ export async function uploadPostImage(slug: string, file: File) {
     });
     return data as { id: number; url: string };
 }
-
 export async function adoptImages(slug: string, imageIds: number[]) {
     const { data } = await api.post(`posts/author/${slug}/adopt-images/`, { image_ids: imageIds });
     return data as { attached: number };
