@@ -55,7 +55,9 @@ export async function getHomeStats() {
 }
 
 export async function getPost(slug: string) {
-    const { data } = await api.get(`posts/client/${slug}/`);
+    const { data } = await api.get(`posts/client/${slug}/`, {
+        withCredentials: true,
+    });
     return data as PostDetail;
 }
 

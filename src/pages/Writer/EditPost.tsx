@@ -1,4 +1,3 @@
-// src/pages/Writer/EditPost.tsx - COMPLETE VERSION
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -57,6 +56,7 @@ export default function EditPost() {
     );
     const [allowedReactions, setAllowedReactions] = useState<number[]>([]);
     const [selectedTags, setSelectedTags] = useState<number[]>([]);
+    const [allowComments, setAllowComments] = useState(true);
     const [content, setContent] = useState<any>({});
     const [initialContent, setInitialContent] = useState<any>(null);
     const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -77,6 +77,7 @@ export default function EditPost() {
         }
         // FIXED: Map tags to IDs only
         setSelectedTags(p.tags?.map((tag) => tag.id) || []);
+        setAllowComments(p.allow_comments ?? true);
         setInitialContent(p.content ?? { blocks: [{ type: "paragraph", content: "" }] });
         setContent(p.content ?? { blocks: [{ type: "paragraph", content: "" }] });
         setCoverPreview(p.cover_image ?? null);
@@ -106,6 +107,7 @@ export default function EditPost() {
                 cover_image: coverFile ?? undefined,
                 allowed_reactions: allowedReactions.length > 0 ? allowedReactions : undefined,
                 tags: selectedTags.length > 0 ? selectedTags : undefined,
+                allow_comments: allowComments,
             }),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["author", "my-posts"] });
@@ -292,6 +294,22 @@ export default function EditPost() {
                             selectedReactionIds={allowedReactions}
                             onChange={setAllowedReactions}
                         />
+                        <div className="border-t border-[var(--color-border)] my-6"></div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-[var(--color-text-primary)]">Allow comments</label>
+                            <div className="flex items-center justify-between bg-[var(--color-surface)] p-3 rounded-lg border border-[var(--color-border)]">
+                                <span className="text-sm text-[var(--color-text-secondary)]">Enable comments on this post</span>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={allowComments}
+                                        onChange={(e) => setAllowComments(e.target.checked)}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 bg-[var(--color-border-strong)] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--color-brand-500)]/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[var(--color-brand-600)]"></div>
+                                </label>
+                            </div>
+                        </div>
                         <div className="border-t border-[var(--color-border)] my-6"></div>
                         <div className="space-y-2">
                             <Dropdown

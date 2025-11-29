@@ -1,4 +1,4 @@
-// src/types/user.ts - UPDATED with tags support
+// src/types/user.ts
 
 export type ProfileRead = {
     user: {
@@ -64,5 +64,14 @@ export type PostDetail = {
     created_at: string;
     updated_at: string;
     allowed_reactions?: number[];
-    tags?: number[]; // NEW: Array of tag IDs
+    tags?: {
+        id: number;
+        name: string;
+        slug: string;
+        created_at: string;
+    }[]; // UPDATED: Array of tag objects
+    allow_comments: boolean;
+    read_time: number | null;
+    views_total: number | null;
+    views_unique: number | null;
 };

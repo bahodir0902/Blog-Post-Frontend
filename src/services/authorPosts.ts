@@ -1,6 +1,6 @@
-// src/services/authorPosts.ts - UPDATED with tags support
+// src/services/authorPosts.ts
 import api from "../api/api";
-import { Tag } from "../types/tag"; // Assuming this import exists based on tags.ts
+import { Tag } from "../types/tag";
 
 export type AuthorPostListItem = {
     id: number;
@@ -28,6 +28,7 @@ export type AuthorPostDetail = {
     updated_at: string;
     allowed_reactions?: number[];
     tags?: Tag[]; // FIXED: Array of full Tag objects instead of number[]
+    allow_comments: boolean;
 };
 export type Paginated<T> = {
     count: number;
@@ -45,6 +46,7 @@ export async function createAuthorPost(payload: {
     cover_image?: File | null;
     allowed_reactions?: number[];
     tags?: number[]; // NEW
+    allow_comments?: boolean;
 }) {
     const fd = new FormData();
     fd.append("title", payload.title);
@@ -54,17 +56,18 @@ export async function createAuthorPost(payload: {
     fd.append("status", payload.status);
     if (payload.published_at) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
-    // Add allowed_reactions
     if (payload.allowed_reactions && payload.allowed_reactions.length > 0) {
         for (const id of payload.allowed_reactions) {
             fd.append("allowed_reactions", String(id));
         }
     }
-    // NEW: Add tags
     if (payload.tags && payload.tags.length > 0) {
         for (const id of payload.tags) {
             fd.append("tags", String(id));
         }
+    }
+    if (payload.allow_comments !== undefined) {
+        fd.append("allow_comments", payload.allow_comments ? "true" : "false");
     }
     const { data } = await api.post("posts/author/", fd, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -83,6 +86,7 @@ export async function updateAuthorPost(
         cover_image: File | null;
         allowed_reactions: number[];
         tags: number[]; // NEW
+        allow_comments: boolean;
     }>
 ) {
     const fd = new FormData();
@@ -97,13 +101,11 @@ export async function updateAuthorPost(
     if (payload.status !== undefined) fd.append("status", payload.status);
     if (payload.published_at !== undefined) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
-    // Add allowed_reactions
     if (payload.allowed_reactions && payload.allowed_reactions.length > 0) {
         for (const id of payload.allowed_reactions) {
             fd.append("allowed_reactions", String(id));
         }
     }
-    // NEW: Add tags
     if (payload.tags !== undefined) {
         if (payload.tags.length > 0) {
             for (const id of payload.tags) {
@@ -113,6 +115,9 @@ export async function updateAuthorPost(
             // Send empty array to clear tags
             fd.append("tags", "");
         }
+    }
+    if (payload.allow_comments !== undefined) {
+        fd.append("allow_comments", payload.allow_comments ? "true" : "false");
     }
     const { data } = await api.patch(`posts/author/${slug}/`, fd, {
         headers: { "Content-Type": "multipart/form-data" },

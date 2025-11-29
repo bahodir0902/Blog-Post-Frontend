@@ -130,7 +130,13 @@ export default function PostDetail() {
             <RelatedPosts posts={relatedPosts || []} />
 
             {/* COMMENTS SECTION */}
-            {slug && <CommentsSection postSlug={slug} />}
+            {post.allow_comments ? (
+                slug && <CommentsSection postSlug={slug} />
+            ) : (
+                <div className="text-center py-8 text-[var(--color-text-secondary)] border-t border-[var(--color-border)] mt-8">
+                    Comments are turned off for this post.
+                </div>
+            )}
         </article>
     );
 }
