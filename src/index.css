@@ -721,3 +721,15 @@ label {
         transform: scale(1);
     }
 }
+
+/* ================================
+   Modern Blog Content - NO CENTERING
+=================================*/
+.prose-custom {
+    width: 100%;
+}
+
+/* Keep natural flow - don't center everything */
+.prose-custom > * {
+    max-width: 100%;
+}

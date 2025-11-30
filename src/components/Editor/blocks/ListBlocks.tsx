@@ -1,26 +1,23 @@
 import React from "react";
 
-interface InlineRenderProps {
+interface ChecklistBlockProps {
+    items: any[];
     renderInline: (value: any, key?: React.Key) => React.ReactNode;
 }
 
-interface ChecklistProps extends InlineRenderProps {
-    items: any[];
-}
-
-export function ChecklistBlock({ items, renderInline }: ChecklistProps) {
+export function ChecklistBlock({ items, renderInline }: ChecklistBlockProps) {
     return (
-        <ul className="my-6 space-y-3">
+        <ul className="my-8 space-y-3">
             {items.map((it, i) => (
-                <li key={i} className="flex items-start gap-3">
+                <li key={i} className="flex items-start gap-3.5 group">
                     <span
-                        className={`mt-1 inline-flex h-5 w-5 items-center justify-center rounded-md border-2 ${
+                        className={`mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all duration-200 ${
                             it.props?.checked
-                                ? "bg-[var(--color-brand-500)] border-[var(--color-brand-500)]"
-                                : "border-[var(--color-border)]"
+                                ? "bg-[var(--color-brand-500)] border-[var(--color-brand-500)] shadow-sm"
+                                : "border-[var(--color-border)] group-hover:border-[var(--color-brand-300)]"
                         }`}
                     >
-                        {it.props?.checked ? (
+                        {it.props?.checked && (
                             <svg className="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
                                 <path
                                     fillRule="evenodd"
@@ -28,34 +25,34 @@ export function ChecklistBlock({ items, renderInline }: ChecklistProps) {
                                     clipRule="evenodd"
                                 />
                             </svg>
-                        ) : null}
+                        )}
                     </span>
-                    <span className="leading-8">{renderInline(it.content)}</span>
+                    <span className={`leading-8 ${it.props?.checked ? "text-[var(--color-text-tertiary)] line-through" : "text-[var(--color-text-primary)]"}`}>
+                        {renderInline(it.content)}
+                    </span>
                 </li>
             ))}
         </ul>
     );
 }
 
-interface SimpleListProps extends InlineRenderProps {
+interface SimpleListBlockProps {
     items: any[];
     ordered: boolean;
+    renderInline: (value: any, key?: React.Key) => React.ReactNode;
 }
 
-export function SimpleListBlock({ items, ordered, renderInline }: SimpleListProps) {
-    const cls = "my-6 pl-6 space-y-2";
+export function SimpleListBlock({ items, ordered, renderInline }: SimpleListBlockProps) {
+    const Tag = ordered ? "ol" : "ul";
+    const listStyle = ordered ? "list-decimal" : "list-disc";
 
-    return ordered ? (
-        <ol className={`list-decimal ${cls}`}>
+    return (
+        <Tag className={`my-8 pl-8 space-y-3 ${listStyle} marker:text-[var(--color-brand-500)]`}>
             {items.map((it, i) => (
-                <li key={i} className="leading-8">{renderInline(it.content)}</li>
+                <li key={i} className="leading-8 text-[var(--color-text-primary)] pl-2">
+                    {renderInline(it.content)}
+                </li>
             ))}
-        </ol>
-    ) : (
-        <ul className={`list-disc ${cls}`}>
-            {items.map((it, i) => (
-                <li key={i} className="leading-8">{renderInline(it.content)}</li>
-            ))}
-        </ul>
+        </Tag>
     );
 }

@@ -1,5 +1,4 @@
 import React from "react";
-import { alignClass } from "../../utils/blockNoteUtils";
 
 interface ParagraphBlockProps {
     block: any;
@@ -7,12 +6,11 @@ interface ParagraphBlockProps {
 }
 
 export function ParagraphBlock({ block, renderInline }: ParagraphBlockProps) {
+    const align = block.props?.textAlignment || "left";
+    const alignClass = align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left";
+
     return (
-        <p
-            className={`leading-8 text-[var(--color-text-primary)] ${alignClass(
-                block.props?.textAlignment
-            )}`}
-        >
+        <p className={`my-6 text-[1.0625rem] leading-[1.8] text-[var(--color-text-primary)] ${alignClass}`}>
             {renderInline(block.content)}
         </p>
     );

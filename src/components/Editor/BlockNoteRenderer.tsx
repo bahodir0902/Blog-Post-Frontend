@@ -18,12 +18,11 @@ export function BlockNoteRenderer({ blocks }: BlockNoteRendererProps) {
         if (typeof value === "string") return value;
         if (Array.isArray(value)) return value.map((n, i) => renderInline(n, i));
 
-        // objects
         if (value.type === "text") {
             const s = value.styles || {};
             let node: React.ReactNode = value.text ?? "";
-            if (s.code) node = <code key={key} className="px-1.5 py-0.5 rounded bg-[var(--color-surface-elevated)] text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] text-sm font-mono">{node}</code>;
-            if (s.bold) node = <strong key={key}>{node}</strong>;
+            if (s.code) node = <code key={key} className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-pink-600 dark:text-pink-400 text-[0.9em] font-mono border border-gray-200 dark:border-gray-700">{node}</code>;
+            if (s.bold) node = <strong key={key} className="font-semibold">{node}</strong>;
             if (s.italic) node = <em key={key}>{node}</em>;
             if (s.underline) node = <u key={key}>{node}</u>;
             if (s.strikethrough) node = <s key={key}>{node}</s>;
@@ -39,7 +38,7 @@ export function BlockNoteRenderer({ blocks }: BlockNoteRendererProps) {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline decoration-[var(--color-brand-300)] hover:decoration-[var(--color-brand-600)] hover:text-[var(--color-brand-600)] dark:hover:text-[var(--color-brand-400)] transition-colors"
+                    className="text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] underline decoration-2 decoration-[var(--color-brand-300)] dark:decoration-[var(--color-brand-600)] hover:decoration-[var(--color-brand-600)] dark:hover:decoration-[var(--color-brand-400)] transition-all duration-200 hover:text-[var(--color-brand-700)] dark:hover:text-[var(--color-brand-300)]"
                 >
                     {renderInline(value.content)}
                 </a>
@@ -48,7 +47,13 @@ export function BlockNoteRenderer({ blocks }: BlockNoteRendererProps) {
         return null;
     };
 
-    // group consecutive list items into single lists
+    const isEmptyParagraph = (b: any) => {
+        if (b.type !== "paragraph") return false;
+        if (typeof b.content === "string") return b.content.trim() === "";
+        if (Array.isArray(b.content)) return b.content.every((n) => (typeof n.text === "string" ? n.text.trim() === "" : false));
+        return false;
+    };
+
     const out: React.ReactNode[] = [];
     let i = 0;
 
@@ -88,19 +93,15 @@ export function BlockNoteRenderer({ blocks }: BlockNoteRendererProps) {
         else if (b.type === "image") out.push(<ImageBlock key={i} block={b} />);
         else if (b.type === "video") out.push(<VideoBlock key={i} block={b} />);
         else if (b.type === "table") out.push(<TableBlock key={i} block={b} renderInline={renderInline} />);
-        else {
-            out.push(
-                <pre key={i} className="my-4 text-xs p-3 rounded-lg bg-[var(--color-surface-elevated)] overflow-x-auto">
-                    {JSON.stringify(b, null, 2)}
-                </pre>
-            );
-        }
 
         i++;
     }
 
     if (!out.length) return null;
 
-    // vertical rhythm + responsive typography
-    return <div className="max-w-3xl mx-auto px-1 sm:px-2 md:px-0 space-y-5 md:space-y-6">{out}</div>;
+    return (
+        <article className="prose-custom">
+            {out}
+        </article>
+    );
 }
