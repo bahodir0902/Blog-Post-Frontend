@@ -1,14 +1,18 @@
+// src/components/Navbar.tsx - UPDATED VERSION
+
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useTheme } from "./ThemeProvider";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { Menu, X, Sun, Moon, PenTool, User, LogOut, FileText, Heart, Bookmark } from "lucide-react";
+import { useNotifications } from "../contexts/NotificationContext";
+import { Menu, X, Sun, Moon, PenTool, User, LogOut, FileText, Heart, Bookmark, Bell } from "lucide-react";
 
 export default function Navbar() {
     const { accessToken, logout } = useAuth();
     const { actualTheme, setTheme } = useTheme();
     const { user, canWrite, isLoading: meLoading } = useCurrentUser();
+    const { unreadCount } = useNotifications();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -44,7 +48,6 @@ export default function Navbar() {
         { path: "/about", label: "About" },
     ];
 
-    // Get user initials for avatar
     const getUserInitials = () => {
         if (!user?.first_name) return "U";
         const firstInitial = user.first_name[0]?.toUpperCase() || "U";
@@ -111,6 +114,22 @@ export default function Navbar() {
                             </div>
                         )}
 
+                        {/* Notifications Bell (Desktop & Mobile) */}
+                        {accessToken && (
+                            <Link
+                                to="/notifications"
+                                className="relative p-2 md:p-2.5 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-elevated)] border border-[var(--color-border)] transition-all duration-200"
+                                aria-label="Notifications"
+                            >
+                                <Bell className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-text-secondary)]" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full animate-scale-in">
+                                        {unreadCount > 99 ? "99+" : unreadCount}
+                                    </span>
+                                )}
+                            </Link>
+                        )}
+
                         {/* Theme Toggle */}
                         <button
                             onClick={toggleTheme}
@@ -132,7 +151,6 @@ export default function Navbar() {
                                     className="flex items-center gap-2 p-1 rounded-lg hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                     aria-label="User menu"
                                 >
-                                    {/* Avatar with profile photo support */}
                                     {user?.profile_photo ? (
                                         <img
                                             src={user.profile_photo}
@@ -156,7 +174,6 @@ export default function Navbar() {
                                     </svg>
                                 </button>
 
-                                {/* Dropdown Menu - Enhanced with Favourites & Bookmarks */}
                                 {dropdownOpen && (
                                     <div className="absolute right-0 mt-2 w-60 animate-scale-in origin-top-right">
                                         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xl overflow-hidden">
@@ -268,7 +285,6 @@ export default function Navbar() {
                 {/* Mobile Menu */}
                 {mobileMenuOpen && (
                     <div className="md:hidden mt-4 pb-4 space-y-2 animate-fade-in border-t border-[var(--color-border)] pt-4">
-                        {/* User info (mobile) with profile photo */}
                         {accessToken && user && (
                             <div className="px-4 py-3 mb-2 bg-[var(--color-surface-elevated)] rounded-lg flex items-center gap-3">
                                 {user.profile_photo ? (
@@ -293,7 +309,6 @@ export default function Navbar() {
                             </div>
                         )}
 
-                        {/* Nav links */}
                         {navLinks.map((link) => (
                             <Link
                                 key={link.path}
@@ -310,7 +325,6 @@ export default function Navbar() {
                             </Link>
                         ))}
 
-                        {/* Writer actions (mobile) - Only if authorized AND can write */}
                         {accessToken && !meLoading && canWrite && (
                             <>
                                 <Link
@@ -330,9 +344,20 @@ export default function Navbar() {
                             </>
                         )}
 
-                        {/* Mobile auth actions */}
                         {accessToken ? (
                             <>
+                                <Link
+                                    to="/notifications"
+                                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
+                                >
+                                    <Bell className="w-5 h-5" />
+                                    Notifications
+                                    {unreadCount > 0 && (
+                                        <span className="ml-auto min-w-[20px] h-5 px-2 flex items-center justify-center text-xs font-bold text-white bg-red-500 rounded-full">
+                                            {unreadCount > 99 ? "99+" : unreadCount}
+                                        </span>
+                                    )}
+                                </Link>
                                 <Link
                                     to="/profile"
                                     className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"

@@ -673,3 +673,51 @@ label {
 .animate-slideDown {
     animation: slideDown 0.2s ease-out;
 }
+
+
+/* Add to your index.css file */
+
+/* ================================
+   Comment Deep Link Highlight
+=================================*/
+.comment-highlight {
+    animation: highlightPulse 3s ease-in-out;
+}
+
+@keyframes highlightPulse {
+    0% {
+        background-color: transparent;
+    }
+    10% {
+        background-color: rgba(139, 92, 246, 0.15);
+        transform: scale(1.02);
+    }
+    50% {
+        background-color: rgba(139, 92, 246, 0.1);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+}
+
+.dark .comment-highlight {
+    animation: highlightPulseDark 3s ease-in-out;
+}
+
+@keyframes highlightPulseDark {
+    0% {
+        background-color: transparent;
+    }
+    10% {
+        background-color: rgba(139, 92, 246, 0.25);
+        transform: scale(1.02);
+    }
+    50% {
+        background-color: rgba(139, 92, 246, 0.15);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+}

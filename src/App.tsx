@@ -1,7 +1,7 @@
 // App.tsx
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./auth/AuthContext";
-import { AppLayout } from "./layouts/AppLayout";
+import {Routes, Route, Navigate} from "react-router-dom";
+import {useAuth} from "./auth/AuthContext";
+import {AppLayout} from "./layouts/AppLayout";
 
 import Home from "./pages/Home";
 import PostDetail from "./pages/PostDetail";
@@ -9,6 +9,7 @@ import Explore from "./pages/Explore";
 import Read from "./pages/Read";
 import Favourites from "./pages/Favourites";
 import Bookmarks from "./pages/Bookmarks";
+import Notifications from "./pages/Notifications";
 
 // Auth
 import Login from "./pages/Login";
@@ -29,12 +30,12 @@ import ConfirmEmailChange from "./pages/Profile/ConfirmEmailChange";
 import CreatePost from "./pages/Writer/CreatePost";
 import MyPosts from "./pages/Writer/MyPosts";
 import EditPost from "./pages/Writer/EditPost";
-import { RoleGate } from "./components/RoleGate";
+import {RoleGate} from "./components/RoleGate";
 
 
-function Protected({ children }: { children: React.ReactNode }) {
-    const { accessToken } = useAuth();
-    if (!accessToken) return <Navigate to="/login" replace />;
+function Protected({children}: { children: React.ReactNode }) {
+    const {accessToken} = useAuth();
+    if (!accessToken) return <Navigate to="/login" replace/>;
     return <>{children}</>;
 }
 
@@ -43,26 +44,26 @@ export default function App() {
         <AppLayout>
             <Routes>
                 {/* Public */}
-                <Route path="/" element={<Home />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/read" element={<Read />} />
-                <Route path="/post/:slug" element={<PostDetail />} />
+                <Route path="/" element={<Home/>}/>
+                <Route path="/explore" element={<Explore/>}/>
+                <Route path="/read" element={<Read/>}/>
+                <Route path="/post/:slug" element={<PostDetail/>}/>
 
                 {/* Auth */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/register/verify" element={<VerifyRegistration />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/forgot-password/verify" element={<VerifyResetCode />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/activate" element={<SetInitialPassword />} />
+                <Route path="/login" element={<Login/>}/>
+                <Route path="/register" element={<Register/>}/>
+                <Route path="/register/verify" element={<VerifyRegistration/>}/>
+                <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                <Route path="/forgot-password/verify" element={<VerifyResetCode/>}/>
+                <Route path="/reset-password" element={<ResetPassword/>}/>
+                <Route path="/activate" element={<SetInitialPassword/>}/>
 
                 {/* Profile (protected) */}
                 <Route
                     path="/profile"
                     element={
                         <Protected>
-                            <ProfilePage />
+                            <ProfilePage/>
                         </Protected>
                     }
                 />
@@ -70,7 +71,7 @@ export default function App() {
                     path="/profile/edit"
                     element={
                         <Protected>
-                            <EditProfile />
+                            <EditProfile/>
                         </Protected>
                     }
                 />
@@ -78,7 +79,7 @@ export default function App() {
                     path="/profile/change-email"
                     element={
                         <Protected>
-                            <ChangeEmail />
+                            <ChangeEmail/>
                         </Protected>
                     }
                 />
@@ -86,7 +87,7 @@ export default function App() {
                     path="/profile/change-email/confirm"
                     element={
                         <Protected>
-                            <ConfirmEmailChange />
+                            <ConfirmEmailChange/>
                         </Protected>
                     }
                 />
@@ -96,7 +97,7 @@ export default function App() {
                     path="/favourites"
                     element={
                         <Protected>
-                            <Favourites />
+                            <Favourites/>
                         </Protected>
                     }
                 />
@@ -104,7 +105,17 @@ export default function App() {
                     path="/bookmarks"
                     element={
                         <Protected>
-                            <Bookmarks />
+                            <Bookmarks/>
+                        </Protected>
+                    }
+                />
+
+                {/* Notifications (protected) - ADD THIS */}
+                <Route
+                    path="/notifications"
+                    element={
+                        <Protected>
+                            <Notifications/>
                         </Protected>
                     }
                 />
@@ -114,7 +125,7 @@ export default function App() {
                     path="/writer/new"
                     element={
                         <RoleGate writerOnly>
-                            <CreatePost />
+                            <CreatePost/>
                         </RoleGate>
                     }
                 />
@@ -122,7 +133,7 @@ export default function App() {
                     path="/writer/my-posts"
                     element={
                         <RoleGate writerOnly>
-                            <MyPosts />
+                            <MyPosts/>
                         </RoleGate>
                     }
                 />
@@ -130,12 +141,12 @@ export default function App() {
                     path="/writer/edit/:slug"
                     element={
                         <RoleGate writerOnly>
-                            <EditPost />
+                            <EditPost/>
                         </RoleGate>
                     }
                 />
 
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/" replace/>}/>
             </Routes>
         </AppLayout>
     );

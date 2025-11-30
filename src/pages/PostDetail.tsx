@@ -1,6 +1,6 @@
-// src/pages/PostDetail.tsx - UPDATED
-import React, { useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+// src/pages/PostDetail.tsx
+import React, { useEffect, useRef, useMemo } from "react";
+import { useParams, useLocation, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Edit } from "lucide-react";
 import { getPost, getRelatedPosts } from "../services/posts";
@@ -14,12 +14,14 @@ import { PostShareCard } from "../components/posts/PostShareCard";
 import { RelatedPosts } from "../components/posts/RelatedPosts";
 import { PostActionButtons } from "../components/posts/PostActionButtons";
 import { PostReactions } from "../components/posts/PostReactions";
-import { PostTags } from "../components/posts/PostTags"; // NEW
+import { PostTags } from "../components/posts/PostTags";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 
 export default function PostDetail() {
     const { slug } = useParams<{ slug: string }>();
     const { user } = useCurrentUser();
+    const location = useLocation();
+    const commentsRef = useRef<HTMLDivElement>(null);
 
     const { data: post, isLoading, isError } = useQuery({
         queryKey: ["post", slug],
@@ -35,6 +37,35 @@ export default function PostDetail() {
 
     const blocks = useMemo(() => toBlocks(post?.content), [post?.content]);
     const isAuthor = user && post && user.id === post.author.id;
+
+    // Handle deep linking to specific comments from notifications
+    useEffect(() => {
+        if (!post || isLoading) return;
+
+        const hash = location.hash;
+        if (hash.startsWith("#comment-")) {
+            const commentId = hash.replace("#comment-", "");
+
+            setTimeout(() => {
+                commentsRef.current?.scrollIntoView({ behavior: "smooth" });
+
+                setTimeout(() => {
+                    const commentElement = document.getElementById(`comment-${commentId}`);
+                    if (commentElement) {
+                        commentElement.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+
+                        commentElement.classList.add("comment-highlight");
+                        setTimeout(() => {
+                            commentElement.classList.remove("comment-highlight");
+                        }, 3000);
+                    }
+                }, 500);
+            }, 100);
+        }
+    }, [post, location.hash, isLoading]);
 
     if (isLoading) {
         return (
@@ -114,7 +145,7 @@ export default function PostDetail() {
             {/* content */}
             <PostContent blocks={blocks} />
 
-            {/* TAGS SECTION - NEW! Display after content, before reactions */}
+            {/* TAGS SECTION */}
             {slug && <PostTags slug={slug} />}
 
             {/* REACTIONS SECTION */}
@@ -130,13 +161,15 @@ export default function PostDetail() {
             <RelatedPosts posts={relatedPosts || []} />
 
             {/* COMMENTS SECTION */}
-            {post.allow_comments ? (
-                slug && <CommentsSection postSlug={slug} />
-            ) : (
-                <div className="text-center py-8 text-[var(--color-text-secondary)] border-t border-[var(--color-border)] mt-8">
-                    Comments are turned off for this post.
-                </div>
-            )}
+            <div ref={commentsRef}>
+                {post.allow_comments ? (
+                    slug && <CommentsSection postSlug={slug} />
+                ) : (
+                    <div className="text-center py-8 text-[var(--color-text-secondary)] border-t border-[var(--color-border)] mt-8">
+                        Comments are turned off for this post.
+                    </div>
+                )}
+            </div>
         </article>
     );
 }

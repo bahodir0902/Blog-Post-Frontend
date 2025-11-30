@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./auth/AuthContext";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import App from "./App";
 import "./index.css";
 
@@ -20,7 +21,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <BrowserRouter>
                     <AuthProvider>
                         <ThemeProvider>
-                            <App />
+                            <NotificationProvider>
+                                <App />
+                            </NotificationProvider>
                         </ThemeProvider>
                     </AuthProvider>
                 </BrowserRouter>
