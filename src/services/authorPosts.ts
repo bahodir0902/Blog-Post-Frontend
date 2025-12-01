@@ -36,6 +36,9 @@ export type Paginated<T> = {
     previous: string | null;
     results: T[];
 };
+
+// src/services/authorPosts.ts - FIXED with sentinel value approach
+
 export async function createAuthorPost(payload: {
     title: string;
     category?: number | null;
@@ -45,7 +48,7 @@ export async function createAuthorPost(payload: {
     published_at?: string;
     cover_image?: File | null;
     allowed_reactions?: number[];
-    tags?: number[]; // NEW
+    tags?: number[];
     allow_comments?: boolean;
 }) {
     const fd = new FormData();
@@ -56,24 +59,37 @@ export async function createAuthorPost(payload: {
     fd.append("status", payload.status);
     if (payload.published_at) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
+
+    // FIX: Only send if array has items
     if (payload.allowed_reactions && payload.allowed_reactions.length > 0) {
         for (const id of payload.allowed_reactions) {
             fd.append("allowed_reactions", String(id));
         }
     }
+    // If empty array is passed, send a flag to clear it
+    else if (payload.allowed_reactions !== undefined && payload.allowed_reactions.length === 0) {
+        fd.append("clear_allowed_reactions", "true");
+    }
+
     if (payload.tags && payload.tags.length > 0) {
         for (const id of payload.tags) {
             fd.append("tags", String(id));
         }
     }
+    else if (payload.tags !== undefined && payload.tags.length === 0) {
+        fd.append("clear_tags", "true");
+    }
+
     if (payload.allow_comments !== undefined) {
         fd.append("allow_comments", payload.allow_comments ? "true" : "false");
     }
+
     const { data } = await api.post("posts/author/", fd, {
         headers: { "Content-Type": "multipart/form-data" },
     });
     return data as AuthorPostDetail;
 }
+
 export async function updateAuthorPost(
     slug: string,
     payload: Partial<{
@@ -85,11 +101,12 @@ export async function updateAuthorPost(
         published_at: string;
         cover_image: File | null;
         allowed_reactions: number[];
-        tags: number[]; // NEW
+        tags: number[];
         allow_comments: boolean;
     }>
 ) {
     const fd = new FormData();
+
     if (payload.title !== undefined) fd.append("title", payload.title);
     if (payload.category !== undefined && payload.category !== null)
         fd.append("category", String(payload.category));
@@ -101,29 +118,40 @@ export async function updateAuthorPost(
     if (payload.status !== undefined) fd.append("status", payload.status);
     if (payload.published_at !== undefined) fd.append("published_at", payload.published_at);
     if (payload.cover_image) fd.append("cover_image", payload.cover_image);
-    if (payload.allowed_reactions && payload.allowed_reactions.length > 0) {
-        for (const id of payload.allowed_reactions) {
-            fd.append("allowed_reactions", String(id));
+
+    // FIX: Handle empty arrays with a flag
+    if (payload.allowed_reactions !== undefined) {
+        if (payload.allowed_reactions.length > 0) {
+            for (const id of payload.allowed_reactions) {
+                fd.append("allowed_reactions", String(id));
+            }
+        } else {
+            // Send flag to explicitly clear
+            fd.append("clear_allowed_reactions", "true");
         }
     }
+
     if (payload.tags !== undefined) {
         if (payload.tags.length > 0) {
             for (const id of payload.tags) {
                 fd.append("tags", String(id));
             }
         } else {
-            // Send empty array to clear tags
-            fd.append("tags", "");
+            // Send flag to explicitly clear
+            fd.append("clear_tags", "true");
         }
     }
+
     if (payload.allow_comments !== undefined) {
         fd.append("allow_comments", payload.allow_comments ? "true" : "false");
     }
+
     const { data } = await api.patch(`posts/author/${slug}/`, fd, {
         headers: { "Content-Type": "multipart/form-data" },
     });
     return data as AuthorPostDetail;
 }
+
 export async function deleteAuthorPost(slug: string) {
     await api.delete(`posts/author/${slug}/`);
 }

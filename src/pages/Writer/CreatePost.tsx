@@ -61,6 +61,7 @@ export default function CreatePost() {
         [title, shortDescription]
     );
 
+
     const m = useMutation({
         mutationFn: () =>
             createAuthorPost({
@@ -71,8 +72,9 @@ export default function CreatePost() {
                 status,
                 published_at: status === "scheduled" ? scheduledTime : undefined,
                 cover_image: coverFile ?? undefined,
-                allowed_reactions: allowedReactions.length > 0 ? allowedReactions : undefined,
-                tags: selectedTags.length > 0 ? selectedTags : undefined,
+                // FIX: Always send these arrays
+                allowed_reactions: allowedReactions, // Will be empty array if none selected
+                tags: selectedTags, // Will be empty array if none selected
                 allow_comments: allowComments,
             }),
         onSuccess: async (post) => {

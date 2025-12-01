@@ -95,6 +95,7 @@ export default function EditPost() {
     const canSubmit = useMemo(() => {
         return title.trim().length > 3 && shortDescription.trim().length > 10;
     }, [title, shortDescription]);
+
     const m = useMutation({
         mutationFn: () =>
             updateAuthorPost(slug, {
@@ -105,8 +106,9 @@ export default function EditPost() {
                 status,
                 published_at: status === "scheduled" ? scheduledTime : undefined,
                 cover_image: coverFile ?? undefined,
-                allowed_reactions: allowedReactions.length > 0 ? allowedReactions : undefined,
-                tags: selectedTags.length > 0 ? selectedTags : undefined,
+                // FIX: Always send these arrays (don't conditionally omit them)
+                allowed_reactions: allowedReactions, // Send empty array to clear
+                tags: selectedTags, // Send empty array to clear
                 allow_comments: allowComments,
             }),
         onSuccess: () => {
