@@ -1,11 +1,11 @@
-// src/components/Navbar.tsx - UPDATED VERSION
-
+// src/components/Navbar.tsx
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useTheme } from "./ThemeProvider";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNotifications } from "../contexts/NotificationContext";
+import SearchBar from "./ui/SearchBar";
 import { Menu, X, Sun, Moon, PenTool, User, LogOut, FileText, Heart, Bookmark, Bell } from "lucide-react";
 
 export default function Navbar() {
@@ -45,7 +45,7 @@ export default function Navbar() {
     const navLinks = [
         { path: "/", label: "Home" },
         { path: "/explore", label: "Explore" },
-        { path: "/about", label: "About" },
+        { path: "/read", label: "Read" },
     ];
 
     const getUserInitials = () => {
@@ -94,6 +94,11 @@ export default function Navbar() {
 
                     {/* Right Section */}
                     <div className="flex items-center gap-2 md:gap-3">
+                        {/* Search Bar (Desktop) */}
+                        <div className="hidden md:block">
+                            <SearchBar />
+                        </div>
+
                         {/* Writer actions (desktop) - Only show if authorized AND can write */}
                         {accessToken && !meLoading && canWrite && (
                             <div className="hidden lg:flex items-center gap-2">
@@ -114,7 +119,7 @@ export default function Navbar() {
                             </div>
                         )}
 
-                        {/* Notifications Bell (Desktop & Mobile) */}
+                        {/* Notifications Bell */}
                         {accessToken && (
                             <Link
                                 to="/notifications"
@@ -143,7 +148,7 @@ export default function Navbar() {
                             )}
                         </button>
 
-                        {/* Auth menu */}
+                        {/* Auth menu (Desktop) */}
                         {accessToken ? (
                             <div className="relative hidden md:block" ref={dropdownRef}>
                                 <button
@@ -285,6 +290,11 @@ export default function Navbar() {
                 {/* Mobile Menu */}
                 {mobileMenuOpen && (
                     <div className="md:hidden mt-4 pb-4 space-y-2 animate-fade-in border-t border-[var(--color-border)] pt-4">
+                        {/* Mobile Search Bar */}
+                        <div className="px-2 pb-2">
+                            <SearchBar mobile />
+                        </div>
+
                         {accessToken && user && (
                             <div className="px-4 py-3 mb-2 bg-[var(--color-surface-elevated)] rounded-lg flex items-center gap-3">
                                 {user.profile_photo ? (

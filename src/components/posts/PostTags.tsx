@@ -1,6 +1,7 @@
 // src/components/posts/PostTags.tsx
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Tag as TagIcon } from "lucide-react";
 import { getPostTags } from "../../services/tags";
 import type { Tag } from "../../types/tag";
@@ -9,11 +10,22 @@ type PostTagsProps = {
     slug: string;
 };
 
+/**
+ * Displays tags for a post with clickable navigation.
+ * Clicking a tag navigates to /read?tags=tagname for filtered results.
+ */
 export function PostTags({ slug }: PostTagsProps) {
+    const navigate = useNavigate();
+
     const { data: tags, isLoading } = useQuery({
         queryKey: ["post", slug, "tags"],
         queryFn: () => getPostTags(slug),
     });
+
+    const handleTagClick = (tag: Tag) => {
+        // Navigate to Read page with tag filter
+        navigate(`/read?tags=${encodeURIComponent(tag.name)}`);
+    };
 
     if (isLoading) {
         return (
@@ -42,14 +54,35 @@ export function PostTags({ slug }: PostTagsProps) {
             </div>
             <div className="flex flex-wrap gap-2">
                 {tags.map((tag: Tag) => (
-                    <span
+                    <button
                         key={tag.id}
-                        className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-brand-500)] hover:text-[var(--color-brand-600)] transition-all cursor-default"
+                        onClick={() => handleTagClick(tag)}
+                        className="
+                            inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
+                            bg-[var(--color-surface)] border border-[var(--color-border)]
+                            text-[var(--color-text-secondary)]
+                            hover:border-[var(--color-brand-500)]
+                            hover:text-[var(--color-brand-600)]
+                            hover:bg-[var(--color-brand-50)]
+                            dark:hover:bg-[var(--color-brand-900)]
+                            transition-all duration-200
+                            cursor-pointer
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-[var(--color-brand-500)]
+                            focus:ring-offset-2
+                            active:scale-95
+                        "
+                        aria-label={`Filter posts by ${tag.name}`}
                     >
+                        <TagIcon className="w-3.5 h-3.5 mr-1.5" />
                         {tag.name}
-                    </span>
+                    </button>
                 ))}
             </div>
+            <p className="mt-3 text-xs text-[var(--color-text-tertiary)] italic">
+                Click on a tag to see all related articles
+            </p>
         </div>
     );
 }

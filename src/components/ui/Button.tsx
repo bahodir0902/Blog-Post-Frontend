@@ -1,39 +1,56 @@
+// src/components/ui/Button.tsx
 import { ButtonHTMLAttributes, forwardRef } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+    variant?: "primary" | "secondary" | "danger" | "ghost";
     size?: "sm" | "md" | "lg";
-    isLoading?: boolean;
+    loading?: boolean;
+    children: React.ReactNode;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className = "", variant = "primary", size = "md", isLoading, children, disabled, ...props }, ref) => {
-        const baseStyles = "btn inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none";
+    (
+        {
+            variant = "primary",
+            size = "md",
+            loading = false,
+            className = "",
+            disabled,
+            children,
+            ...props
+        },
+        ref
+    ) => {
+        const baseStyles =
+            "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
         const variants = {
-            primary: "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white hover:from-[var(--color-brand-600)] hover:to-[var(--color-brand-700)] shadow-lg hover:shadow-xl focus:ring-[var(--color-brand-500)] active:scale-95",
-            secondary: "bg-[var(--color-surface-elevated)] text-[var(--color-text-primary)] hover:bg-[var(--color-border)] border border-[var(--color-border)] focus:ring-[var(--color-border-strong)]",
-            outline: "border-2 border-[var(--color-brand-500)] text-[var(--color-brand-500)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-900)] focus:ring-[var(--color-brand-500)]",
-            ghost: "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] focus:ring-[var(--color-border-strong)]",
-            danger: "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl focus:ring-red-500 active:scale-95",
+            primary:
+                "bg-[var(--color-brand-600)] text-white hover:bg-[var(--color-brand-700)] focus:ring-[var(--color-brand-500)] shadow-sm hover:shadow-md active:scale-[0.98]",
+            secondary:
+                "bg-[var(--color-surface)] text-[var(--color-text-primary)] border-2 border-[var(--color-border)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-elevated)] focus:ring-[var(--color-brand-500)]",
+            danger:
+                "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md active:scale-[0.98]",
+            ghost:
+                "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] focus:ring-[var(--color-brand-500)]",
         };
 
         const sizes = {
-            sm: "px-4 py-2 text-sm",
-            md: "px-6 py-3 text-base",
-            lg: "px-8 py-4 text-lg",
+            sm: "px-3 py-1.5 text-sm",
+            md: "px-4 py-2.5 text-base",
+            lg: "px-6 py-3 text-lg",
         };
 
         return (
             <button
                 ref={ref}
+                disabled={disabled || loading}
                 className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-                disabled={disabled || isLoading}
                 {...props}
             >
-                {isLoading && (
+                {loading && (
                     <svg
-                        className="animate-spin h-5 w-5"
+                        className="animate-spin h-4 w-4"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"

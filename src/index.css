@@ -733,3 +733,162 @@ label {
 .prose-custom > * {
     max-width: 100%;
 }
+
+/* Add these to your existing index.css file, in the @layer utilities section */
+
+@layer utilities {
+    /* Enhanced scale-in animation for badges and tags */
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-scale-in {
+        animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Pulse animation for active filters */
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.8;
+        }
+    }
+
+    .animate-pulse-slow {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Smooth slide-in from top for dropdowns */
+    @keyframes slideInTop {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-slide-in-top {
+        animation: slideInTop 0.3s ease-out;
+    }
+
+    /* Bounce animation for no results */
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .animate-bounce-once {
+        animation: bounce 0.6s ease-in-out;
+    }
+}
+
+/* Enhanced focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+}
+
+/* Smooth transitions for theme switching */
+* {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Prevent transition on page load */
+.no-transition * {
+    transition: none !important;
+}
+
+/* Custom scrollbar for tag lists and dropdowns */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-brand-400) var(--color-surface);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--color-surface);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-brand-400);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-brand-500);
+}
+
+/* Badge animations */
+.badge-enter {
+    animation: scaleIn 0.2s ease-out;
+}
+
+.badge-exit {
+    animation: scaleIn 0.2s ease-out reverse;
+}
+
+/* Loading skeleton improvements */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+            90deg,
+            var(--color-surface-elevated) 0%,
+            var(--color-border) 50%,
+            var(--color-surface-elevated) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Hover lift effect for cards */
+.hover-lift {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+}
+
+/* Active state for buttons */
+button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+/* Smooth color transitions for text */
+.transition-colors {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
