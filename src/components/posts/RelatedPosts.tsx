@@ -35,16 +35,23 @@ export function RelatedPosts({ posts }: RelatedPostsProps) {
                                 <p className="text-sm text-[var(--color-text-secondary)] line-clamp-2">
                                     {relatedPost.short_description}
                                 </p>
-                                <div className="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)] pt-2">
-                                    <time dateTime={relatedPost.created_at}>
-                                        {new Date(relatedPost.created_at).toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                            year: "numeric"
-                                        })}
-                                    </time>
-                                    <span>•</span>
-                                    <span>5 min read</span>
+                                <div className="flex items-center justify-between pt-2 border-t border-[var(--color-border)]">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white text-xs font-semibold">
+                                            {relatedPost.author?.first_name?.charAt(0)?.toUpperCase() || 'A'}
+                                        </div>
+                                        <span className="text-xs font-medium text-[var(--color-text-primary)]">
+                                            {relatedPost.author?.full_name || `${relatedPost.author?.first_name || ''} ${relatedPost.author?.last_name || ''}`.trim() || 'Author'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
+                                        <time dateTime={relatedPost.created_at}>
+                                            {new Date(relatedPost.created_at).toLocaleDateString("en-US", {
+                                                month: "short",
+                                                day: "numeric"
+                                            })}
+                                        </time>
+                                    </div>
                                 </div>
                             </div>
                         </Card>

@@ -228,9 +228,13 @@ export default function Home() {
 
                                                     <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-[var(--color-border)]">
                                                         <div className="flex items-center gap-2">
-                                                            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)]" />
+                                                            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center text-white text-xs md:text-sm font-semibold">
+                                                                {post.author?.first_name?.charAt(0)?.toUpperCase() || 'A'}
+                                                            </div>
                                                             <div>
-                                                                <p className="text-xs md:text-sm font-semibold text-[var(--color-text-primary)]">Author</p>
+                                                                <p className="text-xs md:text-sm font-semibold text-[var(--color-text-primary)]">
+                                                                    {post.author?.full_name || `${post.author?.first_name || ''} ${post.author?.last_name || ''}`.trim() || 'Author'}
+                                                                </p>
                                                                 <p className="text-xs text-[var(--color-text-tertiary)]">
                                                                     {new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                                                 </p>

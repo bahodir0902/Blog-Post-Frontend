@@ -395,6 +395,26 @@
     overflow-x: auto;
 }
 
+/* Syntax Highlighter Custom Styles */
+pre[class*="language-"] {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+code[class*="language-"] {
+    background: transparent !important;
+}
+
+/* Override syntax highlighter background for better integration */
+.dark pre[class*="language-"] {
+    background: transparent !important;
+}
+
+.dark code[class*="language-"] {
+    background: transparent !important;
+}
+
 code {
     background: var(--color-surface-elevated) !important;
     color: var(--color-brand-600) !important;

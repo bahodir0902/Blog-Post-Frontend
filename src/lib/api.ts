@@ -99,6 +99,14 @@ export const AuthAPI = {
 	}) => api.post('/auth/register/', payload).then((r) => r.data),
 }
 
+export type Author = {
+	id: number
+	first_name: string
+	last_name: string
+	full_name: string
+	email: string
+}
+
 export type PostListItem = {
 	id: number
 	title: string
@@ -107,6 +115,7 @@ export type PostListItem = {
 	cover_image: string | null
 	created_at: string
 	updated_at: string
+	author: Author
 }
 
 export type PostDetail = {

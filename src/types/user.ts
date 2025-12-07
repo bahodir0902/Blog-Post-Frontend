@@ -41,6 +41,7 @@ export type PostListItem = {
     updated_at: string;
     published_at?: string | null;
     status?: "draft" | "published" | "scheduled" | "archived";
+    author: Author;
 };
 
 export type Author = {
