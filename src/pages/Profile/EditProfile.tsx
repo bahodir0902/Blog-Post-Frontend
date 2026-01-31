@@ -53,7 +53,10 @@ export default function EditProfile() {
             setOk("Profile updated successfully!");
             setErr(null);
             qc.invalidateQueries({ queryKey: ["me"] });
-            setTimeout(() => setOk(null), 3000);
+            // Redirect to profile page after 1.5 seconds
+            setTimeout(() => {
+                navigate("/profile");
+            }, 1500);
         },
         onError: (e: any) => {
             setErr(e?.response?.data?.detail || "Failed to update profile");

@@ -8,5 +8,8 @@ export default defineConfig({
     css: {
         transformer: 'postcss',
     },
+    // server: {
+    //     port: 3000,
+    //     strictPort: true, // optional but recommended
+    // },
 })
-

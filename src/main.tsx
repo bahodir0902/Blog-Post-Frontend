@@ -11,7 +11,19 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import App from "./App";
 import "./index.css";
 
-const qc = new QueryClient();
+// Configure QueryClient with optimized defaults to prevent unnecessary refetches
+const qc = new QueryClient({
+    defaultOptions: {
+        queries: {
+            // Prevent refetching when user alt+tabs or switches windows
+            refetchOnWindowFocus: false,
+            // Keep data fresh for 5 minutes
+            staleTime: 5 * 60 * 1000,
+            // Retry failed requests only once
+            retry: 1,
+        },
+    },
+});
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -27,7 +39,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                         </ThemeProvider>
                     </AuthProvider>
                 </BrowserRouter>
-                <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+                <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
         </GoogleOAuthProvider>
     </React.StrictMode>

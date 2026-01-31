@@ -7,8 +7,10 @@ interface PostContentProps {
 
 export function PostContent({ blocks }: PostContentProps) {
     return (
-        <section className="mb-16">
-            <BlockNoteRenderer blocks={blocks} />
+        <section className="mb-16 animate-fade-in">
+            <div className="prose-custom">
+                <BlockNoteRenderer blocks={blocks} />
+            </div>
         </section>
     );
 }

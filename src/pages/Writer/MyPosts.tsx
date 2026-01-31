@@ -3,13 +3,23 @@ import React, {useMemo, useState} from "react";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {Link, useSearchParams, useNavigate} from "react-router-dom";
 import {getMyPosts, deleteAuthorPost} from "../../services/authorPosts";
-import {Trash2, Pencil, ExternalLink, Plus, Image as ImageIcon, Calendar} from "lucide-react";
+import {Trash2, Pencil, ExternalLink, Plus, Image as ImageIcon, Calendar, FileText, Eye, Clock, Send} from "lucide-react";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import StatusBadge from "../../components/StatusBadge";
+
+type StatusFilter = "all" | "published" | "draft" | "scheduled";
+
+const STATUS_TABS: { key: StatusFilter; label: string; icon: React.ElementType }[] = [
+    { key: "all", label: "All Posts", icon: FileText },
+    { key: "published", label: "Published", icon: Eye },
+    { key: "draft", label: "Drafts", icon: Pencil },
+    { key: "scheduled", label: "Scheduled", icon: Clock },
+];
 
 export default function MyPosts() {
     const [params, setParams] = useSearchParams();
     const page = Number(params.get("page") || "1");
+    const statusFilter = (params.get("status") || "all") as StatusFilter;
     const navigate = useNavigate();
     const qc = useQueryClient();
 
@@ -19,9 +29,30 @@ export default function MyPosts() {
         keepPreviousData: true,
     });
 
-    const items = q.data?.results ?? [];
+    // Filter items based on status
+    const allItems = q.data?.results ?? [];
+    const items = useMemo(() => {
+        if (statusFilter === "all") return allItems;
+        return allItems.filter(p => {
+            if (statusFilter === "published") return p.status === "published";
+            if (statusFilter === "draft") return p.status === "draft";
+            if (statusFilter === "scheduled") return p.status === "scheduled";
+            return true;
+        });
+    }, [allItems, statusFilter]);
+
+    // Count by status for badges
+    const statusCounts = useMemo(() => {
+        return {
+            all: allItems.length,
+            published: allItems.filter(p => p.status === "published").length,
+            draft: allItems.filter(p => p.status === "draft").length,
+            scheduled: allItems.filter(p => p.status === "scheduled").length,
+        };
+    }, [allItems]);
+
     const total = q.data?.count ?? items.length;
-    const pageSize = items.length ? items.length : 10;
+    const pageSize = allItems.length ? allItems.length : 10;
 
     const hasNext = Boolean(q.data?.next);
     const hasPrev = Boolean(q.data?.previous) || page > 1;
@@ -43,6 +74,13 @@ export default function MyPosts() {
 
     const empty = useMemo(() => !q.isLoading && items.length === 0, [q.isLoading, items.length]);
 
+    const handleStatusChange = (status: StatusFilter) => {
+        const newParams = new URLSearchParams(params);
+        newParams.set("status", status);
+        newParams.set("page", "1");
+        setParams(newParams);
+    };
+
     const formatDateTime = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleString('en-US', {
@@ -59,10 +97,10 @@ export default function MyPosts() {
         <div className="min-h-screen bg-[var(--color-background)]">
             <div className="container-responsive max-w-7xl py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="mb-4 sm:mb-6 lg:mb-8 animate-slide-up">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                <div className="mb-6 sm:mb-8 animate-slide-up">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
                         <div>
-                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-accent-500)] bg-clip-text text-transparent mb-1 sm:mb-2">
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[var(--color-text-primary)] mb-1 sm:mb-2">
                                 My Posts
                             </h1>
                             <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">
@@ -71,22 +109,47 @@ export default function MyPosts() {
                         </div>
                         <Link
                             to="/writer/new"
-                            className="self-start sm:self-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-700)] text-white rounded-lg sm:rounded-xl font-semibold text-sm hover:shadow-lg hover:scale-105 transition-all duration-200 focus-ring"
+                            className="self-start sm:self-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl hover:shadow-[var(--color-brand-500)]/25 hover:-translate-y-0.5 transition-all duration-200 focus-ring"
                         >
                             <Plus className="h-4 w-4" />
                             <span>New Post</span>
                         </Link>
                     </div>
 
-                    {/* Stats */}
-                    {!empty && !q.isLoading && (
-                        <div className="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)] animate-fade-in">
-                            <span className="font-semibold text-[var(--color-text-primary)]">{total}</span>
-                            <span>{total === 1 ? 'post' : 'posts'}</span>
-                            <span className="w-1 h-1 rounded-full bg-[var(--color-border-strong)]"></span>
-                            <span>Page {page}</span>
-                        </div>
-                    )}
+                    {/* Status Filter Tabs */}
+                    <div className="flex items-center gap-2 p-1.5 bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-x-auto">
+                        {STATUS_TABS.map(({ key, label, icon: Icon }) => {
+                            const isActive = statusFilter === key;
+                            const count = statusCounts[key];
+                            return (
+                                <button
+                                    key={key}
+                                    onClick={() => handleStatusChange(key)}
+                                    className={`
+                                        flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap
+                                        ${isActive 
+                                            ? 'bg-[var(--color-brand-500)] text-white shadow-md' 
+                                            : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]'
+                                        }
+                                    `}
+                                >
+                                    <Icon className="h-4 w-4" />
+                                    <span>{label}</span>
+                                    {count > 0 && (
+                                        <span className={`
+                                            px-2 py-0.5 rounded-full text-xs font-semibold
+                                            ${isActive 
+                                                ? 'bg-white/20 text-white' 
+                                                : 'bg-[var(--color-surface-elevated)] text-[var(--color-text-tertiary)]'
+                                            }
+                                        `}>
+                                            {count}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
 
                 {/* Loading */}
@@ -201,7 +264,7 @@ export default function MyPosts() {
                                                     <span className="font-medium">Updated</span>
                                                     <span>{formatDateTime(p.updated_at)}</span>
                                                 </div>
-                                                <div className="flex items-center gap-1 hidden sm:flex">
+                                                <div className="hidden sm:flex items-center gap-1">
                                                     <span>•</span>
                                                     <span className="font-medium">Created</span>
                                                     <span>{formatDateTime(p.created_at)}</span>

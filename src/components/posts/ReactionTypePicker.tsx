@@ -149,7 +149,7 @@ export function ReactionTypePicker({ selectedReactionIds, onChange }: ReactionTy
                                 w-5 h-5 rounded border-2 flex items-center justify-center transition-all
                                 ${allSelected
                                 ? "bg-[var(--color-brand-500)] border-[var(--color-brand-500)]"
-                                : "border-[var(--color-border)] group-hover:border-[var(--color-brand-400)]"
+                                : "border-[var(--color-border-strong)] group-hover:border-[var(--color-brand-400)]"
                             }
                             `}>
                                 {allSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
@@ -173,7 +173,7 @@ export function ReactionTypePicker({ selectedReactionIds, onChange }: ReactionTy
                                         w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
                                         transition-all group
                                         ${isSelected
-                                        ? "bg-[var(--color-brand-50)] dark:bg-[var(--color-brand-900)]/20"
+                                        ? "bg-[var(--color-brand-50)] dark:bg-[var(--color-brand-500)]/10"
                                         : "hover:bg-[var(--color-surface-elevated)]"
                                     }
                                     `}
@@ -182,7 +182,7 @@ export function ReactionTypePicker({ selectedReactionIds, onChange }: ReactionTy
                                     <span className={`
                                         flex-1 text-left text-sm font-medium transition-colors
                                         ${isSelected
-                                        ? "text-[var(--color-brand-700)] dark:text-[var(--color-brand-300)]"
+                                        ? "text-[var(--color-brand-700)] dark:text-[var(--color-brand-400)]"
                                         : "text-[var(--color-text-primary)]"
                                     }
                                     `}>
@@ -192,7 +192,7 @@ export function ReactionTypePicker({ selectedReactionIds, onChange }: ReactionTy
                                         w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0
                                         ${isSelected
                                         ? "bg-[var(--color-brand-500)] border-[var(--color-brand-500)]"
-                                        : "border-[var(--color-border)] group-hover:border-[var(--color-brand-400)]"
+                                        : "border-[var(--color-border-strong)] group-hover:border-[var(--color-brand-400)]"
                                     }
                                     `}>
                                         {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}

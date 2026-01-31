@@ -22,23 +22,23 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref
     ) => {
         const baseStyles =
-            "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+            "inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
         const variants = {
             primary:
-                "bg-[var(--color-brand-600)] text-white hover:bg-[var(--color-brand-700)] focus:ring-[var(--color-brand-500)] shadow-sm hover:shadow-md active:scale-[0.98]",
+                "bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white hover:shadow-lg hover:shadow-[var(--color-brand-500)]/25 hover:-translate-y-0.5 focus-visible:ring-[var(--color-brand-500)] active:scale-[0.98]",
             secondary:
-                "bg-[var(--color-surface)] text-[var(--color-text-primary)] border-2 border-[var(--color-border)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-elevated)] focus:ring-[var(--color-brand-500)]",
+                "bg-[var(--color-surface)] text-[var(--color-text-primary)] border-2 border-[var(--color-border)] hover:border-[var(--color-brand-400)] hover:bg-[var(--color-surface-elevated)] focus-visible:ring-[var(--color-brand-500)]",
             danger:
-                "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md active:scale-[0.98]",
+                "bg-gradient-to-r from-[var(--color-error)] to-red-600 text-white hover:shadow-lg hover:shadow-red-500/25 hover:-translate-y-0.5 focus-visible:ring-red-500 active:scale-[0.98]",
             ghost:
-                "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] focus:ring-[var(--color-brand-500)]",
+                "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] focus-visible:ring-[var(--color-brand-500)]",
         };
 
         const sizes = {
-            sm: "px-3 py-1.5 text-sm",
-            md: "px-4 py-2.5 text-base",
-            lg: "px-6 py-3 text-lg",
+            sm: "px-4 py-2 text-sm",
+            md: "px-5 py-2.5 text-base",
+            lg: "px-7 py-3.5 text-lg",
         };
 
         return (
