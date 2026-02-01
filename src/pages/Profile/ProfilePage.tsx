@@ -1,15 +1,43 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { getProfile } from "../../services/user";
 import Avatar from "../../components/ui/Avatar";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { Link } from "react-router-dom";
+import { languages, changeLanguage, getCurrentLanguage, type LanguageCode } from "../../i18n";
+import { ChevronDown, Globe, Check } from "lucide-react";
 
 export default function ProfilePage() {
+    const { t } = useTranslation();
+    const [currentLang, setCurrentLang] = useState<LanguageCode>(getCurrentLanguage());
+    const [isLangOpen, setIsLangOpen] = useState(false);
+    const langDropdownRef = useRef<HTMLDivElement>(null);
+    
     const { data, isLoading, isError } = useQuery({
         queryKey: ["me"],
         queryFn: getProfile,
     });
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+                setIsLangOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleLanguageChange = (code: LanguageCode) => {
+        changeLanguage(code);
+        setCurrentLang(code);
+        setIsLangOpen(false);
+    };
+
+    const currentLanguage = languages.find(l => l.code === currentLang);
 
     if (isLoading) {
         return (
@@ -47,14 +75,14 @@ export default function ProfilePage() {
                     </div>
                     <div className="space-y-3">
                         <h3 className="text-2xl font-light text-[var(--color-text-primary)] tracking-tight">
-                            Unable to Load Profile
+                            {t('profile.unableToLoad')}
                         </h3>
                         <p className="text-base text-[var(--color-text-secondary)] leading-relaxed max-w-sm mx-auto">
-                            We encountered an issue retrieving your profile information. Please try again.
+                            {t('profile.loadError')}
                         </p>
                     </div>
                     <Button onClick={() => window.location.reload()} className="mx-auto">
-                        Retry
+                        {t('common.retry')}
                     </Button>
                 </div>
             </div>
@@ -71,7 +99,7 @@ export default function ProfilePage() {
                 {/* Page Header */}
                 <div className="mb-16">
                     <h1 className="text-[2.75rem] font-extralight text-[var(--color-text-primary)] tracking-tight leading-none">
-                        Profile
+                        {t('profile.title')}
                     </h1>
                 </div>
 
@@ -103,7 +131,7 @@ export default function ProfilePage() {
                                 />
                                 {u.mfa_enabled && (
                                     <StatusBadge
-                                        label="Two-Factor Authentication"
+                                        label={t('profile.twoFactorAuth')}
                                         variant="default"
                                         icon={
                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -122,12 +150,12 @@ export default function ProfilePage() {
                             <div className="space-y-3 pt-6">
                                 <Link to="/profile/edit" className="block">
                                     <Button variant="outline" size="sm" className="w-full justify-center">
-                                        Edit Profile
+                                        {t('profile.editProfile')}
                                     </Button>
                                 </Link>
                                 <Link to="/profile/change-email" className="block">
                                     <Button variant="secondary" size="sm" className="w-full justify-center">
-                                        Change Email
+                                        {t('profile.changeEmail')}
                                     </Button>
                                 </Link>
                             </div>
@@ -138,7 +166,7 @@ export default function ProfilePage() {
                     <div className="lg:col-span-8 space-y-16">
                         {/* Identity Section */}
                         <section className="space-y-8">
-                            <SectionHeader title="Identity" />
+                            <SectionHeader title={t('profile.identity')} />
                             <div className="space-y-2">
                                 <h2 className="text-[2rem] font-light text-[var(--color-text-primary)] tracking-tight leading-tight">
                                     {fullName}
@@ -150,11 +178,11 @@ export default function ProfilePage() {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-8 pt-6">
                                 <DetailItem
-                                    label="Phone Number"
+                                    label={t('profile.phoneNumber')}
                                     value={data.phone_number || "—"}
                                 />
                                 <DetailItem
-                                    label="Date of Birth"
+                                    label={t('profile.dateOfBirth')}
                                     value={data.birth_date ? new Date(data.birth_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"}
                                 />
                             </div>
@@ -162,15 +190,15 @@ export default function ProfilePage() {
 
                         {/* Account Activity Section */}
                         <section className="space-y-8">
-                            <SectionHeader title="Account Activity" />
+                            <SectionHeader title={t('profile.accountActivity')} />
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-8">
                                 <DetailItem
-                                    label="Member Since"
+                                    label={t('profile.memberSince')}
                                     value={new Date(u.date_joined).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
                                 />
                                 <DetailItem
-                                    label="Last Login"
+                                    label={t('profile.lastLogin')}
                                     value={u.last_login ? new Date(u.last_login).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"}
                                 />
                             </div>
@@ -178,19 +206,77 @@ export default function ProfilePage() {
 
                         {/* Security Section */}
                         <section className="space-y-8">
-                            <SectionHeader title="Security" />
+                            <SectionHeader title={t('profile.security')} />
 
                             <div className="space-y-px bg-[var(--color-border)]/30 rounded-lg overflow-hidden">
                                 <SecurityItem
-                                    title="Two-Factor Authentication"
-                                    status={u.mfa_enabled ? "Enabled" : "Disabled"}
+                                    title={t('profile.twoFactorAuth')}
+                                    status={u.mfa_enabled ? t('common.enabled') : t('common.disabled')}
                                     isEnabled={u.mfa_enabled}
                                 />
                                 <SecurityItem
-                                    title="Account Status"
+                                    title={t('profile.accountStatus')}
                                     status={u.status}
                                     isEnabled={u.status === "Authorized"}
                                 />
+                            </div>
+                        </section>
+
+                        {/* Language Section */}
+                        <section className="space-y-8">
+                            <SectionHeader title={t('profile.languageSettings')} />
+
+                            <div className="space-y-4">
+                                <p className="text-[var(--color-text-secondary)] text-sm">
+                                    {t('profile.languageDescription')}
+                                </p>
+                                
+                                {/* Custom Language Dropdown */}
+                                <div className="relative" ref={langDropdownRef}>
+                                    <button
+                                        onClick={() => setIsLangOpen(!isLangOpen)}
+                                        className="w-full sm:w-80 flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-brand-400)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Globe className="w-5 h-5 text-[var(--color-brand-500)]" />
+                                            <span className="text-2xl">{currentLanguage?.flag}</span>
+                                            <span className="text-[var(--color-text-primary)] font-medium">
+                                                {currentLanguage?.nativeName}
+                                            </span>
+                                        </div>
+                                        <ChevronDown className={`w-5 h-5 text-[var(--color-text-tertiary)] transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {/* Dropdown Menu */}
+                                    {isLangOpen && (
+                                        <div className="absolute top-full left-0 mt-2 w-full sm:w-80 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl z-50 animate-fade-in">
+                                            {languages.map((lang) => (
+                                                <button
+                                                    key={lang.code}
+                                                    onClick={() => handleLanguageChange(lang.code)}
+                                                    className={`w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--color-surface-elevated)] transition-colors ${
+                                                        currentLang === lang.code ? 'bg-[var(--color-brand-50)] dark:bg-[var(--color-brand-900)]/20' : ''
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-2xl">{lang.flag}</span>
+                                                        <div className="text-left">
+                                                            <p className="text-[var(--color-text-primary)] font-medium">
+                                                                {lang.nativeName}
+                                                            </p>
+                                                            <p className="text-xs text-[var(--color-text-tertiary)]">
+                                                                {lang.name}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    {currentLang === lang.code && (
+                                                        <Check className="w-5 h-5 text-[var(--color-brand-500)]" />
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </section>
                     </div>

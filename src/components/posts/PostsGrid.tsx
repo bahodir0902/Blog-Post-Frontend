@@ -46,9 +46,17 @@ export default function PostsGrid({ posts }: { posts: PostListItem[] }) {
 
                             <div className="flex items-center justify-between pt-4 border-t border-[var(--color-border)]">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white text-sm font-semibold">
-                                        {post.author?.first_name?.charAt(0)?.toUpperCase() || 'A'}
-                                    </div>
+                                    {post.author?.profile_photo ? (
+                                        <img
+                                            src={post.author.profile_photo}
+                                            alt={post.author.first_name || 'Author'}
+                                            className="w-8 h-8 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-brand-400)] to-[var(--color-brand-600)] flex items-center justify-center text-white text-sm font-semibold">
+                                            {post.author?.first_name?.charAt(0)?.toUpperCase() || 'A'}
+                                        </div>
+                                    )}
                                     <div>
                                         <p className="text-sm font-semibold text-[var(--color-text-primary)]">
                                             {post.author?.full_name || `${post.author?.first_name || ''} ${post.author?.last_name || ''}`.trim() || 'Author'}

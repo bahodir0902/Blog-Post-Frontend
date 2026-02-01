@@ -1,31 +1,33 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
+    const { t } = useTranslation();
     const currentYear = new Date().getFullYear();
 
     const footerLinks = [
         {
-            title: "Product",
+            title: t('footer.product'),
             links: [
-                { label: "Features", href: "#" },
-                { label: "Pricing", href: "#" },
-                { label: "Blog", href: "/" },
+                { label: t('footer.features'), href: "#" },
+                { label: t('footer.pricing'), href: "#" },
+                { label: t('footer.blog'), href: "/" },
             ],
         },
         {
-            title: "Company",
+            title: t('footer.company'),
             links: [
-                { label: "About", href: "#" },
-                { label: "Careers", href: "#" },
-                { label: "Contact", href: "#" },
+                { label: t('footer.about'), href: "#" },
+                { label: t('footer.careers'), href: "#" },
+                { label: t('footer.contact'), href: "#" },
             ],
         },
         {
-            title: "Legal",
+            title: t('footer.legal'),
             links: [
-                { label: "Privacy", href: "#" },
-                { label: "Terms", href: "#" },
-                { label: "Security", href: "#" },
+                { label: t('footer.privacy'), href: "#" },
+                { label: t('footer.terms'), href: "#" },
+                { label: t('footer.security'), href: "#" },
             ],
         },
     ];
@@ -76,7 +78,7 @@ export default function Footer() {
               </span>
                         </Link>
                         <p className="text-[var(--color-text-secondary)] max-w-xs leading-relaxed">
-                            Beautiful, modern blog platform with JWT authentication, OTP verification, and a stunning user experience.
+                            {t('footer.tagline')}
                         </p>
 
                         {/* Social Links */}
@@ -126,7 +128,7 @@ export default function Footer() {
                 <div className="container-responsive py-6">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <p className="text-sm text-[var(--color-text-tertiary)]">
-                            © {currentYear} ModernBlog. All rights reserved.
+                            {t('footer.copyright', { year: currentYear })}
                         </p>
 
                         <div className="flex items-center gap-6">
@@ -134,19 +136,19 @@ export default function Footer() {
                                 to="#"
                                 className="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-brand-500)] transition-colors"
                             >
-                                Privacy Policy
+                                {t('footer.privacy')}
                             </Link>
                             <Link
                                 to="#"
                                 className="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-brand-500)] transition-colors"
                             >
-                                Terms of Service
+                                {t('footer.terms')}
                             </Link>
                             <Link
                                 to="#"
                                 className="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-brand-500)] transition-colors"
                             >
-                                Cookie Policy
+                                {t('footer.security')}
                             </Link>
                         </div>
                     </div>

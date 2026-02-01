@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Bell, CheckCheck, Trash2, MessageCircle } from "lucide-react";
 import { getNotificationInbox, markNotificationsAsRead, deleteNotifications } from "../services/notifications";
 import { useNotifications } from "../contexts/NotificationContext";
 import type { CommentNotification } from "../types/notification";
 
 export default function Notifications() {
+    const { t } = useTranslation();
     const [page, setPage] = useState(1);
     const [isSelectMode, setIsSelectMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -105,13 +107,13 @@ export default function Notifications() {
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
 
-        if (diffMins < 1) return "Just now";
-        if (diffMins < 60) return `${diffMins}m ago`;
-        if (diffHours < 24) return `${diffHours}h ago`;
-        if (diffDays < 7) return `${diffDays}d ago`;
-        if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-        if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
-        return `${Math.floor(diffDays / 365)}y ago`;
+        if (diffMins < 1) return t('time.justNow');
+        if (diffMins < 60) return t('time.minutesAgo', { count: diffMins });
+        if (diffHours < 24) return t('time.hoursAgo', { count: diffHours });
+        if (diffDays < 7) return t('time.daysAgo', { count: diffDays });
+        if (diffDays < 30) return t('time.weeksAgo', { count: Math.floor(diffDays / 7) });
+        if (diffDays < 365) return t('time.monthsAgo', { count: Math.floor(diffDays / 30) });
+        return t('time.yearsAgo', { count: Math.floor(diffDays / 365) });
     };
 
     const getSenderInitials = (sender: CommentNotification["sender"]) => {
@@ -130,7 +132,7 @@ export default function Notifications() {
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center">
                                 <Bell className="w-5 h-5 text-white" />
                             </div>
-                            Notifications
+                            {t('notifications.title')}
                         </h1>
 
                         <div className="flex items-center gap-3">
@@ -141,7 +143,7 @@ export default function Notifications() {
                                     className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-[var(--color-brand-600)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-900)] transition-colors disabled:opacity-50"
                                 >
                                     <CheckCheck className="w-4 h-4" />
-                                    Mark all as read
+                                    {t('notifications.markAllRead')}
                                 </button>
                             )}
 
@@ -150,7 +152,7 @@ export default function Notifications() {
                                     onClick={toggleSelectMode}
                                     className="px-4 py-2 rounded-lg text-sm font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] transition-colors"
                                 >
-                                    Select
+                                    {t('notifications.select')}
                                 </button>
                             ) : (
                                 <>
@@ -158,13 +160,13 @@ export default function Notifications() {
                                         onClick={handleSelectAll}
                                         className="px-4 py-2 rounded-lg text-sm font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] transition-colors"
                                     >
-                                        Select all
+                                        {t('notifications.selectAll')}
                                     </button>
                                     <button
                                         onClick={toggleSelectMode}
                                         className="px-4 py-2 rounded-lg text-sm font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] transition-colors"
                                     >
-                                        Cancel
+                                        {t('common.cancel')}
                                     </button>
                                     {selectedIds.size > 0 && (
                                         <button
@@ -173,7 +175,7 @@ export default function Notifications() {
                                             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
                                         >
                                             <Trash2 className="w-4 h-4" />
-                                            Delete selected ({selectedIds.size})
+                                            {t('notifications.deleteSelected', { count: selectedIds.size })}
                                         </button>
                                     )}
                                 </>
@@ -181,7 +183,7 @@ export default function Notifications() {
                         </div>
                     </div>
                     <p className="text-[var(--color-text-secondary)]">
-                        Stay updated with replies and interactions
+                        {t('notifications.subtitle')}
                     </p>
                 </div>
 
@@ -209,10 +211,10 @@ export default function Notifications() {
                             <Trash2 className="w-8 h-8 text-red-500" />
                         </div>
                         <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
-                            Failed to load notifications
+                            {t('notifications.loadError')}
                         </h3>
                         <p className="text-[var(--color-text-secondary)]">
-                            Please try again later
+                            {t('common.tryAgainLater')}
                         </p>
                     </div>
                 )}
@@ -224,10 +226,10 @@ export default function Notifications() {
                             <Bell className="w-10 h-10 text-[var(--color-text-tertiary)]" />
                         </div>
                         <h3 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
-                            No notifications yet
+                            {t('notifications.noNotifications')}
                         </h3>
                         <p className="text-[var(--color-text-secondary)]">
-                            We'll notify you when you need some attention
+                            {t('notifications.noNotificationsDescription')}
                         </p>
                     </div>
                 )}

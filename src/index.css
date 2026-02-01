@@ -14,14 +14,14 @@
 -----------------------------------*/
 @layer base {
     :root {
-        /* Light Mode - Premium Editorial Theme */
-        --color-background: #fafaf9;
+        /* Light Mode - Soft Warm Theme */
+        --color-background: #f8f7f4;
         --color-surface: #ffffff;
-        --color-surface-elevated: #f5f5f4;
-        --color-surface-hover: #f0efed;
-        --color-border: #e7e5e4;
-        --color-border-strong: #d6d3d1;
-        --color-border-subtle: #f0efed;
+        --color-surface-elevated: #f3f2ef;
+        --color-surface-hover: #edecea;
+        --color-border: #e5e3df;
+        --color-border-strong: #d4d2ce;
+        --color-border-subtle: #eeede9;
 
         /* Text colors - warm neutral */
         --color-text-primary: #1c1917;
@@ -90,14 +90,14 @@
     }
 
     .dark {
-        /* Dark Mode - Premium Editorial Theme */
-        --color-background: #0c0a09;
-        --color-surface: #1c1917;
-        --color-surface-elevated: #292524;
-        --color-surface-hover: #44403c;
-        --color-border: #292524;
-        --color-border-strong: #44403c;
-        --color-border-subtle: #1c1917;
+        /* Dark Mode - Soft Charcoal Theme */
+        --color-background: #141414;
+        --color-surface: #1e1e1e;
+        --color-surface-elevated: #282828;
+        --color-surface-hover: #333333;
+        --color-border: #2a2a2a;
+        --color-border-strong: #3a3a3a;
+        --color-border-subtle: #222222;
 
         /* Text colors - warm neutral for dark */
         --color-text-primary: #fafaf9;
@@ -105,17 +105,17 @@
         --color-text-tertiary: #a8a29e;
         --color-text-muted: #78716c;
 
-        /* Brand colors adjusted for dark */
-        --color-brand-50: #042f2e;
-        --color-brand-100: #134e4a;
-        --color-brand-200: #115e59;
+        /* Brand colors adjusted for dark - better contrast */
+        --color-brand-50: #0a2623;
+        --color-brand-100: #0f3d38;
+        --color-brand-200: #14544d;
         --color-brand-300: #0f766e;
-        --color-brand-400: #0d9488;
-        --color-brand-500: #14b8a6;
-        --color-brand-600: #2dd4bf;
-        --color-brand-700: #755eea;
-        --color-brand-800: #99f6e4;
-        --color-brand-900: #ccfbf1;
+        --color-brand-400: #14b8a6;
+        --color-brand-500: #2dd4bf;
+        --color-brand-600: #5eead4;
+        --color-brand-700: #99f6e4;
+        --color-brand-800: #ccfbf1;
+        --color-brand-900: #f0fdfa;
 
         /* Status colors for dark */
         --color-success-light: rgba(16, 185, 129, 0.15);

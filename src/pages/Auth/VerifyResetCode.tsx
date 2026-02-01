@@ -1,6 +1,7 @@
 // src/pages/Auth/VerifyResetCode.tsx
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Card from "../../components/ui/Card";
 import Label from "../../components/ui/Label";
 import OtpInput from "../../components/ui/OtpInput";
@@ -8,6 +9,7 @@ import Button from "../../components/ui/Button";
 import { verifyReset } from "../../services/auth";
 
 export default function VerifyResetCode() {
+    const { t } = useTranslation();
     const { state } = useLocation() as { state?: { email?: string; otp_token?: string } };
     const otp_token = state?.otp_token;
     const email = state?.email;
@@ -33,7 +35,7 @@ export default function VerifyResetCode() {
             setErr(
                 e?.response?.data?.detail ||
                 Object.values(e?.response?.data || {})[0] as string ||
-                "Verification failed. Please check the code and try again."
+                t("auth.verificationFailed")
             );
         } finally {
             setLoading(false);
@@ -57,13 +59,13 @@ export default function VerifyResetCode() {
                                 </div>
                                 <div>
                                     <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)] mb-2">
-                                        Enter Verification Code
+                                        {t("auth.enterVerificationCode")}
                                     </h2>
                                     <p className="text-sm text-[var(--color-text-secondary)]">
-                                        We sent a code to
+                                        {t("auth.weSentCodeTo")}
                                     </p>
                                     <p className="text-sm font-semibold text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] mt-1">
-                                        {email ?? "your email"}
+                                        {email ?? t("auth.yourEmail")}
                                     </p>
                                 </div>
                             </div>
@@ -84,7 +86,7 @@ export default function VerifyResetCode() {
                             <form onSubmit={onSubmit} className="space-y-6">
                                 <div className="space-y-3">
                                     <Label className="text-center block text-sm font-medium">
-                                        Enter 6-digit code
+                                        {t("auth.enterSixDigitCode")}
                                     </Label>
                                     <OtpInput value={code} onChange={setCode} length={6} autoFocus />
                                 </div>
@@ -95,7 +97,7 @@ export default function VerifyResetCode() {
                                     isLoading={loading}
                                     disabled={code.length < 6}
                                 >
-                                    Verify Code
+                                    {t("auth.verifyCode")}
                                 </Button>
                             </form>
 
@@ -106,7 +108,7 @@ export default function VerifyResetCode() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] leading-relaxed">
-                                        Check your spam folder if you don't see the email. The code expires in 10 minutes.
+                                        {t("auth.checkSpamFolder")}
                                     </p>
                                 </div>
                             </div>

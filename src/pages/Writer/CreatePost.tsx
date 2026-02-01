@@ -1,6 +1,7 @@
 // src/pages/Writer/CreatePost.tsx
 import React, { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import WriterEditor from "../../components/Editor/WriterEditor";
 import { listCategories } from "../../services/categories";
@@ -13,27 +14,38 @@ import clsx from "clsx";
 
 type Status = "draft" | "published" | "scheduled" | "archived";
 
-const STATUS_OPTIONS = [
-    { label: "Draft", value: "draft" },
-    { label: "Publish now", value: "published" },
-    { label: "Schedule", value: "scheduled" },
-    { label: "Archive", value: "archived" },
-];
-
-const STATUS_HINT: Record<Status, string> = {
-    draft: "Keep it private. You can come back and publish later.",
-    published: "Visible to everyone immediately after saving.",
-    scheduled: "Will go live at the scheduled time below.",
-    archived: "Hidden from public lists without deleting the content.",
+const STATUS_OPTIONS_KEYS: Record<Status, string> = {
+    draft: "writer.status.draft",
+    published: "writer.status.published",
+    scheduled: "writer.status.scheduled",
+    archived: "writer.status.archived",
 };
 
-function saveButtonLabel(s: Status) {
-    return s === "draft" ? "Save as draft" : s === "published" ? "Publish now" : s === "scheduled" ? "Save & schedule" : "Save as archived";
-}
+const STATUS_HINT_KEYS: Record<Status, string> = {
+    draft: "writer.statusHint.draft",
+    published: "writer.statusHint.published",
+    scheduled: "writer.statusHint.scheduled",
+    archived: "writer.statusHint.archived",
+};
+
+const SAVE_BUTTON_KEYS: Record<Status, string> = {
+    draft: "writer.saveAsDraft",
+    published: "writer.publishNow",
+    scheduled: "writer.saveAndSchedule",
+    archived: "writer.saveAsArchived",
+};
 
 export default function CreatePost() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [title, setTitle] = useState("");
+
+    const STATUS_OPTIONS = [
+        { label: t("writer.status.draft"), value: "draft" },
+        { label: t("writer.status.published"), value: "published" },
+        { label: t("writer.status.scheduled"), value: "scheduled" },
+        { label: t("writer.status.archived"), value: "archived" },
+    ];
     const [category, setCategory] = useState<number | "">("");
     const [shortDescription, setShortDescription] = useState("");
     const [status, setStatus] = useState<Status>("draft");
@@ -109,10 +121,10 @@ export default function CreatePost() {
         <div className="container-responsive max-w-7xl py-6">
             <div className="mb-8 space-y-2 animate-fade-in">
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-                    Create a new post
+                    {t("writer.createPost")}
                 </h1>
                 <p className="text-base md:text-lg text-[var(--color-text-secondary)]">
-                    Save as draft, publish now, or schedule it for later.
+                    {t("writer.createPostSubtitle")}
                 </p>
             </div>
 
@@ -124,19 +136,19 @@ export default function CreatePost() {
                         <div className="space-y-2">
                             <label
                                 className="block text-sm font-semibold text-[var(--color-text-primary)]">
-                                Title <span className="text-[var(--color-error)]">*</span>
+                                {t("writer.title")} <span className="text-[var(--color-error)]">*</span>
                             </label>
                             <input
                                 type="text"
                                 maxLength={150}
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                placeholder="Make it short and punchy"
+                                placeholder={t("writer.titlePlaceholder")}
                                 className="w-full rounded-xl border-2 px-4 py-3 bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-500)] focus:ring-4 focus:ring-[var(--color-brand-500)]/10 transition-all"
                             />
                             <div className="flex justify-between items-center text-xs">
                                 <span className="text-[var(--color-text-tertiary)]">
-                                    {title.length < 4 && title.length > 0 && "Title must be at least 4 characters"}
+                                    {title.length < 4 && title.length > 0 && t("writer.titleMinLength")}
                                 </span>
                                 <span className={clsx(
                                     "font-medium",
@@ -151,17 +163,17 @@ export default function CreatePost() {
                         <div className="space-y-2">
                             <label
                                 className="block text-sm font-semibold text-[var(--color-text-primary)]">
-                                Short description <span
+                                {t("writer.shortDescription")} <span
                                 className="text-[var(--color-error)]">*</span>
                             </label>
                             <textarea
                                 value={shortDescription}
                                 onChange={(e) => setShortDescription(e.target.value)}
                                 className="w-full h-28 rounded-xl border-2 px-4 py-3 bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-500)] focus:ring-4 focus:ring-[var(--color-brand-500)]/10 transition-all resize-none"
-                                placeholder="A brief teaser shown in cards and previews"
+                                placeholder={t("writer.shortDescriptionPlaceholder")}
                             />
                             <div className="text-xs text-[var(--color-text-tertiary)]">
-                                {shortDescription.length < 11 && shortDescription.length > 0 && "Description must be at least 11 characters"}
+                                {shortDescription.length < 11 && shortDescription.length > 0 && t("writer.descriptionMinLength")}
                             </div>
                         </div>
 
@@ -169,7 +181,7 @@ export default function CreatePost() {
                         <div className="space-y-2">
                             <label
                                 className="block text-sm font-semibold text-[var(--color-text-primary)]">
-                                Content
+                                {t("writer.content")}
                             </label>
                             <div className="editor-wrapper">
                                 <WriterEditor
@@ -184,7 +196,7 @@ export default function CreatePost() {
                                           d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
                                           clipRule="evenodd"/>
                                 </svg>
-                                Powered by BlockNote. Content is stored as JSON.
+                                {t("writer.contentInfo")}
                             </p>
                         </div>
                     </div>
@@ -194,11 +206,11 @@ export default function CreatePost() {
                         {/* Category Dropdown */}
                         <div className="space-y-2">
                             <Dropdown
-                                label="Category"
-                                options={[{label: "— Uncategorised —", value: ""}, ...catOptions]}
+                                label={t("writer.category")}
+                                options={[{label: t("writer.uncategorised"), value: ""}, ...catOptions]}
                                 value={category === "" ? "" : String(category)}
                                 onChange={(val) => setCategory(val === "" ? "" : Number(val))}
-                                placeholder="Choose category"
+                                placeholder={t("writer.selectCategory")}
                             />
                         </div>
 
@@ -206,7 +218,7 @@ export default function CreatePost() {
                         <div className="space-y-2">
                             <label
                                 className="block text-sm font-semibold text-[var(--color-text-primary)]">
-                                Cover image
+                                {t("writer.coverImage")}
                             </label>
                             <div className="flex items-center gap-3">
                                 <label
@@ -223,7 +235,7 @@ export default function CreatePost() {
                                         hidden
                                         onChange={(e) => onCoverChange(e.target.files?.[0])}
                                     />
-                                    Upload
+                                    {t("writer.upload")}
                                 </label>
                                 {coverPreview && (
                                     <button
@@ -231,7 +243,7 @@ export default function CreatePost() {
                                         className="text-sm font-medium text-[var(--color-error)] hover:underline"
                                         onClick={() => onCoverChange(undefined)}
                                     >
-                                        Remove
+                                        {t("writer.remove")}
                                     </button>
                                 )}
                             </div>
@@ -239,7 +251,7 @@ export default function CreatePost() {
                                 <div className="mt-4 relative group">
                                     <img
                                         src={coverPreview}
-                                        alt="Cover preview"
+                                        alt={t("writer.coverPreview")}
                                         className="w-full h-48 object-cover rounded-xl border-2 border-[var(--color-border)]"
                                     />
                                 </div>
@@ -266,11 +278,10 @@ export default function CreatePost() {
 
                         <div className="space-y-2">
                             <label
-                                className="block text-sm font-semibold text-[var(--color-text-primary)]">Allow
-                                comments</label>
+                                className="block text-sm font-semibold text-[var(--color-text-primary)]">{t("writer.allowComments")}</label>
                             <div
                                 className="flex items-center justify-between bg-[var(--color-surface)] p-3 rounded-lg border border-[var(--color-border)]">
-                                <span className="text-sm text-[var(--color-text-secondary)]">Enable comments on this post</span>
+                                <span className="text-sm text-[var(--color-text-secondary)]">{t("writer.enableComments")}</span>
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="checkbox"
@@ -289,11 +300,11 @@ export default function CreatePost() {
                         {/* Status Dropdown */}
                         <div className="space-y-2">
                             <Dropdown
-                                label="Post visibility"
+                                label={t("writer.postVisibility")}
                                 options={STATUS_OPTIONS}
                                 value={status}
                                 onChange={(v) => setStatus(v as Status)}
-                                placeholder="Select status"
+                                placeholder={t("writer.selectStatus")}
                             />
                             <p className="text-xs text-[var(--color-text-tertiary)] flex items-start gap-2 bg-[var(--color-surface)] p-3 rounded-lg border border-[var(--color-border)]">
                                 <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor"
@@ -302,14 +313,14 @@ export default function CreatePost() {
                                           d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
                                           clipRule="evenodd"/>
                                 </svg>
-                                {STATUS_HINT[status]}
+                                {t(STATUS_HINT_KEYS[status])}
                             </p>
                         </div>
 
                         {status === "scheduled" && (
                             <div className="animate-slide-up">
                                 <DateTimePicker
-                                    label="Publish at"
+                                    label={t("writer.publishAt")}
                                     value={scheduledTime}
                                     onChange={setScheduledTime}
                                     minDate={new Date()}
@@ -338,9 +349,9 @@ export default function CreatePost() {
                                             <path className="opacity-75" fill="currentColor"
                                                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        Saving...
+                                        {t("common.saving")}
                                     </span>
-                                ) : saveButtonLabel(status)}
+                                ) : t(SAVE_BUTTON_KEYS[status])}
                             </button>
 
                             <button
@@ -348,7 +359,7 @@ export default function CreatePost() {
                                 onClick={() => navigate(-1)}
                                 className="w-full px-6 py-3.5 rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-background)] hover:bg-[var(--color-surface-elevated)] hover:border-[var(--color-border-strong)] font-semibold text-[var(--color-text-primary)] transition-all focus:outline-none focus:ring-4 focus:ring-[var(--color-brand-500)]/10"
                             >
-                                Cancel
+                                {t("common.cancel")}
                             </button>
                         </div>
 
@@ -362,7 +373,7 @@ export default function CreatePost() {
                                           clipRule="evenodd"/>
                                 </svg>
                                 <span>
-                                    {(m.error as any)?.response?.data?.detail ?? "Failed to save post. Please try again."}
+                                    {(m.error as any)?.response?.data?.detail ?? t("writer.saveError")}
                                 </span>
                             </div>
                         )}

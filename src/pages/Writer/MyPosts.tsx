@@ -2,6 +2,7 @@
 import React, {useMemo, useState} from "react";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {Link, useSearchParams, useNavigate} from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {getMyPosts, deleteAuthorPost} from "../../services/authorPosts";
 import {Trash2, Pencil, ExternalLink, Plus, Image as ImageIcon, Calendar, FileText, Eye, Clock, Send} from "lucide-react";
 import ConfirmDialog from "../../components/ConfirmDialog";
@@ -17,6 +18,7 @@ const STATUS_TABS: { key: StatusFilter; label: string; icon: React.ElementType }
 ];
 
 export default function MyPosts() {
+    const { t } = useTranslation();
     const [params, setParams] = useSearchParams();
     const page = Number(params.get("page") || "1");
     const statusFilter = (params.get("status") || "all") as StatusFilter;
@@ -101,10 +103,10 @@ export default function MyPosts() {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
                         <div>
                             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[var(--color-text-primary)] mb-1 sm:mb-2">
-                                My Posts
+                                {t('writer.myPosts')}
                             </h1>
                             <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">
-                                Manage your content • Drafts are private
+                                {t('writer.manageContent')}
                             </p>
                         </div>
                         <Link
@@ -112,7 +114,7 @@ export default function MyPosts() {
                             className="self-start sm:self-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl hover:shadow-[var(--color-brand-500)]/25 hover:-translate-y-0.5 transition-all duration-200 focus-ring"
                         >
                             <Plus className="h-4 w-4" />
-                            <span>New Post</span>
+                            <span>{t('writer.newPost')}</span>
                         </Link>
                     </div>
 
@@ -183,10 +185,10 @@ export default function MyPosts() {
                             </div>
                             <div>
                                 <h3 className="text-lg sm:text-xl font-bold text-[var(--color-text-primary)] mb-1">
-                                    No posts yet
+                                    {t('writer.noPosts')}
                                 </h3>
                                 <p className="text-sm text-[var(--color-text-secondary)]">
-                                    Create your first post to get started
+                                    {t('writer.noPostsDescription')}
                                 </p>
                             </div>
                             <Link
@@ -194,7 +196,7 @@ export default function MyPosts() {
                                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-brand-600)] text-white rounded-lg font-semibold hover:bg-[var(--color-brand-700)] transition-all duration-200 hover:shadow-lg"
                             >
                                 <Plus className="h-4 w-4" />
-                                Create First Post
+                                {t('writer.createFirst')}
                             </Link>
                         </div>
                     </div>

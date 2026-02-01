@@ -1,5 +1,6 @@
 // src/pages/Auth/ForgotPassword.tsx
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Card from "../../components/ui/Card";
 import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
@@ -8,6 +9,7 @@ import { forgotPassword } from "../../services/auth";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function ForgotPassword() {
+    const { t } = useTranslation();
     const [email, setEmail] = useState("");
     const [err, setErr] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ export default function ForgotPassword() {
             setErr(
                 e?.response?.data?.detail ||
                 Object.values(e?.response?.data || {})[0] as string ||
-                "Failed to send reset code. Please try again."
+                t("auth.failedToSendResetCode")
             );
         } finally {
             setLoading(false);
@@ -49,10 +51,10 @@ export default function ForgotPassword() {
                                 </div>
                                 <div>
                                     <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)] mb-2">
-                                        Forgot Password?
+                                        {t("auth.forgotPassword")}
                                     </h2>
                                     <p className="text-sm text-[var(--color-text-secondary)]">
-                                        No worries, we'll send you reset instructions
+                                        {t("auth.forgotPasswordSubtitle")}
                                     </p>
                                 </div>
                             </div>
@@ -73,14 +75,14 @@ export default function ForgotPassword() {
                             <form onSubmit={onSubmit} className="space-y-5">
                                 <div className="space-y-2">
                                     <Label htmlFor="email" required>
-                                        Email Address
+                                        {t("auth.emailAddress")}
                                     </Label>
                                     <Input
                                         id="email"
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="you@example.com"
+                                        placeholder={t("auth.emailPlaceholder")}
                                         required
                                         autoComplete="email"
                                         icon={
@@ -92,7 +94,7 @@ export default function ForgotPassword() {
                                 </div>
 
                                 <Button type="submit" className="w-full" isLoading={loading}>
-                                    Send Reset Code
+                                    {t("auth.sendResetCode")}
                                 </Button>
                             </form>
 
@@ -105,7 +107,7 @@ export default function ForgotPassword() {
                                     to="/login"
                                     className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] dark:hover:text-[var(--color-brand-400)] transition-colors"
                                 >
-                                    Back to Login
+                                    {t("auth.backToLogin")}
                                 </Link>
                             </div>
                         </div>

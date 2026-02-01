@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
     ChevronLeft,
     ChevronRight,
@@ -13,8 +14,6 @@ import {
     Users,
     FileText,
     Zap,
-    Play,
-    Pause,
     Eye,
     Heart,
     Flame,
@@ -26,8 +25,8 @@ import { getLatestPosts, getTrendingPosts, getHomeStats } from "../services/post
 
 // ============ LIVE TRENDING CAROUSEL ============
 function TrendingCarousel({ posts }: { posts: any[] }) {
+    const { t } = useTranslation();
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isPlaying, setIsPlaying] = useState(true);
     const [progress, setProgress] = useState(0);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -50,9 +49,9 @@ function TrendingCarousel({ posts }: { posts: any[] }) {
         setProgress(0);
     };
 
-    // Auto-play logic
+    // Auto-play logic - always runs
     useEffect(() => {
-        if (isPlaying && posts.length > 1) {
+        if (posts.length > 1) {
             intervalRef.current = setInterval(nextSlide, SLIDE_DURATION);
             progressRef.current = setInterval(() => {
                 setProgress((prev) => Math.min(prev + (100 / (SLIDE_DURATION / PROGRESS_INTERVAL)), 100));
@@ -63,7 +62,7 @@ function TrendingCarousel({ posts }: { posts: any[] }) {
             if (intervalRef.current) clearInterval(intervalRef.current);
             if (progressRef.current) clearInterval(progressRef.current);
         };
-    }, [isPlaying, posts.length, nextSlide]);
+    }, [posts.length, nextSlide]);
 
     // Reset progress when slide changes
     useEffect(() => {
@@ -111,10 +110,10 @@ function TrendingCarousel({ posts }: { posts: any[] }) {
                                 <div className="flex items-center gap-3 animate-slide-up">
                                     <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[var(--color-accent-gold)] to-orange-500 text-white text-sm font-bold shadow-lg">
                                         <Flame className="w-4 h-4 animate-pulse" />
-                                        Trending #{index + 1}
+                                        {t('home.trending')} #{index + 1}
                                     </span>
                                     <span className="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white/90 text-sm font-medium">
-                                        {post.read_time || 5} min read
+                                        {t('home.minRead', { count: post.read_time || 5 })}
                                     </span>
                                 </div>
 
@@ -134,9 +133,17 @@ function TrendingCarousel({ posts }: { posts: any[] }) {
                                 <div className="flex flex-wrap items-center gap-6 animate-slide-up-delay-3">
                                     {/* Author */}
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-brand-400)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/30">
-                                            {post.author?.first_name?.charAt(0)?.toUpperCase() || 'A'}
-                                        </div>
+                                        {post.author?.profile_photo ? (
+                                            <img
+                                                src={post.author.profile_photo}
+                                                alt={post.author.first_name || 'Author'}
+                                                className="w-12 h-12 rounded-full object-cover ring-2 ring-white/30"
+                                            />
+                                        ) : (
+                                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-brand-400)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/30">
+                                                {post.author?.first_name?.charAt(0)?.toUpperCase() || 'A'}
+                                            </div>
+                                        )}
                                         <div>
                                             <p className="text-white font-semibold">
                                                 {post.author?.full_name || post.author?.first_name || 'Author'}
@@ -150,9 +157,9 @@ function TrendingCarousel({ posts }: { posts: any[] }) {
                                     {/* Read Button */}
                                     <Link
                                         to={`/post/${post.slug}`}
-                                        className="group/btn inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-gray-900 font-semibold hover:bg-[var(--color-brand-400)] hover:text-white transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
+                                        className="group/btn inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-gray-900 font-semibold cursor-pointer hover:bg-[var(--color-brand-400)] hover:text-white transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-100"
                                     >
-                                        Read Article
+                                        {t('common.readMore')}
                                         <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
                                     </Link>
                                 </div>
@@ -162,62 +169,49 @@ function TrendingCarousel({ posts }: { posts: any[] }) {
                 ))}
             </div>
 
-            {/* Controls Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 z-20">
-                <div className="flex items-center justify-between gap-4">
-                    {/* Progress Indicators */}
-                    <div className="flex items-center gap-2 flex-1">
-                        {posts.map((_, index) => (
-                            <button
-                                key={index}
-                                onClick={() => goToSlide(index)}
-                                className="relative flex-1 h-1.5 rounded-full bg-white/30 overflow-hidden cursor-pointer hover:bg-white/40 transition-colors"
-                            >
-                                <div
-                                    className={`absolute inset-y-0 left-0 rounded-full transition-all duration-100 ${
-                                        index === currentIndex
-                                            ? 'bg-[var(--color-brand-400)]'
-                                            : index < currentIndex
-                                                ? 'bg-white/60 w-full'
-                                                : 'bg-transparent w-0'
-                                    }`}
-                                    style={{
-                                        width: index === currentIndex ? `${progress}%` : index < currentIndex ? '100%' : '0%'
-                                    }}
-                                />
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Navigation */}
-                    <div className="flex items-center gap-2">
-                        {/* Play/Pause */}
+            {/* Progress Indicators - Bottom */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-full max-w-md px-8">
+                <div className="flex items-center gap-2">
+                    {posts.map((_, index) => (
                         <button
-                            onClick={() => setIsPlaying(!isPlaying)}
-                            className="p-3 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all"
-                            aria-label={isPlaying ? 'Pause' : 'Play'}
+                            key={index}
+                            onClick={() => goToSlide(index)}
+                            className="relative flex-1 h-1.5 rounded-full bg-white/30 overflow-hidden cursor-pointer hover:bg-white/40 transition-colors"
                         >
-                            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                            <div
+                                className={`absolute inset-y-0 left-0 rounded-full transition-all duration-100 ${
+                                    index === currentIndex
+                                        ? 'bg-[var(--color-brand-400)]'
+                                        : index < currentIndex
+                                            ? 'bg-white/60 w-full'
+                                            : 'bg-transparent w-0'
+                                }`}
+                                style={{
+                                    width: index === currentIndex ? `${progress}%` : index < currentIndex ? '100%' : '0%'
+                                }}
+                            />
                         </button>
-
-                        {/* Prev/Next */}
-                        <button
-                            onClick={prevSlide}
-                            className="p-3 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all"
-                            aria-label="Previous"
-                        >
-                            <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        <button
-                            onClick={nextSlide}
-                            className="p-3 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all"
-                            aria-label="Next"
-                        >
-                            <ChevronRight className="w-5 h-5" />
-                        </button>
-                    </div>
+                    ))}
                 </div>
             </div>
+
+            {/* Previous Button - Middle Left */}
+            <button
+                onClick={prevSlide}
+                className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 hover:scale-110 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+                aria-label="Previous"
+            >
+                <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            {/* Next Button - Middle Right */}
+            <button
+                onClick={nextSlide}
+                className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 hover:scale-110 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+                aria-label="Next"
+            >
+                <ChevronRight className="w-6 h-6" />
+            </button>
 
             {/* Slide Counter */}
             <div className="absolute top-6 right-6 z-20">
@@ -231,6 +225,7 @@ function TrendingCarousel({ posts }: { posts: any[] }) {
 
 // ============ FEATURED POST CARD ============
 function FeaturedPostCard({ post, index }: { post: any; index: number }) {
+    const { t } = useTranslation();
     return (
         <Link
             to={`/post/${post.slug}`}
@@ -256,7 +251,7 @@ function FeaturedPostCard({ post, index }: { post: any; index: number }) {
                 {/* Read more indicator */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <span className="px-6 py-3 rounded-full bg-white/90 text-gray-900 font-semibold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        Read Article
+                        {t('common.readMore')}
                         <ArrowUpRight className="w-4 h-4" />
                     </span>
                 </div>
@@ -288,9 +283,17 @@ function FeaturedPostCard({ post, index }: { post: any; index: number }) {
                 {/* Author & Date */}
                 <div className="flex items-center justify-between pt-4 border-t border-[var(--color-border)]">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-brand-400)] to-[var(--color-brand-600)] flex items-center justify-center text-white text-xs font-bold">
-                            {post.author?.first_name?.charAt(0)?.toUpperCase() || 'A'}
-                        </div>
+                        {post.author?.profile_photo ? (
+                            <img
+                                src={post.author.profile_photo}
+                                alt={post.author.first_name || 'Author'}
+                                className="w-8 h-8 rounded-full object-cover"
+                            />
+                        ) : (
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-brand-400)] to-[var(--color-brand-600)] flex items-center justify-center text-white text-xs font-bold">
+                                {post.author?.first_name?.charAt(0)?.toUpperCase() || 'A'}
+                            </div>
+                        )}
                         <span className="text-sm font-medium text-[var(--color-text-primary)]">
                             {post.author?.first_name || 'Author'}
                         </span>
@@ -350,6 +353,8 @@ function QuickTrendingList({ posts }: { posts: any[] }) {
 
 // ============ MAIN HOME COMPONENT ============
 export default function Home() {
+    const { t } = useTranslation();
+
     const { data: latestPosts, isLoading: latestLoading } = useQuery({
         queryKey: ["latest_posts"],
         queryFn: getLatestPosts,
@@ -370,9 +375,9 @@ export default function Home() {
     const writers = stats?.["Writers"] ?? "100+";
 
     const statItems = [
-        { label: "Active Readers", value: typeof readers === "string" ? readers : readers.toLocaleString(), icon: Users, color: "from-blue-500 to-cyan-500" },
-        { label: "Articles Published", value: Number.isFinite(articlesCount) ? articlesCount.toLocaleString() : "0", icon: FileText, color: "from-[var(--color-brand-500)] to-emerald-500" },
-        { label: "Expert Writers", value: typeof writers === "string" ? writers : writers.toLocaleString(), icon: Star, color: "from-amber-500 to-orange-500" },
+        { label: t('home.stats.readers'), value: typeof readers === "string" ? readers : readers.toLocaleString(), icon: Users, color: "from-blue-500 to-cyan-500" },
+        { label: t('home.stats.posts'), value: Number.isFinite(articlesCount) ? articlesCount.toLocaleString() : "0", icon: FileText, color: "from-[var(--color-brand-500)] to-emerald-500" },
+        { label: t('home.stats.authors'), value: typeof writers === "string" ? writers : writers.toLocaleString(), icon: Star, color: "from-amber-500 to-orange-500" },
     ];
 
     return (
@@ -393,16 +398,16 @@ export default function Home() {
                                     Welcome to ModernBlog
                                 </div>
                                 <h1 className="text-4xl md:text-6xl font-bold text-white">
-                                    Discover Stories That Inspire
+                                    {t('home.heroTitle')}
                                 </h1>
                                 <p className="text-xl text-white/80">
-                                    Explore thoughtfully crafted articles from our community of talented writers.
+                                    {t('home.heroSubtitle')}
                                 </p>
                                 <Link
                                     to="/read"
                                     className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-gray-900 font-semibold hover:scale-105 transition-transform"
                                 >
-                                    Start Reading
+                                    {t('home.startReading')}
                                     <ArrowRight className="w-5 h-5" />
                                 </Link>
                             </div>
@@ -450,15 +455,15 @@ export default function Home() {
                                     <Zap className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-text-primary)]">Latest Articles</h2>
-                                    <p className="text-sm text-[var(--color-text-secondary)]">Fresh from our community</p>
+                                    <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-text-primary)]">{t('home.latestPosts')}</h2>
+                                    <p className="text-sm text-[var(--color-text-secondary)]">{t('home.heroSubtitle')}</p>
                                 </div>
                             </div>
                             <Link
                                 to="/read"
                                 className="group flex items-center gap-2 text-[var(--color-brand-600)] hover:text-[var(--color-brand-700)] font-semibold transition-colors"
                             >
-                                View All
+                                {t('common.viewAll')}
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </div>
@@ -485,8 +490,8 @@ export default function Home() {
                         ) : (
                             <Card className="p-12 text-center">
                                 <BookOpen className="w-16 h-16 mx-auto text-[var(--color-text-tertiary)] mb-4" />
-                                <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">No posts yet</h3>
-                                <p className="text-[var(--color-text-secondary)]">Check back soon!</p>
+                                <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">{t('home.noPosts')}</h3>
+                                <p className="text-[var(--color-text-secondary)]">{t('home.noPostsDescription')}</p>
                             </Card>
                         )}
                     </div>
@@ -498,8 +503,8 @@ export default function Home() {
                                 <TrendingUp className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Trending Now</h2>
-                                <p className="text-sm text-[var(--color-text-secondary)]">Most popular today</p>
+                                <h2 className="text-xl font-bold text-[var(--color-text-primary)]">{t('home.trendingNow')}</h2>
+                                <p className="text-sm text-[var(--color-text-secondary)]">{t('home.popular')}</p>
                             </div>
                         </div>
 
@@ -524,11 +529,11 @@ export default function Home() {
 
             {/* ============ NEWSLETTER CTA ============ */}
             <section className="container-responsive">
-                <div className="relative rounded-3xl p-8 md:p-12 lg:p-16 bg-gradient-to-br from-[var(--color-brand-600)] via-[var(--color-brand-500)] to-[var(--color-brand-400)] overflow-hidden">
+                <div className="relative rounded-3xl p-8 md:p-12 lg:p-16 bg-gradient-to-br from-[#0f766e] via-[#0d9488] to-[#14b8a6] dark:from-[#0a1f1d] dark:via-[#0f2f2b] dark:to-[#134338] dark:border dark:border-[var(--color-brand-400)]/30 overflow-hidden">
                     {/* Animated background elements */}
                     <div className="absolute inset-0 overflow-hidden">
-                        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/10 blur-3xl animate-pulse" />
-                        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-white/5 blur-2xl" />
+                        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/10 dark:bg-[var(--color-brand-400)]/10 blur-3xl animate-pulse" />
+                        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-white/5 dark:bg-[var(--color-brand-500)]/5 blur-2xl" />
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
                             {/* Grid pattern */}
                             <svg className="w-full h-full opacity-10" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -561,13 +566,13 @@ export default function Home() {
                                 <input
                                     type="email"
                                     placeholder="Enter your email"
-                                    className="w-full px-6 py-5 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:border-white/60 focus:bg-white/25 transition-all text-lg"
+                                    className="w-full px-6 py-5 rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-sm border-2 border-white/30 dark:border-white/20 text-white placeholder-white/60 focus:outline-none focus:border-white/60 focus:bg-white/25 dark:focus:bg-black/30 transition-all text-lg"
                                 />
                             </div>
-                            <button className="w-full px-8 py-5 rounded-2xl bg-white text-[var(--color-brand-600)] font-bold text-lg hover:bg-white/90 transition-all shadow-xl hover:shadow-2xl hover:scale-[1.02]">
+                            <button className="w-full px-8 py-5 rounded-2xl bg-white dark:bg-[var(--color-brand-400)] text-[#0f766e] dark:text-[#0a1f1d] font-bold text-lg hover:bg-white/90 dark:hover:bg-[var(--color-brand-300)] transition-all shadow-xl hover:shadow-2xl hover:scale-[1.02] cursor-pointer">
                                 Subscribe Now
                             </button>
-                            <p className="text-white/60 text-sm text-center">
+                            <p className="text-white/60 dark:text-white/50 text-sm text-center">
                                 Unsubscribe anytime. We respect your privacy.
                             </p>
                         </div>

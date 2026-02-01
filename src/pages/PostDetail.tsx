@@ -1,6 +1,7 @@
 // src/pages/PostDetail.tsx
 import React, { useEffect, useRef, useMemo } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Edit } from "lucide-react";
 import { getPost, getRelatedPosts } from "../services/posts";
@@ -18,6 +19,7 @@ import { PostTags } from "../components/posts/PostTags";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 
 export default function PostDetail() {
+    const { t } = useTranslation();
     const { slug } = useParams<{ slug: string }>();
     const { user } = useCurrentUser();
     const location = useLocation();
@@ -93,11 +95,11 @@ export default function PostDetail() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">Post not found</h3>
-                    <p className="text-[var(--color-text-secondary)] mb-6">The post you're looking for doesn't exist or has been removed.</p>
+                    <h3 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">{t('post.notFound')}</h3>
+                    <p className="text-[var(--color-text-secondary)] mb-6">{t('post.notFoundDescription')}</p>
                     <Link to="/">
                         <button className="btn px-6 py-3 rounded-xl bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white">
-                            Back to Home
+                            {t('common.backToHome')}
                         </button>
                     </Link>
                 </Card>

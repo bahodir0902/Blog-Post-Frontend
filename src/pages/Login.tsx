@@ -1,5 +1,6 @@
 // src/pages/Login.tsx
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
 import Card from "../components/ui/Card";
 import Label from "../components/ui/Label";
@@ -11,6 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
     const { login } = useAuth();
+    const { t } = useTranslation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [otpToken, setOtpToken] = useState<string | null>(null);
@@ -54,10 +56,10 @@ export default function Login() {
                     {/* Minimalist Header */}
                     <div className="text-center mb-10">
                         <h1 className="text-[2rem] font-semibold text-[var(--color-text-primary)] mb-2 tracking-tight">
-                            Welcome back
+                            {t('auth.welcomeBack')}
                         </h1>
                         <p className="text-[0.9375rem] text-[var(--color-text-tertiary)] font-normal">
-                            Sign in to your account
+                            {t('auth.signInToAccount')}
                         </p>
                     </div>
 
@@ -81,10 +83,10 @@ export default function Login() {
                                         </div>
                                         <div>
                                             <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-1.5">
-                                                Two-Factor Authentication
+                                                {t('auth.mfa.title')}
                                             </h3>
                                             <p className="text-[0.875rem] text-[var(--color-text-tertiary)]">
-                                                Enter the 6-digit code from your authenticator app
+                                                {t('auth.mfa.description')}
                                             </p>
                                         </div>
                                     </div>
@@ -98,7 +100,7 @@ export default function Login() {
                                             isLoading={loading}
                                             disabled={otp.length < 6}
                                         >
-                                            Verify & Continue
+                                            {t('auth.mfa.verify')}
                                         </Button>
 
                                         <button
@@ -110,7 +112,7 @@ export default function Login() {
                                             }}
                                             className="w-full text-[0.875rem] text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors font-medium py-2"
                                         >
-                                            ← Back to login
+                                            ← {t('common.back')}
                                         </button>
                                     </div>
                                 </form>
@@ -126,7 +128,7 @@ export default function Login() {
                                         </div>
                                         <div className="relative flex justify-center">
                                             <span className="px-3 text-[0.75rem] font-medium bg-[var(--color-surface)] text-[var(--color-text-tertiary)] uppercase tracking-wider">
-                                                Or
+                                                {t('common.or')}
                                             </span>
                                         </div>
                                     </div>
@@ -135,14 +137,14 @@ export default function Login() {
                                     <form onSubmit={onSubmit} className="space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="email" required>
-                                                Email
+                                                {t('auth.email')}
                                             </Label>
                                             <Input
                                                 id="email"
                                                 type="email"
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
-                                                placeholder="name@example.com"
+                                                placeholder={t('auth.emailPlaceholder')}
                                                 required
                                                 autoComplete="email"
                                             />
@@ -151,13 +153,13 @@ export default function Login() {
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between">
                                                 <Label htmlFor="password" required>
-                                                    Password
+                                                    {t('auth.password')}
                                                 </Label>
                                                 <Link
                                                     to="/forgot-password"
                                                     className="text-[0.8125rem] font-medium text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] hover:text-[var(--color-brand-700)] dark:hover:text-[var(--color-brand-300)] transition-colors"
                                                 >
-                                                    Forgot?
+                                                    {t('auth.forgotPassword')}
                                                 </Link>
                                             </div>
                                             <Input
@@ -165,14 +167,14 @@ export default function Login() {
                                                 type="password"
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
-                                                placeholder="Enter password"
+                                                placeholder={t('auth.passwordPlaceholder')}
                                                 required
                                                 autoComplete="current-password"
                                             />
                                         </div>
 
                                         <Button type="submit" className="w-full mt-6" isLoading={loading}>
-                                            Sign In
+                                            {t('auth.signIn')}
                                         </Button>
                                     </form>
                                 </>
@@ -182,12 +184,12 @@ export default function Login() {
 
                     {/* Sign Up Link */}
                     <p className="text-center text-[0.875rem] text-[var(--color-text-tertiary)] mt-6">
-                        Don't have an account?{" "}
+                        {t('auth.noAccount')}{" "}
                         <Link
                             to="/register"
                             className="font-medium text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] hover:text-[var(--color-brand-700)] dark:hover:text-[var(--color-brand-300)] transition-colors"
                         >
-                            Sign up
+                            {t('auth.signUp')}
                         </Link>
                     </p>
                 </div>

@@ -2,6 +2,7 @@
 
 import React, {useState} from "react";
 import {Link} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 import {useQuery, useMutation, useQueryClient} from "@tanstack/react-query";
 import {useCurrentUser} from "../hooks/useCurrentUser";
 import {
@@ -23,18 +24,19 @@ type CommentsSectionProps = {
 
 type SortOption = "newest" | "oldest" | "most_liked";
 
-const PAGE_SIZE_OPTIONS = [
-    {label: "10 per page", value: "10"},
-    {label: "20 per page", value: "20"},
-    {label: "50 per page", value: "50"},
-];
-
 export default function CommentsSection({postSlug}: CommentsSectionProps) {
+    const {t} = useTranslation();
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
     const [sortBy, setSortBy] = useState<SortOption>("newest");
     const [showSortMenu, setShowSortMenu] = useState(false);
     const {user} = useCurrentUser();
+
+    const PAGE_SIZE_OPTIONS = [
+        {label: t('post.perPage', {count: 10}), value: "10"},
+        {label: t('post.perPage', {count: 20}), value: "20"},
+        {label: t('post.perPage', {count: 50}), value: "50"},
+    ];
 
     const getOrdering = () => {
         switch (sortBy) {
@@ -85,7 +87,7 @@ export default function CommentsSection({postSlug}: CommentsSectionProps) {
     };
 
     const pageOptions = Array.from({length: totalPages}, (_, i) => ({
-        label: `Page ${i + 1}`,
+        label: t('post.page', {number: i + 1}),
         value: String(i + 1),
     }));
 
@@ -94,7 +96,7 @@ export default function CommentsSection({postSlug}: CommentsSectionProps) {
             {/* Header */}
             <div className="flex items-center gap-6">
                 <h2 className="text-xl font-bold text-[var(--color-text-primary)]">
-                    Comments
+                    {t('post.comments')}
                     <span
                         className="ml-2 inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-[var(--color-brand-500)] text-white text-sm font-medium">
                         {totalComments}
@@ -107,7 +109,7 @@ export default function CommentsSection({postSlug}: CommentsSectionProps) {
                         className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
                     >
                         <SortIcon/>
-                        {sortBy === "newest" ? "Most recent" : sortBy === "oldest" ? "Oldest first" : "Top"}
+                        {sortBy === "newest" ? t('post.sortNewest') : sortBy === "oldest" ? t('post.sortOldest') : t('post.sortMostLiked')}
                         <ChevronDownIcon/>
                     </button>
 
@@ -122,23 +124,21 @@ export default function CommentsSection({postSlug}: CommentsSectionProps) {
                                     setShowSortMenu(false);
                                     setPage(1);
                                 }}
-                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "newest" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}>Most
-                                    recent
+                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "newest" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}>{t('post.sortNewest')}
                                 </button>
                                 <button onClick={() => {
                                     setSortBy("oldest");
                                     setShowSortMenu(false);
                                     setPage(1);
                                 }}
-                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "oldest" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}>Oldest
-                                    first
+                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "oldest" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}>{t('post.sortOldest')}
                                 </button>
                                 <button onClick={() => {
                                     setSortBy("most_liked");
                                     setShowSortMenu(false);
                                     setPage(1);
                                 }}
-                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "most_liked" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}>Top
+                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--color-surface)] transition-colors ${sortBy === "most_liked" ? "text-[var(--color-brand-500)] font-medium" : "text-[var(--color-text-primary)]"}`}>{t('post.sortMostLiked')}
                                 </button>
                             </div>
                         </>
@@ -158,8 +158,7 @@ export default function CommentsSection({postSlug}: CommentsSectionProps) {
                         className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20 text-red-500 mb-3">
                         <AlertIcon/>
                     </div>
-                    <p className="text-[var(--color-text-secondary)]">Failed to load comments.
-                        Please try again.</p>
+                    <p className="text-[var(--color-text-secondary)]">{t('post.failedLoadComments')}</p>
                 </div>
             )}
 
@@ -169,10 +168,8 @@ export default function CommentsSection({postSlug}: CommentsSectionProps) {
                         className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--color-surface-elevated)] mb-4">
                         <ChatIcon className="w-7 h-7 text-[var(--color-text-tertiary)]"/>
                     </div>
-                    <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-1">No
-                        comments yet</h3>
-                    <p className="text-[var(--color-text-secondary)]">Be the first to share your
-                        thoughts!</p>
+                    <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-1">{t('post.noComments')}</h3>
+                    <p className="text-[var(--color-text-secondary)]">{t('post.beFirstComment')}</p>
                 </div>
             )}
 
@@ -189,7 +186,7 @@ export default function CommentsSection({postSlug}: CommentsSectionProps) {
                 <div className="pt-6 border-t border-[var(--color-border)]">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="text-sm text-[var(--color-text-tertiary)]">
-                            Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, commentsData?.count || 0)} of {commentsData?.count || 0} comments
+                            {t('post.showingComments', {start: ((page - 1) * pageSize) + 1, end: Math.min(page * pageSize, commentsData?.count || 0), total: commentsData?.count || 0})}
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -236,7 +233,7 @@ export default function CommentsSection({postSlug}: CommentsSectionProps) {
                     {totalPages > 10 && (
                         <div className="mt-4 flex items-center justify-center gap-2">
                             <span
-                                className="text-sm text-[var(--color-text-tertiary)]">Jump to:</span>
+                                className="text-sm text-[var(--color-text-tertiary)]">{t('post.jumpTo')}</span>
                             <div className="w-28">
                                 <Dropdown options={pageOptions} value={String(page)}
                                           onChange={(val) => handlePageChange(parseInt(val, 10))}/>
@@ -253,6 +250,7 @@ export default function CommentsSection({postSlug}: CommentsSectionProps) {
 type CommentThreadProps = { comment: Comment; postSlug: string };
 
 function CommentThread({comment, postSlug}: CommentThreadProps) {
+    const {t} = useTranslation();
     const [showReplies, setShowReplies] = useState(false);
     const queryClient = useQueryClient();
 
@@ -285,15 +283,14 @@ function CommentThread({comment, postSlug}: CommentThreadProps) {
                     <button onClick={handleToggleReplies} disabled={isLoadingReplies}
                             className="flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-full text-sm font-semibold text-[var(--color-brand-500)] hover:bg-[var(--color-brand-500)]/10 transition-colors disabled:opacity-70">
                         {isLoadingReplies ? (
-                            <><LoadingSpinner/>Loading...</>
+                            <><LoadingSpinner/>{t('common.loading')}</>
                         ) : (
                             <><ChevronIcon
-                                className={`w-4 h-4 transition-transform duration-200 ${showReplies ? "rotate-180" : ""}`}/>{showReplies ? "Hide" : "View"} {displayCount} {displayCount === 1 ? "reply" : "replies"}</>
+                                className={`w-4 h-4 transition-transform duration-200 ${showReplies ? "rotate-180" : ""}`}/>{showReplies ? t('post.hideReplies', {count: displayCount}) : t('post.viewReplies', {count: displayCount})}</>
                         )}
                     </button>
                     {repliesError && <button onClick={() => refetch()}
-                                             className="mt-1 ml-1 text-xs text-red-500 hover:underline">Failed
-                        to load replies. Click to retry.</button>}
+                                             className="mt-1 ml-1 text-xs text-red-500 hover:underline">{t('post.failedLoadReplies')}</button>}
                 </div>
             )}
 
@@ -313,6 +310,7 @@ function CommentThread({comment, postSlug}: CommentThreadProps) {
 type ReplyThreadProps = { reply: Comment; postSlug: string };
 
 function ReplyThread({reply, postSlug}: ReplyThreadProps) {
+    const {t} = useTranslation();
     const [showNested, setShowNested] = useState(false);
     const queryClient = useQueryClient();
 
@@ -345,15 +343,14 @@ function ReplyThread({reply, postSlug}: ReplyThreadProps) {
                     <button onClick={handleToggle} disabled={isLoading}
                             className="flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-full text-xs font-semibold text-[var(--color-brand-500)] hover:bg-[var(--color-brand-500)]/10 transition-colors disabled:opacity-70">
                         {isLoading ? (
-                            <><LoadingSpinner/>Loading...</>
+                            <><LoadingSpinner/>{t('common.loading')}</>
                         ) : (
                             <><ChevronIcon
-                                className={`w-3.5 h-3.5 transition-transform duration-200 ${showNested ? "rotate-180" : ""}`}/>{showNested ? "Hide" : "View"} {displayCount} {displayCount === 1 ? "reply" : "replies"}</>
+                                className={`w-3.5 h-3.5 transition-transform duration-200 ${showNested ? "rotate-180" : ""}`}/>{showNested ? t('post.hideReplies', {count: displayCount}) : t('post.viewReplies', {count: displayCount})}</>
                         )}
                     </button>
                     {isError && <button onClick={() => refetch()}
-                                        className="mt-1 ml-1 text-xs text-red-500 hover:underline">Failed
-                        to load. Click to retry.</button>}
+                                        className="mt-1 ml-1 text-xs text-red-500 hover:underline">{t('post.failedLoadRetry')}</button>}
                 </div>
             )}
 
@@ -378,6 +375,7 @@ type CommentItemProps = {
 };
 
 function CommentItem({comment, postSlug, isReply, onReplyAdded}: CommentItemProps) {
+    const {t} = useTranslation();
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -473,20 +471,28 @@ function CommentItem({comment, postSlug, isReply, onReplyAdded}: CommentItemProp
             id={`comment-${comment.id}`}
             className="flex gap-3">
             <div className="flex-shrink-0">
-                <div
-                    className={`${isReply ? "w-8 h-8 text-xs" : "w-10 h-10 text-sm"} rounded-full bg-gradient-to-br from-[var(--color-brand-400)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-semibold`}>
-                    {getAuthorInitials(comment.author)}
-                </div>
+                {comment.author?.profile_photo ? (
+                    <img
+                        src={comment.author.profile_photo}
+                        alt={comment.author.first_name || 'User'}
+                        className={`${isReply ? "w-8 h-8" : "w-10 h-10"} rounded-full object-cover`}
+                    />
+                ) : (
+                    <div
+                        className={`${isReply ? "w-8 h-8 text-xs" : "w-10 h-10 text-sm"} rounded-full bg-gradient-to-br from-[var(--color-brand-400)] to-[var(--color-brand-600)] flex items-center justify-center text-white font-semibold`}>
+                        {getAuthorInitials(comment.author)}
+                    </div>
+                )}
             </div>
 
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                     <span
-                        className="font-semibold text-[var(--color-text-primary)] text-sm">{comment.author?.full_name || "Unknown User"}</span>
+                        className="font-semibold text-[var(--color-text-primary)] text-sm">{comment.author?.full_name || t('common.unknownUser')}</span>
                     <span
                         className="text-xs text-[var(--color-text-tertiary)]">{getRelativeTime(comment.created_at)}</span>
                     {comment.is_edited && <span
-                        className="text-xs text-[var(--color-text-tertiary)] italic">(edited)</span>}
+                        className="text-xs text-[var(--color-text-tertiary)] italic">({t('common.edited')})</span>}
                 </div>
 
                 {isEditing ? (
@@ -499,15 +505,14 @@ function CommentItem({comment, postSlug, isReply, onReplyAdded}: CommentItemProp
                                       if (e.key === "Escape") handleEditCancel();
                                   }}/>
                         {editMutation.isError &&
-                            <p className="mt-1 text-xs text-red-500">Failed to update. Please try
-                                again.</p>}
+                            <p className="mt-1 text-xs text-red-500">{t('post.failedUpdateComment')}</p>}
                         <div className="mt-2 flex items-center justify-end gap-2">
                             <button onClick={handleEditCancel} disabled={editMutation.isPending}
-                                    className="px-3 py-1.5 rounded-full text-xs font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors">Cancel
+                                    className="px-3 py-1.5 rounded-full text-xs font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors">{t('common.cancel')}
                             </button>
                             <button onClick={handleEditSubmit}
                                     disabled={!editContent.trim() || editMutation.isPending}
-                                    className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[var(--color-brand-500)] text-white hover:bg-[var(--color-brand-600)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">{editMutation.isPending ? "Saving..." : "Save"}</button>
+                                    className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[var(--color-brand-500)] text-white hover:bg-[var(--color-brand-600)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">{editMutation.isPending ? t('common.saving') : t('common.save')}</button>
                         </div>
                     </div>
                 ) : (
@@ -519,7 +524,7 @@ function CommentItem({comment, postSlug, isReply, onReplyAdded}: CommentItemProp
                         <button onClick={() => user && likeMutation.mutate()}
                                 disabled={!user || likeMutation.isPending}
                                 className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-colors ${!user ? "text-[var(--color-text-tertiary)] cursor-not-allowed opacity-50" : comment.user_reaction === "LIKE" ? "text-[var(--color-brand-500)] bg-[var(--color-brand-500)]/10 hover:bg-[var(--color-brand-500)]/20" : "text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"} ${likeMutation.isPending ? "opacity-50" : ""}`}
-                                title={!user ? "Sign in to like" : "Like"}>
+                                title={!user ? t('post.signInToLike') : t('post.like')}>
                             <ThumbUpIcon className="w-4 h-4"
                                          filled={comment.user_reaction === "LIKE"}/>
                             <span className="text-xs font-medium">{comment.likes || 0}</span>
@@ -527,7 +532,7 @@ function CommentItem({comment, postSlug, isReply, onReplyAdded}: CommentItemProp
                         <button onClick={() => user && dislikeMutation.mutate()}
                                 disabled={!user || dislikeMutation.isPending}
                                 className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-colors ${!user ? "text-[var(--color-text-tertiary)] cursor-not-allowed opacity-50" : comment.user_reaction === "DISLIKE" ? "text-red-500 bg-red-500/10 hover:bg-red-500/20" : "text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"} ${dislikeMutation.isPending ? "opacity-50" : ""}`}
-                                title={!user ? "Sign in to dislike" : "Dislike"}>
+                                title={!user ? t('post.signInToDislike') : t('post.dislike')}>
                             <ThumbDownIcon className="w-4 h-4"
                                            filled={comment.user_reaction === "DISLIKE"}/>
                             <span className="text-xs font-medium">{comment.dislikes || 0}</span>
@@ -535,7 +540,7 @@ function CommentItem({comment, postSlug, isReply, onReplyAdded}: CommentItemProp
                         {user && (
                             <button onClick={() => setShowReplyForm(!showReplyForm)}
                                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)] transition-colors">
-                                <ReplyIcon className="w-3.5 h-3.5"/>Reply
+                                <ReplyIcon className="w-3.5 h-3.5"/>{t('post.reply')}
                             </button>
                         )}
                         <div className="relative ml-auto">
@@ -553,17 +558,17 @@ function CommentItem({comment, postSlug, isReply, onReplyAdded}: CommentItemProp
                                             <>
                                                 <button onClick={handleEdit}
                                                         className="w-full px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-surface)] transition-colors flex items-center gap-2">
-                                                    <EditIcon className="w-4 h-4"/>Edit
+                                                    <EditIcon className="w-4 h-4"/>{t('common.edit')}
                                                 </button>
                                                 <button onClick={handleDelete}
                                                         className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-[var(--color-surface)] transition-colors flex items-center gap-2">
-                                                    <TrashIcon className="w-4 h-4"/>Delete
+                                                    <TrashIcon className="w-4 h-4"/>{t('common.delete')}
                                                 </button>
                                             </>
                                         )}
                                         <button onClick={() => setShowMenu(false)}
                                                 className="w-full px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-surface)] transition-colors flex items-center gap-2">
-                                            <FlagIcon className="w-4 h-4"/>Report
+                                            <FlagIcon className="w-4 h-4"/>{t('common.report')}
                                         </button>
                                     </div>
                                 </>
@@ -582,10 +587,10 @@ function CommentItem({comment, postSlug, isReply, onReplyAdded}: CommentItemProp
                 )}
             </div>
 
-            <ConfirmDialog open={showDeleteConfirm} title="Delete comment?"
-                           description="This action cannot be undone. Your comment will be permanently removed."
-                           confirmText={deleteMutation.isPending ? "Deleting..." : "Delete"}
-                           cancelText="Cancel" onConfirm={() => deleteMutation.mutate()}
+            <ConfirmDialog open={showDeleteConfirm} title={t('post.deleteCommentTitle')}
+                           description={t('post.deleteCommentDescription')}
+                           confirmText={deleteMutation.isPending ? t('common.deleting') : t('common.delete')}
+                           cancelText={t('common.cancel')} onConfirm={() => deleteMutation.mutate()}
                            onClose={() => setShowDeleteConfirm(false)} danger/>
         </div>
     );
@@ -609,6 +614,7 @@ function CommentForm({
                          compact,
                          autoFocus
                      }: CommentFormProps) {
+    const {t} = useTranslation();
     const [content, setContent] = useState("");
     const [isFocused, setIsFocused] = useState(autoFocus || false);
     const {user} = useCurrentUser();
@@ -649,7 +655,7 @@ function CommentForm({
             <div className="flex-1">
                 <input type="text" value={content} onChange={(e) => setContent(e.target.value)}
                        onFocus={() => setIsFocused(true)}
-                       placeholder={parentId ? "Add a reply..." : "Share your thoughts..."}
+                       placeholder={parentId ? t('post.addReply') : t('post.shareThoughts')}
                        autoFocus={autoFocus}
                        className="w-full px-0 py-2 bg-transparent border-0 border-b-2 border-[var(--color-border)] text-[var(--color-text-primary)] text-sm placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-text-primary)] transition-colors"
                        disabled={mutation.isPending} onKeyDown={(e) => {
@@ -663,8 +669,7 @@ function CommentForm({
                     }
                 }}/>
                 {mutation.isError &&
-                    <p className="mt-2 text-xs text-red-500">Failed to post comment. Please try
-                        again.</p>}
+                    <p className="mt-2 text-xs text-red-500">{t('post.failedPostComment')}</p>}
                 {showActions && (
                     <div className="mt-3 flex items-center justify-end gap-2">
                         <button type="button" onClick={() => {
@@ -672,13 +677,13 @@ function CommentForm({
                             setIsFocused(false);
                             onCancel?.();
                         }}
-                                className="px-4 py-2 rounded-full text-sm font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors">Cancel
+                                className="px-4 py-2 rounded-full text-sm font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-colors">{t('common.cancel')}
                         </button>
                         <button onClick={handleSubmit}
                                 disabled={!content.trim() || mutation.isPending}
                                 className="px-4 py-2 rounded-full text-sm font-semibold bg-[var(--color-brand-500)] text-white hover:bg-[var(--color-brand-600)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">{mutation.isPending ?
                             <span
-                                className="flex items-center gap-2"><LoadingSpinner/>Posting...</span> : parentId ? "Reply" : "Post Comment"}</button>
+                                className="flex items-center gap-2"><LoadingSpinner/>{t('post.posting')}</span> : parentId ? t('post.reply') : t('post.postComment')}</button>
                     </div>
                 )}
             </div>
@@ -688,6 +693,7 @@ function CommentForm({
 
 /* ===================== LoginPrompt ===================== */
 function LoginPrompt() {
+    const {t} = useTranslation();
     return (
         <div className="flex items-center gap-4 py-4">
             <div
@@ -696,8 +702,7 @@ function LoginPrompt() {
             <div className="flex-1">
                 <p className="text-sm text-[var(--color-text-secondary)]">
                     <Link to="/login"
-                          className="text-[var(--color-brand-500)] hover:text-[var(--color-brand-600)] font-semibold">Sign
-                        in</Link> to join the conversation
+                          className="text-[var(--color-brand-500)] hover:text-[var(--color-brand-600)] font-semibold">{t('auth.signIn')}</Link> {t('post.toJoinConversation')}
                 </p>
             </div>
         </div>

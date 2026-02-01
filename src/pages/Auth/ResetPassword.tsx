@@ -1,6 +1,7 @@
 // src/pages/Auth/ResetPassword.tsx
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Card from "../../components/ui/Card";
 import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
@@ -8,6 +9,7 @@ import Button from "../../components/ui/Button";
 import { resetPassword } from "../../services/auth";
 
 export default function ResetPassword() {
+    const { t } = useTranslation();
     const { state } = useLocation() as { state?: { uid: string; token: string } };
     const [p1, setP1] = useState("");
     const [p2, setP2] = useState("");
@@ -28,12 +30,12 @@ export default function ResetPassword() {
         setOk(null);
 
         if (p1 !== p2) {
-            setErr("Passwords don't match");
+            setErr(t("auth.passwordsDontMatch"));
             return;
         }
 
         if (p1.length < 2) {
-            setErr("Password must be at least 2 characters long");
+            setErr(t("auth.passwordMinLength"));
             return;
         }
 
@@ -51,7 +53,7 @@ export default function ResetPassword() {
             setErr(
                 e?.response?.data?.detail ||
                 Object.values(e?.response?.data || {})[0] as string ||
-                "Reset failed. Please try again."
+                t("auth.resetFailed")
             );
         } finally {
             setLoading(false);
@@ -75,10 +77,10 @@ export default function ResetPassword() {
                                 </div>
                                 <div>
                                     <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)] mb-2">
-                                        Set New Password
+                                        {t("auth.setNewPassword")}
                                     </h2>
                                     <p className="text-sm text-[var(--color-text-secondary)]">
-                                        Choose a strong password for your account
+                                        {t("auth.chooseStrongPassword")}
                                     </p>
                                 </div>
                             </div>
@@ -92,7 +94,7 @@ export default function ResetPassword() {
                                         </svg>
                                         <div className="flex-1">
                                             <p className="text-sm font-semibold text-green-600 dark:text-green-400">{ok}</p>
-                                            <p className="text-xs text-green-600 dark:text-green-400 mt-1">Redirecting to login...</p>
+                                            <p className="text-xs text-green-600 dark:text-green-400 mt-1">{t("auth.redirectingToLogin")}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -114,14 +116,14 @@ export default function ResetPassword() {
                             <form onSubmit={onSubmit} className="space-y-5">
                                 <div className="space-y-2">
                                     <Label htmlFor="password" required>
-                                        New Password
+                                        {t("auth.newPassword")}
                                     </Label>
                                     <Input
                                         id="password"
                                         type="password"
                                         value={p1}
                                         onChange={(e) => setP1(e.target.value)}
-                                        placeholder="Create a strong password"
+                                        placeholder={t("auth.createStrongPassword")}
                                         required
                                         autoComplete="new-password"
                                         icon={
@@ -131,20 +133,20 @@ export default function ResetPassword() {
                                         }
                                     />
                                     <p className="text-xs text-[var(--color-text-tertiary)]">
-                                        Must be at least 2 characters
+                                        {t("auth.passwordHint")}
                                     </p>
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="confirm_password" required>
-                                        Confirm New Password
+                                        {t("auth.confirmNewPassword")}
                                     </Label>
                                     <Input
                                         id="confirm_password"
                                         type="password"
                                         value={p2}
                                         onChange={(e) => setP2(e.target.value)}
-                                        placeholder="Confirm your password"
+                                        placeholder={t("auth.confirmYourPassword")}
                                         required
                                         autoComplete="new-password"
                                         icon={
@@ -161,7 +163,7 @@ export default function ResetPassword() {
                                     isLoading={loading}
                                     disabled={!!ok}
                                 >
-                                    Reset Password
+                                    {t("auth.resetPassword")}
                                 </Button>
                             </form>
                         </div>

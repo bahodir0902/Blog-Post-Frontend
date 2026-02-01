@@ -1,6 +1,7 @@
 // src/pages/Register/VerifyRegistration.tsx
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Card from "../../components/ui/Card";
 import Label from "../../components/ui/Label";
 import OtpInput from "../../components/ui/OtpInput";
@@ -9,6 +10,7 @@ import { verifyRegistration } from "../../services/auth";
 import { useAuth } from "../../auth/AuthContext";
 
 export default function VerifyRegistration() {
+    const { t } = useTranslation();
     const { state } = useLocation() as { state?: { email?: string; otp_token?: string } };
     const [code, setCode] = useState("");
     const [err, setErr] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export default function VerifyRegistration() {
             setErr(
                 e?.response?.data?.detail ||
                 Object.values(e?.response?.data || {})[0] as string ||
-                "Verification failed. Please check the code."
+                t("auth.verificationFailedCheckCode")
             );
         } finally {
             setLoading(false);
@@ -68,13 +70,13 @@ export default function VerifyRegistration() {
                                 </div>
                                 <div>
                                     <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)] mb-2">
-                                        Verify Your Email
+                                        {t("auth.verifyYourEmail")}
                                     </h2>
                                     <p className="text-sm text-[var(--color-text-secondary)]">
-                                        We sent a verification code to
+                                        {t("auth.weSentVerificationCodeTo")}
                                     </p>
                                     <p className="text-sm font-semibold text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] mt-1">
-                                        {state?.email || "your email"}
+                                        {state?.email || t("auth.yourEmail")}
                                     </p>
                                 </div>
                             </div>
@@ -95,7 +97,7 @@ export default function VerifyRegistration() {
                             <form onSubmit={onSubmit} className="space-y-6">
                                 <div className="space-y-3">
                                     <Label className="text-center block text-sm font-medium">
-                                        Enter 6-digit code
+                                        {t("auth.enterSixDigitCode")}
                                     </Label>
                                     <OtpInput value={code} onChange={setCode} length={6} autoFocus />
                                 </div>
@@ -106,14 +108,14 @@ export default function VerifyRegistration() {
                                     isLoading={loading}
                                     disabled={code.length < 6}
                                 >
-                                    Verify & Continue
+                                    {t("auth.verifyAndContinue")}
                                 </Button>
                             </form>
 
                             {/* Resend Code */}
                             <div className="text-center space-y-3 pt-2">
                                 <p className="text-sm text-[var(--color-text-secondary)]">
-                                    Didn't receive the code?
+                                    {t("auth.didntReceiveCode")}
                                 </p>
                                 <button
                                     type="button"
@@ -121,7 +123,7 @@ export default function VerifyRegistration() {
                                     disabled={resending}
                                     className="text-sm font-semibold text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] hover:text-[var(--color-brand-700)] dark:hover:text-[var(--color-brand-300)] transition-colors disabled:opacity-50"
                                 >
-                                    {resending ? "Sending..." : "Resend Code"}
+                                    {resending ? t("auth.sending") : t("auth.resendCode")}
                                 </button>
                             </div>
 
@@ -132,7 +134,7 @@ export default function VerifyRegistration() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] leading-relaxed">
-                                        Check your spam folder if you don't see the email. The code expires in 10 minutes.
+                                        {t("auth.checkSpamFolder")}
                                     </p>
                                 </div>
                             </div>

@@ -3,10 +3,12 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { listFavourites } from "../services/favourites";
 import Card from "../components/ui/Card";
 
 export default function Favourites() {
+    const { t } = useTranslation();
     const { data: favourites, isLoading, isError } = useQuery({
         queryKey: ["favourites"],
         queryFn: listFavourites,
@@ -41,10 +43,10 @@ export default function Favourites() {
         <div className="container-responsive py-12 animate-fade-in">
             <div className="mb-8">
                 <h1 className="text-4xl font-bold text-[var(--color-text-primary)] mb-2">
-                    My Favourites
+                    {t('favourites.title')}
                 </h1>
                 <p className="text-[var(--color-text-secondary)]">
-                    {favourites?.length || 0} saved {favourites?.length === 1 ? "article" : "articles"}
+                    {t('favourites.subtitle')}
                 </p>
             </div>
 
@@ -54,14 +56,14 @@ export default function Favourites() {
                         <Heart className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
-                        No favourites yet
+                        {t('favourites.noFavourites')}
                     </h3>
                     <p className="text-[var(--color-text-secondary)] mb-6">
-                        Start exploring and save your favourite articles
+                        {t('favourites.noFavouritesDescription')}
                     </p>
                     <Link to="/explore">
                         <button className="btn px-6 py-3 rounded-xl bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white">
-                            Explore Articles
+                            {t('explore.title')}
                         </button>
                     </Link>
                 </Card>

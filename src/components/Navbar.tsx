@@ -1,6 +1,7 @@
 // src/components/Navbar.tsx - Premium Redesign
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
 import { useTheme } from "./ThemeProvider";
 import { useCurrentUser } from "../hooks/useCurrentUser";
@@ -30,6 +31,7 @@ export default function Navbar() {
     const { actualTheme, setTheme } = useTheme();
     const { user, canWrite, isLoading: meLoading } = useCurrentUser();
     const { unreadCount } = useNotifications();
+    const { t } = useTranslation();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -70,9 +72,9 @@ export default function Navbar() {
     const isActive = (path: string) => location.pathname === path;
 
     const navLinks = [
-        { path: "/", label: "Home", icon: Home },
-        { path: "/explore", label: "Explore", icon: Compass },
-        { path: "/read", label: "Read", icon: BookOpen },
+        { path: "/", label: t('nav.home'), icon: Home },
+        { path: "/explore", label: t('nav.explore'), icon: Compass },
+        { path: "/read", label: t('nav.read'), icon: BookOpen },
     ];
 
     const getUserInitials = () => {
@@ -154,14 +156,14 @@ export default function Navbar() {
                                     className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                 >
                                     <FileText className="w-4 h-4" />
-                                    <span className="hidden lg:inline">My Posts</span>
+                                    <span className="hidden lg:inline">{t('nav.myPosts')}</span>
                                 </Link>
                                 <Link
                                     to="/writer/new"
                                     className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white shadow-md hover:shadow-lg hover:shadow-[var(--color-brand-500)]/20 transition-all duration-200 hover:-translate-y-0.5"
                                 >
                                     <PenLine className="w-4 h-4" />
-                                    <span>Write</span>
+                                    <span>{t('nav.write')}</span>
                                 </Link>
                             </div>
                         )}
@@ -259,7 +261,7 @@ export default function Navbar() {
                                                     className="w-full px-3 py-2.5 rounded-xl text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all flex items-center gap-3"
                                                 >
                                                     <User className="w-4 h-4" />
-                                                    <span className="font-medium">Profile</span>
+                                                    <span className="font-medium">{t('nav.profile')}</span>
                                                 </button>
 
                                                 <button
@@ -270,7 +272,7 @@ export default function Navbar() {
                                                     className="w-full px-3 py-2.5 rounded-xl text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-100)] transition-all flex items-center gap-3 group"
                                                 >
                                                     <Heart className="w-4 h-4 group-hover:fill-current transition-all" />
-                                                    <span className="font-medium">Favourites</span>
+                                                    <span className="font-medium">{t('nav.favourites')}</span>
                                                 </button>
 
                                                 <button
@@ -281,7 +283,7 @@ export default function Navbar() {
                                                     className="w-full px-3 py-2.5 rounded-xl text-left text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-100)] transition-all flex items-center gap-3 group"
                                                 >
                                                     <Bookmark className="w-4 h-4 group-hover:fill-current transition-all" />
-                                                    <span className="font-medium">Read Later</span>
+                                                    <span className="font-medium">{t('nav.bookmarks')}</span>
                                                 </button>
 
                                                 <div className="my-2 h-px bg-[var(--color-border)]" />
@@ -294,7 +296,7 @@ export default function Navbar() {
                                                     className="w-full px-3 py-2.5 rounded-xl text-left text-sm text-[var(--color-error)] hover:bg-[var(--color-error-light)] transition-all flex items-center gap-3 font-medium"
                                                 >
                                                     <LogOut className="w-4 h-4" />
-                                                    Logout
+                                                    {t('nav.logout')}
                                                 </button>
                                             </div>
                                         </div>
@@ -307,13 +309,13 @@ export default function Navbar() {
                                     to="/login"
                                     className="px-4 py-2 rounded-xl text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                 >
-                                    Sign In
+                                    {t('auth.signIn')}
                                 </Link>
                                 <Link
                                     to="/register"
                                     className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white shadow-md hover:shadow-lg hover:shadow-[var(--color-brand-500)]/20 transition-all duration-200 hover:-translate-y-0.5"
                                 >
-                                    Get Started
+                                    {t('auth.signUp')}
                                 </Link>
                             </div>
                         )}
@@ -392,14 +394,14 @@ export default function Navbar() {
                                     className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-brand-400)] transition-all duration-200"
                                 >
                                     <FileText className="w-4 h-4" />
-                                    <span>My Posts</span>
+                                    <span>{t('nav.myPosts')}</span>
                                 </Link>
                                 <Link
                                     to="/writer/new"
                                     className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white shadow-md"
                                 >
                                     <PenLine className="w-4 h-4" />
-                                    <span>Write Post</span>
+                                    <span>{t('writer.createPost')}</span>
                                 </Link>
                             </div>
                         )}
@@ -411,7 +413,7 @@ export default function Navbar() {
                                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                 >
                                     <Bell className="w-5 h-5" />
-                                    Notifications
+                                    {t('nav.notifications')}
                                     {unreadCount > 0 && (
                                         <span className="ml-auto min-w-[22px] h-5 px-2 flex items-center justify-center text-xs font-bold text-white bg-[var(--color-error)] rounded-full">
                                             {unreadCount > 99 ? "99+" : unreadCount}
@@ -423,28 +425,28 @@ export default function Navbar() {
                                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] transition-all duration-200"
                                 >
                                     <User className="w-5 h-5" />
-                                    Profile
+                                    {t('nav.profile')}
                                 </Link>
                                 <Link
                                     to="/favourites"
                                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-100)] transition-all duration-200"
                                 >
                                     <Heart className="w-5 h-5" />
-                                    Favourites
+                                    {t('nav.favourites')}
                                 </Link>
                                 <Link
                                     to="/bookmarks"
                                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] hover:bg-[var(--color-brand-50)] dark:hover:bg-[var(--color-brand-100)] transition-all duration-200"
                                 >
                                     <Bookmark className="w-5 h-5" />
-                                    Read Later
+                                    {t('nav.bookmarks')}
                                 </Link>
                                 <button
                                     onClick={logout}
                                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-error)] hover:bg-[var(--color-error-light)] transition-all duration-200"
                                 >
                                     <LogOut className="w-5 h-5" />
-                                    Logout
+                                    {t('nav.logout')}
                                 </button>
                             </div>
                         ) : (
@@ -453,13 +455,13 @@ export default function Navbar() {
                                     to="/login"
                                     className="block px-4 py-3 rounded-xl text-sm font-medium text-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface)] border border-[var(--color-border)] transition-all duration-200"
                                 >
-                                    Sign In
+                                    {t('auth.signIn')}
                                 </Link>
                                 <Link
                                     to="/register"
                                     className="block px-4 py-3 rounded-xl text-sm font-semibold text-center bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white shadow-md"
                                 >
-                                    Get Started
+                                    {t('auth.signUp')}
                                 </Link>
                             </div>
                         )}

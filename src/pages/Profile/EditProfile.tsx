@@ -7,10 +7,12 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function EditProfile() {
     const qc = useQueryClient();
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { data, isLoading } = useQuery({ queryKey: ["me"], queryFn: getProfile });
 
     const [first, setFirst] = useState("");
@@ -50,7 +52,7 @@ export default function EditProfile() {
             return updateProfile(payload, !!photo);
         },
         onSuccess: () => {
-            setOk("Profile updated successfully!");
+            setOk(t('profile.profileUpdated'));
             setErr(null);
             qc.invalidateQueries({ queryKey: ["me"] });
             // Redirect to profile page after 1.5 seconds
@@ -59,7 +61,7 @@ export default function EditProfile() {
             }, 1500);
         },
         onError: (e: any) => {
-            setErr(e?.response?.data?.detail || "Failed to update profile");
+            setErr(e?.response?.data?.detail || t('profile.updateFailed'));
             setOk(null);
         },
     });
@@ -68,7 +70,7 @@ export default function EditProfile() {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 5 * 1024 * 1024) {
-                setErr("Image size must be less than 5MB");
+                setErr(t('profile.imageSizeError'));
                 return;
             }
             setPhoto(file);
@@ -121,10 +123,10 @@ export default function EditProfile() {
                             </button>
                             <div className="flex-1">
                                 <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">
-                                    Edit Profile
+                                    {t('profile.editProfile')}
                                 </h2>
                                 <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-                                    Update your personal information and settings
+                                    {t('profile.updateInfo')}
                                 </p>
                             </div>
                         </div>
@@ -155,7 +157,7 @@ export default function EditProfile() {
 
                     {/* Profile Photo Section */}
                     <div className="space-y-4">
-                        <Label className="text-base font-semibold">Profile Photo</Label>
+                        <Label className="text-base font-semibold">{t('profile.profilePhoto')}</Label>
                         <div className="flex flex-col sm:flex-row items-center gap-6">
                             <div className="relative">
                                 {photoPreview ? (
@@ -188,10 +190,10 @@ export default function EditProfile() {
                             </div>
                             <div className="flex-1 text-center sm:text-left">
                                 <p className="text-sm font-medium text-[var(--color-text-primary)] mb-1">
-                                    Upload a new photo
+                                    {t('profile.uploadPhoto')}
                                 </p>
                                 <p className="text-xs text-[var(--color-text-tertiary)]">
-                                    JPG, PNG. Max size 5MB.
+                                    {t('profile.photoRequirements')}
                                 </p>
                             </div>
                         </div>
@@ -202,12 +204,12 @@ export default function EditProfile() {
                     {/* Name Fields */}
                     <div className="space-y-5">
                         <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
-                            Personal Information
+                            {t('profile.personalInfo')}
                         </h3>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div className="space-y-2">
-                                <Label htmlFor="first">First Name</Label>
+                                <Label htmlFor="first">{t('profile.firstName')}</Label>
                                 <Input
                                     id="first"
                                     value={first}
@@ -217,7 +219,7 @@ export default function EditProfile() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="last">Last Name</Label>
+                                <Label htmlFor="last">{t('profile.lastName')}</Label>
                                 <Input
                                     id="last"
                                     value={last}
@@ -228,12 +230,12 @@ export default function EditProfile() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="middle">Middle Name</Label>
+                            <Label htmlFor="middle">{t('profile.middleName')}</Label>
                             <Input
                                 id="middle"
                                 value={middle}
                                 onChange={(e) => setMiddle(e.target.value)}
-                                placeholder="Optional"
+                                placeholder={t('common.optional')}
                             />
                         </div>
                     </div>
@@ -243,11 +245,11 @@ export default function EditProfile() {
                     {/* Contact Information */}
                     <div className="space-y-5">
                         <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
-                            Contact Information
+                            {t('profile.contactInfo')}
                         </h3>
 
                         <div className="space-y-2">
-                            <Label htmlFor="phone">Phone Number</Label>
+                            <Label htmlFor="phone">{t('profile.phone')}</Label>
                             <Input
                                 id="phone"
                                 type="tel"
@@ -263,7 +265,7 @@ export default function EditProfile() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="birth">Birth Date</Label>
+                            <Label htmlFor="birth">{t('profile.birthDate')}</Label>
                             <Input
                                 id="birth"
                                 type="date"
@@ -283,7 +285,7 @@ export default function EditProfile() {
                     {/* Security Settings */}
                     <div className="space-y-5">
                         <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
-                            Security Settings
+                            {t('profile.securitySettings')}
                         </h3>
 
                         <div className="flex items-center justify-between p-4 rounded-lg bg-[var(--color-surface-elevated)] border border-[var(--color-border)] hover:border-[var(--color-brand-500)] transition-colors">
@@ -295,10 +297,10 @@ export default function EditProfile() {
                                 </div>
                                 <div>
                                     <p className="font-medium text-[var(--color-text-primary)] text-sm sm:text-base">
-                                        Two-Factor Authentication
+                                        {t('profile.twoFactor')}
                                     </p>
                                     <p className="text-xs sm:text-sm text-[var(--color-text-tertiary)]">
-                                        Add an extra layer of security
+                                        {t('profile.twoFactorDescription')}
                                     </p>
                                 </div>
                             </div>
@@ -321,7 +323,7 @@ export default function EditProfile() {
                             isLoading={mutation.isPending}
                             className="flex-1"
                         >
-                            Save Changes
+                            {t('profile.saveChanges')}
                         </Button>
                         <Button
                             type="button"
@@ -329,7 +331,7 @@ export default function EditProfile() {
                             onClick={() => navigate(-1)}
                             className="flex-1"
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                     </div>
                 </form>

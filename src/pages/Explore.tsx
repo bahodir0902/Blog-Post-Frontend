@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Card from "../components/ui/Card";
 import PostsGrid from "../components/posts/PostsGrid";
 import PostsList from "../components/posts/PostsList";
@@ -29,6 +30,7 @@ interface Paginated<T> {
 type ViewMode = "grid" | "list";
 
 export default function Explore() {
+    const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
     const initialSearch = searchParams.get("q") || "";
 
@@ -113,19 +115,19 @@ export default function Explore() {
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm mb-6 animate-slide-up">
                             <Sparkles className="w-4 h-4 text-[var(--color-brand-500)]" />
                             <span className="text-sm font-medium text-[var(--color-text-secondary)]">
-                                Discover by Topic
+                                {t('explore.discoverByTopic')}
                             </span>
                         </div>
 
                         {/* Title */}
                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[var(--color-text-primary)] mb-4 animate-slide-up-delay-1">
-                            Explore Our
-                            <span className="block mt-1 gradient-text-brand">Content Library</span>
+                            {t('explore.exploreOur')}
+                            <span className="block mt-1 gradient-text-brand">{t('explore.contentLibrary')}</span>
                         </h1>
 
                         {/* Description */}
                         <p className="text-lg md:text-xl text-[var(--color-text-secondary)] mb-8 animate-slide-up-delay-2">
-                            Browse curated articles across various topics and find exactly what interests you.
+                            {t('explore.description')}
                         </p>
 
                         {/* Search Bar */}
@@ -134,7 +136,7 @@ export default function Explore() {
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-tertiary)]" />
                                 <input
                                     type="text"
-                                    placeholder="Search articles by title or description..."
+                                    placeholder={t('explore.searchPlaceholder')}
                                     value={searchQuery}
                                     onChange={(e) => handleSearch(e.target.value)}
                                     className="w-full pl-12 pr-12 py-4 rounded-2xl bg-[var(--color-surface)] border-2 border-[var(--color-border)] text-[var(--color-text-primary)] placeholder-[var(--color-text-tertiary)] focus:border-[var(--color-brand-500)] focus:ring-4 focus:ring-[var(--color-brand-500)]/10 transition-all text-base"
@@ -165,7 +167,7 @@ export default function Explore() {
                                     <div className="p-2 rounded-xl bg-[var(--color-brand-50)] dark:bg-[var(--color-brand-100)]">
                                         <Layers className="w-5 h-5 text-[var(--color-brand-600)]" />
                                     </div>
-                                    <h2 className="text-lg font-bold text-[var(--color-text-primary)]">Categories</h2>
+                                    <h2 className="text-lg font-bold text-[var(--color-text-primary)]">{t('explore.categories')}</h2>
                                 </div>
                                 {categories && (
                                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[var(--color-surface-elevated)] text-[var(--color-text-tertiary)]">
@@ -182,7 +184,7 @@ export default function Explore() {
                                     ))}
 
                                     {catError && (
-                                        <p className="text-[var(--color-error)] text-sm p-3">Failed to load categories.</p>
+                                        <p className="text-[var(--color-error)] text-sm p-3">{t('explore.categoriesError')}</p>
                                     )}
 
                                     {categories?.map((c) => {
@@ -214,15 +216,15 @@ export default function Explore() {
                             {/* Quick Stats */}
                             {catPosts && (
                                 <Card className="p-4 space-y-3">
-                                    <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">Quick Stats</h3>
+                                    <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{t('explore.quickStats')}</h3>
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between text-sm">
-                                            <span className="text-[var(--color-text-secondary)]">Total Articles</span>
+                                            <span className="text-[var(--color-text-secondary)]">{t('explore.totalArticles')}</span>
                                             <span className="font-semibold text-[var(--color-text-primary)]">{catPosts.count}</span>
                                         </div>
                                         <div className="flex items-center justify-between text-sm">
-                                            <span className="text-[var(--color-text-secondary)]">Current Page</span>
-                                            <span className="font-semibold text-[var(--color-text-primary)]">{page} of {totalPages}</span>
+                                            <span className="text-[var(--color-text-secondary)]">{t('explore.currentPage')}</span>
+                                            <span className="font-semibold text-[var(--color-text-primary)]">{page} {t('explore.of')} {totalPages}</span>
                                         </div>
                                     </div>
                                 </Card>
@@ -236,13 +238,13 @@ export default function Explore() {
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div>
                                 <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-text-primary)] mb-1">
-                                    {activeCategory?.name || "Select a Category"}
+                                    {activeCategory?.name || t('explore.selectCategory')}
                                 </h2>
                                 {catPosts && (
                                     <p className="text-sm text-[var(--color-text-secondary)]">
                                         {searchQuery
-                                            ? `${filteredPosts.length} results for "${searchQuery}"`
-                                            : `${catPosts.count} articles in this category`
+                                            ? t('explore.searchResults', { count: filteredPosts.length, query: searchQuery })
+                                            : t('explore.articlesInCategory', { count: catPosts.count })
                                         }
                                     </p>
                                 )}
@@ -255,7 +257,7 @@ export default function Explore() {
                                         className="px-4 py-2 rounded-xl text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] transition-colors flex items-center gap-2"
                                     >
                                         <X className="w-4 h-4" />
-                                        Clear Filters
+                                        {t('explore.clearFilters')}
                                     </button>
                                 )}
                                 <ViewToggle view={viewMode} onViewChange={setViewMode} />
@@ -301,13 +303,13 @@ export default function Explore() {
                                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--color-error-light)] text-[var(--color-error)]">
                                         <X className="w-8 h-8" />
                                     </div>
-                                    <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">Something went wrong</h3>
-                                    <p className="text-[var(--color-text-secondary)]">Couldn't load posts. Please try again.</p>
+                                    <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">{t('errors.somethingWentWrong')}</h3>
+                                    <p className="text-[var(--color-text-secondary)]">{t('explore.couldntLoadPosts')}</p>
                                     <button
                                         onClick={() => window.location.reload()}
                                         className="px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] text-white shadow-md hover:shadow-lg transition-all"
                                     >
-                                        Retry
+                                        {t('common.retry')}
                                     </button>
                                 </div>
                             </Card>
@@ -320,11 +322,11 @@ export default function Explore() {
                                     <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-[var(--color-surface-elevated)]">
                                         <BookOpen className="w-10 h-10 text-[var(--color-text-tertiary)]" />
                                     </div>
-                                    <h3 className="text-2xl font-semibold text-[var(--color-text-primary)]">No articles found</h3>
+                                    <h3 className="text-2xl font-semibold text-[var(--color-text-primary)]">{t('explore.noArticlesFound')}</h3>
                                     <p className="text-[var(--color-text-secondary)]">
                                         {searchQuery 
-                                            ? "Try adjusting your search query or exploring other categories."
-                                            : "No articles in this category yet. Check back soon!"
+                                            ? t('explore.tryAdjustingSearch')
+                                            : t('explore.noArticlesYet')
                                         }
                                     </p>
                                     {searchQuery && (
@@ -332,7 +334,7 @@ export default function Explore() {
                                             onClick={() => handleSearch("")}
                                             className="px-6 py-3 rounded-xl font-semibold border-2 border-[var(--color-border)] hover:border-[var(--color-brand-400)] text-[var(--color-text-primary)] transition-all"
                                         >
-                                            Clear Search
+                                            {t('explore.clearSearch')}
                                         </button>
                                     )}
                                 </div>
@@ -351,11 +353,11 @@ export default function Explore() {
                             <Card className="p-4 sm:p-5">
                                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                                     <span className="text-sm text-[var(--color-text-secondary)]">
-                                        Showing <span className="font-semibold text-[var(--color-text-primary)]">
+                                        {t('explore.showing')} <span className="font-semibold text-[var(--color-text-primary)]">
                                             {catPosts.results.length > 0 ? ((page - 1) * 50 + 1) : 0}
                                             {" - "}
                                             {Math.min(page * 50, catPosts.count)}
-                                        </span> of <span className="font-semibold text-[var(--color-text-primary)]">{catPosts.count}</span> articles
+                                        </span> {t('explore.of')} <span className="font-semibold text-[var(--color-text-primary)]">{catPosts.count}</span> {t('explore.articles')}
                                     </span>
 
                                     <div className="flex items-center gap-3">
@@ -365,7 +367,7 @@ export default function Explore() {
                                             className="px-4 py-2.5 rounded-xl font-medium text-sm border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-elevated)] hover:border-[var(--color-brand-400)] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                                         >
                                             <ChevronLeft className="w-4 h-4" />
-                                            Previous
+                                            {t('common.previous')}
                                         </button>
 
                                         {totalPages > 1 && (
@@ -381,7 +383,7 @@ export default function Explore() {
                                             onClick={() => setPage((p) => p + 1)}
                                             className="px-4 py-2.5 rounded-xl font-medium text-sm border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-elevated)] hover:border-[var(--color-brand-400)] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                                         >
-                                            Next
+                                            {t('common.next')}
                                             <ChevronRight className="w-4 h-4" />
                                         </button>
                                     </div>

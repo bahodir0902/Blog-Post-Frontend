@@ -1,5 +1,6 @@
 // src/pages/Register/Register.tsx
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Card from "../../components/ui/Card";
 import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
@@ -9,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import GoogleLoginButton from "../../components/GoogleLoginButton";
 
 export default function Register() {
+    const { t } = useTranslation();
     const [form, setForm] = useState({
         email: "",
         first_name: "",
@@ -26,17 +28,17 @@ export default function Register() {
         setErr(null);
 
         if (form.password !== form.re_password) {
-            setErr("Passwords do not match");
+            setErr(t('auth.register.passwordsMustMatch'));
             return;
         }
 
         if (form.password.length < 8) {
-            setErr("Password must be at least 8 characters");
+            setErr(t('auth.register.passwordTooShort'));
             return;
         }
 
         if (!agreedToTerms) {
-            setErr("Please agree to the Terms of Service and Privacy Policy");
+            setErr(t('auth.register.agreeToTerms'));
             return;
         }
 
@@ -50,7 +52,7 @@ export default function Register() {
             setErr(
                 e?.response?.data?.detail ||
                 Object.values(e?.response?.data || {})[0] as string ||
-                "Registration failed. Please try again."
+                t('auth.register.failed')
             );
         } finally {
             setLoading(false);
@@ -66,10 +68,10 @@ export default function Register() {
                     {/* Minimalist Header */}
                     <div className="text-center mb-10">
                         <h1 className="text-[2rem] font-semibold text-[var(--color-text-primary)] mb-2 tracking-tight">
-                            Create account
+                            {t('auth.register.title')}
                         </h1>
                         <p className="text-[0.9375rem] text-[var(--color-text-tertiary)] font-normal">
-                            Start your journey today
+                            {t('auth.register.subtitle')}
                         </p>
                     </div>
 
@@ -85,7 +87,7 @@ export default function Register() {
                                 </div>
                                 <div className="relative flex justify-center">
                                     <span className="px-3 text-[0.75rem] font-medium bg-[var(--color-surface)] text-[var(--color-text-tertiary)] uppercase tracking-wider">
-                                        Or
+                                        {t('auth.or')}
                                     </span>
                                 </div>
                             </div>
@@ -101,14 +103,14 @@ export default function Register() {
                                 {/* Email */}
                                 <div className="space-y-2">
                                     <Label htmlFor="email" required>
-                                        Email
+                                        {t('auth.email')}
                                     </Label>
                                     <Input
                                         id="email"
                                         type="email"
                                         value={form.email}
                                         onChange={(e) => update("email", e.target.value)}
-                                        placeholder="name@example.com"
+                                        placeholder={t('auth.emailPlaceholder')}
                                         required
                                         autoComplete="email"
                                     />
@@ -117,22 +119,22 @@ export default function Register() {
                                 {/* Name Fields */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="first_name">First name</Label>
+                                        <Label htmlFor="first_name">{t('auth.register.firstName')}</Label>
                                         <Input
                                             id="first_name"
                                             value={form.first_name}
                                             onChange={(e) => update("first_name", e.target.value)}
-                                            placeholder="John"
+                                            placeholder={t('auth.register.firstNamePlaceholder')}
                                             autoComplete="given-name"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="last_name">Last name</Label>
+                                        <Label htmlFor="last_name">{t('auth.register.lastName')}</Label>
                                         <Input
                                             id="last_name"
                                             value={form.last_name}
                                             onChange={(e) => update("last_name", e.target.value)}
-                                            placeholder="Doe"
+                                            placeholder={t('auth.register.lastNamePlaceholder')}
                                             autoComplete="family-name"
                                         />
                                     </div>
@@ -141,33 +143,33 @@ export default function Register() {
                                 {/* Password */}
                                 <div className="space-y-2">
                                     <Label htmlFor="password" required>
-                                        Password
+                                        {t('auth.password')}
                                     </Label>
                                     <Input
                                         id="password"
                                         type="password"
                                         value={form.password}
                                         onChange={(e) => update("password", e.target.value)}
-                                        placeholder="Create a password"
+                                        placeholder={t('auth.register.createPassword')}
                                         required
                                         autoComplete="new-password"
                                     />
                                     <p className="text-[0.8125rem] text-[var(--color-text-tertiary)] mt-1.5">
-                                        At least 8 characters
+                                        {t('auth.register.passwordHint')}
                                     </p>
                                 </div>
 
                                 {/* Confirm Password */}
                                 <div className="space-y-2">
                                     <Label htmlFor="re_password" required>
-                                        Confirm password
+                                        {t('auth.register.confirmPassword')}
                                     </Label>
                                     <Input
                                         id="re_password"
                                         type="password"
                                         value={form.re_password}
                                         onChange={(e) => update("re_password", e.target.value)}
-                                        placeholder="Confirm password"
+                                        placeholder={t('auth.register.confirmPasswordPlaceholder')}
                                         required
                                         autoComplete="new-password"
                                     />
@@ -183,19 +185,19 @@ export default function Register() {
                                         className="mt-0.5 h-4 w-4 rounded border-[var(--color-border)] text-[var(--color-brand-600)] focus:ring-2 focus:ring-[var(--color-brand-500)] focus:ring-offset-0 cursor-pointer transition-colors"
                                     />
                                     <label htmlFor="terms" className="text-[0.875rem] text-[var(--color-text-secondary)] leading-relaxed cursor-pointer">
-                                        I agree to the{" "}
+                                        {t('auth.register.iAgreeToThe')}{" "}
                                         <Link to="/terms" className="text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] hover:underline font-medium">
-                                            Terms
+                                            {t('auth.register.terms')}
                                         </Link>{" "}
-                                        and{" "}
+                                        {t('auth.register.and')}{" "}
                                         <Link to="/privacy" className="text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] hover:underline font-medium">
-                                            Privacy Policy
+                                            {t('auth.register.privacyPolicy')}
                                         </Link>
                                     </label>
                                 </div>
 
                                 <Button type="submit" className="w-full mt-6" isLoading={loading}>
-                                    Create Account
+                                    {t('auth.register.createAccountButton')}
                                 </Button>
                             </form>
                         </div>
@@ -203,12 +205,12 @@ export default function Register() {
 
                     {/* Sign In Link */}
                     <p className="text-center text-[0.875rem] text-[var(--color-text-tertiary)] mt-6">
-                        Already have an account?{" "}
+                        {t('auth.register.alreadyHaveAccount')}{" "}
                         <Link
                             to="/login"
                             className="font-medium text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] hover:text-[var(--color-brand-700)] dark:hover:text-[var(--color-brand-300)] transition-colors"
                         >
-                            Sign in
+                            {t('auth.login.signIn')}
                         </Link>
                     </p>
                 </div>

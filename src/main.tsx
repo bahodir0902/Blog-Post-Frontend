@@ -11,6 +11,9 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import App from "./App";
 import "./index.css";
 
+// Initialize i18n
+import "./i18n";
+
 // Configure QueryClient with optimized defaults to prevent unnecessary refetches
 const qc = new QueryClient({
     defaultOptions: {

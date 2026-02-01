@@ -1,5 +1,6 @@
 // src/pages/Read.tsx
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import Card from "../components/ui/Card";
@@ -15,13 +16,6 @@ import { listCategories } from "../services/categories";
 import { Search, ChevronLeft, ChevronRight, X, Tag as TagIcon } from "lucide-react";
 import { useDebounce } from "../hooks/UseDebounce";
 
-const SORT_OPTIONS = [
-    { label: "Newest", value: "-published_at" },
-    { label: "Oldest", value: "published_at" },
-    { label: "Recently created", value: "-created_at" },
-    { label: "Least recent", value: "created_at" },
-];
-
 type ViewMode = "grid" | "list";
 
 /**
@@ -35,7 +29,15 @@ type ViewMode = "grid" | "list";
  * All filters sync with URL parameters for shareable links and browser back/forward
  */
 export default function Read() {
+    const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
+
+    const SORT_OPTIONS = [
+        { label: t('read.sortOptions.newest'), value: "-published_at" },
+        { label: t('read.sortOptions.oldest'), value: "published_at" },
+        { label: t('read.sortOptions.recentlyCreated'), value: "-created_at" },
+        { label: t('read.sortOptions.leastRecent'), value: "created_at" },
+    ];
 
     // Read state from URL params on mount
     const urlQuery = searchParams.get("q") || "";
@@ -103,10 +105,10 @@ export default function Read() {
 
     const categoryOptions = useMemo(
         () => [
-            { label: "All categories", value: "" },
+            { label: t('explore.allCategories'), value: "" },
             ...(categories || []).map((c) => ({ label: c.name, value: c.name }))
         ],
-        [categories]
+        [categories, t]
     );
 
     const totalPages = data ? Math.ceil(data.count / 50) : 1;
@@ -164,12 +166,12 @@ export default function Read() {
             <header className="space-y-3">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div>
-                        <h1 className="text-4xl font-bold mb-2">All Articles</h1>
+                        <h1 className="text-4xl font-bold mb-2">{t('read.title')}</h1>
                         <p className="text-[var(--color-text-secondary)]">
                             {data?.count ? (
-                                <>Browse <span className="font-semibold text-[var(--color-brand-600)]">{data.count}</span> articles. Use search, filters, and sorting to find your next read.</>
+                                <>{t('read.browseCount', { count: data.count })}</>
                             ) : (
-                                "Loading articles..."
+                                t('read.loadingArticles')
                             )}
                         </p>
                     </div>
@@ -182,7 +184,7 @@ export default function Read() {
                 <Card className="p-4 animate-scale-in">
                     <div className="flex items-center gap-3 flex-wrap">
                         <span className="text-sm font-medium text-[var(--color-text-secondary)]">
-                            Active filters:
+                            {t('read.activeFilters')}:
                         </span>
 
                         {/* Search Query Badge */}
@@ -231,7 +233,7 @@ export default function Read() {
                                 onClick={handleClearAllFilters}
                                 className="ml-auto text-sm font-medium text-[var(--color-text-tertiary)] hover:text-[var(--color-error)] transition-colors underline"
                             >
-                                Clear all filters
+                                {t('read.clearAllFilters')}
                             </button>
                         )}
                     </div>
@@ -243,18 +245,18 @@ export default function Read() {
                 <div className="grid md:grid-cols-3 gap-4">
                     <div className="md:col-span-1">
                         <label className="block mb-2 text-sm font-medium text-[var(--color-text-secondary)]">
-                            Search
+                            {t('common.search')}
                         </label>
                         <Input
                             value={searchInput}
                             onChange={(e) => handleSearchChange(e.target.value)}
-                            placeholder="Search title or description..."
+                            placeholder={t('read.searchPlaceholder')}
                             icon={<Search className="w-5 h-5" />}
                         />
                     </div>
                     <div className="md:col-span-1">
                         <Dropdown
-                            label="Sort by"
+                            label={t('explore.sortBy')}
                             options={SORT_OPTIONS}
                             value={ordering}
                             onChange={handleOrderingChange}
@@ -262,11 +264,11 @@ export default function Read() {
                     </div>
                     <div className="md:col-span-1">
                         <Dropdown
-                            label="Category"
+                            label={t('explore.categories')}
                             options={categoryOptions}
                             value={categoryName ?? ""}
                             onChange={handleCategoryChange}
-                            placeholder="All categories"
+                            placeholder={t('explore.allCategories')}
                         />
                     </div>
                 </div>
@@ -281,10 +283,10 @@ export default function Read() {
                         </svg>
                     </div>
                     <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
-                        Failed to Load Articles
+                        {t('read.failedToLoad')}
                     </h3>
                     <p className="text-[var(--color-text-secondary)]">
-                        There was an error loading the articles. Please try again later.
+                        {t('read.errorLoadingArticles')}
                     </p>
                 </Card>
             )}
@@ -328,12 +330,12 @@ export default function Read() {
                         <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
                     </div>
                     <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-2">
-                        No Articles Found
+                        {t('read.noArticlesFound')}
                     </h3>
                     <p className="text-[var(--color-text-secondary)] mb-4">
                         {hasActiveFilters
-                            ? "No articles match your current filters. Try adjusting your search criteria."
-                            : "There are no articles available at the moment."
+                            ? t('read.noMatchingArticles')
+                            : t('read.noArticlesAvailable')
                         }
                     </p>
                     {hasActiveFilters && (
@@ -341,7 +343,7 @@ export default function Read() {
                             variant="secondary"
                             onClick={handleClearAllFilters}
                         >
-                            Clear All Filters
+                            {t('read.clearAllFilters')}
                         </Button>
                     )}
                 </Card>
@@ -359,9 +361,11 @@ export default function Read() {
                 <Card className="p-4">
                     <div className="flex items-center justify-between gap-4 flex-wrap">
                         <span className="text-sm text-[var(--color-text-tertiary)]">
-                            Showing {data.results.length > 0 ? ((page - 1) * 50 + 1) : 0}
-                            {" - "}
-                            {Math.min(page * 50, data.count)} of {data.count} articles
+                            {t('read.showingRange', {
+                                from: data.results.length > 0 ? ((page - 1) * 50 + 1) : 0,
+                                to: Math.min(page * 50, data.count),
+                                total: data.count
+                            })}
                         </span>
 
                         <div className="flex items-center gap-3">
@@ -372,7 +376,7 @@ export default function Read() {
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                             >
                                 <ChevronLeft className="w-4 h-4" />
-                                Previous
+                                {t('common.previous')}
                             </Button>
 
                             {totalPages > 1 && (
@@ -389,7 +393,7 @@ export default function Read() {
                                 disabled={!data.next || isFetching}
                                 onClick={() => setPage((p) => p + 1)}
                             >
-                                Next
+                                {t('common.next')}
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>
